@@ -1,75 +1,30 @@
-# React + TypeScript + Vite
+# OGCR Design System
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Reference implementation of the OGCR design system. This repo is the source other OGCR frontend projects look to when they need tokens, component behavior, or visual conventions — copy from here, don't reinvent.
 
-Currently, two official plugins are available:
+## What's in here
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **[`docs/design-system.md`](docs/design-system.md)** — the authoritative spec. Tokens, component anatomy, and the CSS that defines them. When the spec and code disagree, the spec wins.
+- **[`src/components/`](src/components/)** — example library. One working React + CSS implementation of the spec (Button, Card, Checkbox, ContextMenu, Form, Input, Kpi, Message, Navigation, Pill, ProgressBar, Radio, Sidesheet, Table, icons, Logo). Treat it as a reference, not a published package — there is no build output for consumers yet.
 
-## React Compiler
+## Using this as a reference
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+- Pulling a component into another project: read the matching section in `docs/design-system.md` first, then crib the JSX/CSS from `src/components/`.
+- Tokens live in `src/index.css` as plain CSS custom properties. Copy the `:root` block (and the `prefers-color-scheme: dark` overrides) rather than re-deriving values.
+- Stick to the CSS-variable approach. No Tailwind, CSS-in-JS, or token pipeline — keep downstream projects aligned.
 
-Note: This will impact Vite dev & build performances.
+## Local development
 
-## Expanding the ESLint configuration
+- `npm run dev` — Vite dev server with HMR
+- `npm run build` — `tsc -b` then a Vite production build (fails on type errors)
+- `npm run lint` — ESLint over the repo
+- `npm run preview` — serve `dist/` to sanity-check the production output
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+No test runner is configured.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Stack notes
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- **React 19 + TypeScript + Vite.**
+- **React Compiler is on** via `@rolldown/plugin-babel` in `vite.config.ts`. Components auto-memoize at build time — skip manual `useMemo` / `useCallback` / `React.memo` unless the compiler can't handle the case.
+- **TypeScript project references**: `tsconfig.json` delegates to `tsconfig.app.json` (browser) and `tsconfig.node.json` (Vite config). Both must type-check.
+- **ESLint flat config** in `eslint.config.js`; `dist/` is globally ignored.

@@ -1469,7 +1469,20 @@ Production icon set: Phosphor (~18,000 glyphs). Each ships 6 weights × 2 format
 
 ## 6. Logo
 
-OGCR wordmark. Native SVG ~129×46. Maintain aspect ratio when sizing (set width; height auto). Keep contrast ≥ WCAG AA against the chosen surface. Variants in Figma: full-color, mono white/blue/black, horizontal/vertical. Inline as `<svg role="img" aria-label="OGCR">`.
+Two React exports from `src/components/Logo.tsx`:
+
+- **`Logo`** — full mark + "OGCR" wordmark. Native SVG 129×46. Use at sizes where the wordmark stays legible (≥ ~88px wide). The hero is currently the only place this is used.
+- **`LogoMark`** — icon only (no wordmark). Native SVG 50×45. Use anywhere the wordmark would render too small to read — top nav, side nav rail (collapsed and expanded), favicon-style placements.
+
+Both accept `width` (number, px) and preserve their native aspect ratio (height is computed). Both accept any `SVGProps<SVGSVGElement>` plus an optional `title` (default `"OGCR"`) for the `aria-label`. Keep contrast ≥ WCAG AA against the chosen surface. Variants in Figma: full-color, mono white/blue/black, horizontal/vertical.
+
+```tsx
+import { Logo, LogoMark } from './components/Logo'
+
+<Logo width={129} />          {/* hero */}
+<LogoMark width={36} />       {/* top nav, side nav (expanded) */}
+<LogoMark width={28} />       {/* side nav (collapsed) */}
+```
 
 ---
 

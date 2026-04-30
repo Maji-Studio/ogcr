@@ -7,6 +7,7 @@ import { ProgressBar } from './components/ProgressBar'
 import { Checkbox, type CheckboxValue } from './components/Checkbox'
 import { Radio } from './components/Radio'
 import { Navigation, type NavItem } from './components/Navigation'
+import { SideNavigation, type SideNavigationItem } from './components/SideNavigation'
 import { Kpi } from './components/Kpi'
 import { ContextMenu } from './components/ContextMenu'
 import { Sidesheet } from './components/Sidesheet'
@@ -28,6 +29,8 @@ import {
   DotsThreeIcon,
   FlaskIcon,
   FolderIcon,
+  GearIcon,
+  LeafIcon,
   MailIcon,
   SearchIcon,
   SquaresFourIcon,
@@ -41,6 +44,24 @@ const NAV_ITEMS: NavItem[] = [
   { id: 'insights', label: 'Insights', icon: <ChartBarIcon /> },
   { id: 'projects', label: 'Projects', icon: <FolderIcon /> },
   { id: 'profile', label: 'Profile', icon: <UserIcon /> },
+]
+
+const SIDEBAR_ITEMS: SideNavigationItem[] = [
+  { id: 'overview', label: 'Overview', icon: <SquaresFourIcon /> },
+  {
+    id: 'farm',
+    label: 'Farm & parcel',
+    icon: <LeafIcon />,
+    children: [
+      { id: 'farm-all', label: 'All farms', badge: 38 },
+      { id: 'farm-parcels', label: 'Parcels' },
+      { id: 'farm-plots', label: 'Plots' },
+    ],
+  },
+  { id: 'sample', label: 'Sample', icon: <FlaskIcon />, badge: 4 },
+  { id: 'analytics', label: 'Analytics', icon: <ChartBarIcon /> },
+  { id: 'projects', label: 'Projects', icon: <FolderIcon /> },
+  { id: 'settings', label: 'Settings', icon: <GearIcon /> },
 ]
 
 type Issuance = {
@@ -121,8 +142,21 @@ type SectionMeta = {
 
 const SECTIONS: SectionMeta[] = [
   {
-    id: 'navigation',
+    id: 'tokens',
     num: '01',
+    kicker: 'Foundation',
+    title: 'Base tokens',
+    lede: 'The variables every component is built from. Colors, typography, spacing, radii, elevation, and motion — sourced from the Figma library and exposed as CSS custom properties on `:root`.',
+    figmaNode: '8:420',
+    spec: [
+      { dt: 'Source', dd: 'src/index.css' },
+      { dt: 'Strategy', dd: 'CSS custom properties' },
+      { dt: 'Scope', dd: 'global' },
+    ],
+  },
+  {
+    id: 'navigation',
+    num: '02',
     kicker: 'Module',
     title: 'Navigation',
     lede: 'Primary surface for moving between Operator-platform sections. Desktop is a top-bar with brand + product label; mobile is a bottom-bar with stacked icon-on-pill labels.',
@@ -134,8 +168,21 @@ const SECTIONS: SectionMeta[] = [
     ],
   },
   {
+    id: 'sidebar',
+    num: '03',
+    kicker: 'Module',
+    title: 'Side navigation',
+    lede: 'Vertical primary navigation for shells with deeper navigation trees. Persistent rail with optional collapse to icons-only, one level of nested groups, and a user chip in the footer. Mobile collapses to a burger trigger that opens it as an overlay drawer.',
+    figmaNode: '—',
+    spec: [
+      { dt: 'Width', dd: '264px · 72px collapsed' },
+      { dt: 'Active state', dd: 'interaction-primary-focus + 3px rail' },
+      { dt: 'Layouts', dd: 'desktop · mobile (drawer)' },
+    ],
+  },
+  {
     id: 'kpi',
-    num: '02',
+    num: '04',
     kicker: 'Module',
     title: 'KPI',
     lede: 'A single metric with optional secondary context. The 6-pixel top accent communicates state at a glance.',
@@ -148,7 +195,7 @@ const SECTIONS: SectionMeta[] = [
   },
   {
     id: 'buttons',
-    num: '03',
+    num: '05',
     kicker: 'Component',
     title: 'Buttons',
     lede: 'Three styles, one motion vocabulary. Filled is the brand-default; outlined and text descend in emphasis.',
@@ -161,7 +208,7 @@ const SECTIONS: SectionMeta[] = [
   },
   {
     id: 'inputs',
-    num: '04',
+    num: '06',
     kicker: 'Component',
     title: 'Input fields',
     lede: 'Label, optional leading/trailing icon, helper text, and an error state with a red focus halo.',
@@ -174,7 +221,7 @@ const SECTIONS: SectionMeta[] = [
   },
   {
     id: 'cards',
-    num: '05',
+    num: '07',
     kicker: 'Module',
     title: 'Cards',
     lede: 'Title + subtitle, optional trailing slot, and a body that accepts arbitrary children. Floating adds elevation-l.',
@@ -187,7 +234,7 @@ const SECTIONS: SectionMeta[] = [
   },
   {
     id: 'context-menu',
-    num: '06',
+    num: '08',
     kicker: 'Module',
     title: 'Context menu',
     lede: 'A 320-px floating panel for object-scoped actions. Items support icon, disabled, and destructive emphasis.',
@@ -200,7 +247,7 @@ const SECTIONS: SectionMeta[] = [
   },
   {
     id: 'sidesheet',
-    num: '07',
+    num: '09',
     kicker: 'Module',
     title: 'Sidesheet',
     lede: 'A 480-px panel that slides in from a viewport edge. Navigation row, header with status pill, scrolling body, and a sticky action footer.',
@@ -213,7 +260,7 @@ const SECTIONS: SectionMeta[] = [
   },
   {
     id: 'messages',
-    num: '08',
+    num: '10',
     kicker: 'Module',
     title: 'Messages',
     lede: 'Inline or floating, in four semantic states. Each state shifts background, border, icon, and text together to keep the read fluid.',
@@ -226,7 +273,7 @@ const SECTIONS: SectionMeta[] = [
   },
   {
     id: 'progress',
-    num: '09',
+    num: '11',
     kicker: 'Component',
     title: 'Progress bars',
     lede: 'A thin 8-pixel rail with optional label and percentage. Tone tracks the underlying KPI status.',
@@ -239,7 +286,7 @@ const SECTIONS: SectionMeta[] = [
   },
   {
     id: 'checkbox',
-    num: '10',
+    num: '12',
     kicker: 'Component',
     title: 'Checkbox',
     lede: 'Inline option, plus border-left and border-right card layouts for selection grids.',
@@ -253,7 +300,7 @@ const SECTIONS: SectionMeta[] = [
   },
   {
     id: 'radio',
-    num: '11',
+    num: '13',
     kicker: 'Component',
     title: 'Radio button',
     lede: 'Mirrors the Checkbox layouts and states with a circular indicator that scales in on selection.',
@@ -266,7 +313,7 @@ const SECTIONS: SectionMeta[] = [
   },
   {
     id: 'form',
-    num: '12',
+    num: '14',
     kicker: 'Module',
     title: 'Form',
     lede: 'A composition layer over Inputs, Checkbox, Radio, and Button. Sections carry a Roman-numeral step, a title, and a description; the body holds fields and an action footer.',
@@ -279,7 +326,7 @@ const SECTIONS: SectionMeta[] = [
   },
   {
     id: 'table',
-    num: '13',
+    num: '15',
     kicker: 'Module',
     title: 'Data table',
     lede: 'Sortable ledger built on @tanstack/react-table. Mono-caps headers, dashed row rules, tabular numerics, and Pill-rendered status cells.',
@@ -291,6 +338,9 @@ const SECTIONS: SectionMeta[] = [
     ],
   },
 ]
+
+const SECTION_BY_ID = Object.fromEntries(SECTIONS.map((s) => [s.id, s])) as Record<string, SectionMeta>
+const sec = (id: string): SectionMeta => SECTION_BY_ID[id]
 
 function SectionHead({ meta }: { meta: SectionMeta }) {
   return (
@@ -337,6 +387,8 @@ function App() {
   const [plan, setPlan] = useState('annual')
   const [activeNav, setActiveNav] = useState('overview')
   const [activeMobileNav, setActiveMobileNav] = useState('sampling')
+  const [activeSidebar, setActiveSidebar] = useState('farm-parcels')
+  const [activeMobileSidebar, setActiveMobileSidebar] = useState('overview')
   const [formProjectName, setFormProjectName] = useState('Iberian rewilding pilot')
   const [formProjectCode, setFormProjectCode] = useState('iber-001')
   const [formMethodology, setFormMethodology] = useState('Methodology v3.2')
@@ -354,7 +406,7 @@ function App() {
           <span className="page__kicker">Design System · v0.1 · 2026</span>
         </div>
         <h1 className="page__title">
-          Component <span className="page__title-accent">specimen</span>
+          Design <span className="page__title-accent">system</span>
         </h1>
         <p className="page__subtitle">
           A working catalogue of every primitive and module shipped by the OGCR
@@ -383,8 +435,213 @@ function App() {
 
       <div className="layout">
         <div className="specimens">
+          <section id="tokens" className="section reveal">
+            <SectionHead meta={sec('tokens')} />
+            <div className="section__body">
+              <div className="tokens">
+                <div className="tokens__group">
+                  <h3 className="tokens__group-title">Brand & primitives</h3>
+                  <ul className="tokens__swatches">
+                    {[
+                      { name: '--brand-blue-300', value: '#3f88c6' },
+                      { name: '--brand-blue-800', value: '#1c3d59' },
+                      { name: '--brand-green-500', value: '#6db087' },
+                      { name: '--red-500', value: '#ef4444' },
+                      { name: '--red-600', value: '#dc2626' },
+                      { name: '--orange-400', value: '#fb923c' },
+                      { name: '--orange-500', value: '#f97316' },
+                      { name: '--amber-300', value: '#fcd34d' },
+                    ].map((t) => (
+                      <li key={t.name} className="tokens__swatch">
+                        <span className="tokens__chip" style={{ background: t.value }} />
+                        <span className="tokens__name">{t.name}</span>
+                        <span className="tokens__value">{t.value}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="tokens__group">
+                  <h3 className="tokens__group-title">Surface</h3>
+                  <ul className="tokens__swatches">
+                    {[
+                      { name: '--surface-page', value: '#f8f3ef' },
+                      { name: '--surface-light', value: '#ffffff' },
+                      { name: '--surface-neutral', value: '#f5f5f4' },
+                      { name: '--surface-strong', value: '#0f3655' },
+                      { name: '--surface-inverted', value: '#443321' },
+                      { name: '--surface-positive', value: '#e2efe6' },
+                      { name: '--surface-warning', value: '#ffedd5' },
+                      { name: '--surface-negative', value: '#fee2e2' },
+                    ].map((t) => (
+                      <li key={t.name} className="tokens__swatch">
+                        <span className="tokens__chip" style={{ background: t.value }} />
+                        <span className="tokens__name">{t.name}</span>
+                        <span className="tokens__value">{t.value}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="tokens__group">
+                  <h3 className="tokens__group-title">Text & icon</h3>
+                  <ul className="tokens__swatches">
+                    {[
+                      { name: '--text-primary', value: '#0f3655' },
+                      { name: '--text-secondary', value: '#6a8196' },
+                      { name: '--text-neutral', value: '#334155' },
+                      { name: '--text-positive', value: '#416c51' },
+                      { name: '--text-negative', value: '#b91c1c' },
+                      { name: '--text-warning', value: '#c2410c' },
+                    ].map((t) => (
+                      <li key={t.name} className="tokens__swatch">
+                        <span className="tokens__chip" style={{ background: t.value }} />
+                        <span className="tokens__name">{t.name}</span>
+                        <span className="tokens__value">{t.value}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="tokens__group">
+                  <h3 className="tokens__group-title">Border</h3>
+                  <ul className="tokens__swatches">
+                    {[
+                      { name: '--border-light', value: '#e7e5e4' },
+                      { name: '--border-medium', value: '#d6d3d1' },
+                      { name: '--border-strong', value: '#a8a29e' },
+                      { name: '--border-high-contrast', value: '#443321' },
+                      { name: '--border-positive-light', value: '#c5dfce' },
+                      { name: '--border-warning-light', value: '#fed7aa' },
+                      { name: '--border-negative-light', value: '#fecaca' },
+                      { name: '--border-negative-strong', value: '#dc2626' },
+                    ].map((t) => (
+                      <li key={t.name} className="tokens__swatch">
+                        <span className="tokens__chip" style={{ background: t.value }} />
+                        <span className="tokens__name">{t.name}</span>
+                        <span className="tokens__value">{t.value}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="tokens__group">
+                  <h3 className="tokens__group-title">Interaction</h3>
+                  <ul className="tokens__swatches">
+                    {[
+                      { name: '--interaction-primary-default', value: '#4f8263' },
+                      { name: '--interaction-primary-hover', value: '#416c51' },
+                      { name: '--interaction-primary-active', value: '#416c51' },
+                      { name: '--interaction-primary-focus', value: '#e2efe6' },
+                      { name: '--interaction-secondary-focus', value: '#e2d0bf' },
+                      { name: '--focus-ring-error', value: '#fecaca' },
+                    ].map((t) => (
+                      <li key={t.name} className="tokens__swatch">
+                        <span className="tokens__chip" style={{ background: t.value }} />
+                        <span className="tokens__name">{t.name}</span>
+                        <span className="tokens__value">{t.value}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="tokens__group">
+                  <h3 className="tokens__group-title">Typography</h3>
+                  <ul className="tokens__type">
+                    {[
+                      { name: 'text-h1', size: '32 → 40px', cls: 'text-h1' },
+                      { name: 'text-h2', size: '24 → 32px', cls: 'text-h2' },
+                      { name: 'text-h3', size: '20 → 24px', cls: 'text-h3' },
+                      { name: 'text-h4', size: '18 → 20px', cls: 'text-h4' },
+                      { name: 'text-body', size: '18 → 20px', cls: 'text-body' },
+                      { name: 'text-body-s', size: '14 → 16px', cls: 'text-body-s' },
+                      { name: 'text-label-button', size: '14 → 16px', cls: 'text-label-button' },
+                      { name: 'text-label-input', size: '16px', cls: 'text-label-input' },
+                    ].map((t) => (
+                      <li key={t.name} className="tokens__type-row">
+                        <div className="tokens__type-meta">
+                          <span className="tokens__name">.{t.name}</span>
+                          <span className="tokens__value">{t.size}</span>
+                        </div>
+                        <span className={`tokens__type-sample ${t.cls}`}>The quick brown fox</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="tokens__group">
+                  <h3 className="tokens__group-title">Spacing</h3>
+                  <ul className="tokens__scale">
+                    {[
+                      { name: '--space-2xs', value: '4px', px: 4 },
+                      { name: '--space-xs', value: '8px', px: 8 },
+                      { name: '--space-s', value: '12px', px: 12 },
+                      { name: '--space-m', value: '16px', px: 16 },
+                      { name: '--space-l', value: '24px', px: 24 },
+                      { name: '--space-xl', value: '32px', px: 32 },
+                      { name: '--space-3xl', value: '64px', px: 64 },
+                    ].map((t) => (
+                      <li key={t.name} className="tokens__scale-row">
+                        <span className="tokens__name">{t.name}</span>
+                        <span
+                          className="tokens__bar"
+                          style={{ width: t.px }}
+                          aria-hidden="true"
+                        />
+                        <span className="tokens__value">{t.value}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="tokens__group">
+                  <h3 className="tokens__group-title">Radius</h3>
+                  <ul className="tokens__radii">
+                    {[
+                      { name: '--radius-xs', value: '2px', px: 2 },
+                      { name: '--radius-s', value: '4px', px: 4 },
+                      { name: '--radius-m', value: '8px', px: 8 },
+                      { name: '--radius-l', value: '12px', px: 12 },
+                      { name: '--radius-xl', value: '16px', px: 16 },
+                      { name: '--radius-full', value: '999px', px: 32 },
+                    ].map((t) => (
+                      <li key={t.name} className="tokens__radius-cell">
+                        <span
+                          className="tokens__radius-shape"
+                          style={{ borderRadius: t.px }}
+                          aria-hidden="true"
+                        />
+                        <span className="tokens__name">{t.name}</span>
+                        <span className="tokens__value">{t.value}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="tokens__group">
+                  <h3 className="tokens__group-title">Elevation & motion</h3>
+                  <div className="tokens__misc">
+                    <div className="tokens__elevation">
+                      <span className="tokens__elevation-card" aria-hidden="true" />
+                      <span className="tokens__name">--elevation-l</span>
+                      <span className="tokens__value">card · 0 8 16 rgba(68,51,33,.16)</span>
+                    </div>
+                    <div className="tokens__motion">
+                      <span className="tokens__name">--motion-fast</span>
+                      <span className="tokens__value">150ms ease-out</span>
+                    </div>
+                    <div className="tokens__motion">
+                      <span className="tokens__name">--motion-base</span>
+                      <span className="tokens__value">200ms cubic-bezier(.2,0,0,1)</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
           <section id="navigation" className="section reveal">
-            <SectionHead meta={SECTIONS[0]} />
+            <SectionHead meta={sec('navigation')} />
             <div className="section__body">
               <div className="nav-stack">
                 <div className="nav-chrome">
@@ -406,6 +663,9 @@ function App() {
                   </div>
                 </div>
                 <div className="nav-mobile-frame">
+                  <div className="nav-mobile-frame__viewport">
+                    the {activeMobileNav} workspace lives here.
+                  </div>
                   <Navigation
                     layout="mobile"
                     items={NAV_ITEMS}
@@ -417,8 +677,43 @@ function App() {
             </div>
           </section>
 
+          <section id="sidebar" className="section reveal">
+            <SectionHead meta={sec('sidebar')} />
+            <div className="section__body">
+              <div className="nav-stack">
+                <div className="sidebar-chrome">
+                  <SideNavigation
+                    items={SIDEBAR_ITEMS}
+                    activeId={activeSidebar}
+                    onSelect={setActiveSidebar}
+                    product="Operator platform"
+                    user={{ name: 'Camila Rojas', role: 'Reviewer · OGCR', initials: 'CR' }}
+                  />
+                  <div className="sidebar-chrome__viewport">
+                    <div className="sidebar-chrome__viewport-content">
+                      the {activeSidebar} workspace lives here.
+                    </div>
+                  </div>
+                </div>
+                <div className="nav-mobile-frame">
+                  <SideNavigation
+                    layout="mobile"
+                    items={SIDEBAR_ITEMS}
+                    activeId={activeMobileSidebar}
+                    onSelect={setActiveMobileSidebar}
+                    product="Operator platform"
+                    user={{ name: 'Camila Rojas', role: 'Reviewer · OGCR', initials: 'CR' }}
+                  />
+                  <div className="nav-mobile-frame__viewport">
+                    the {activeMobileSidebar} workspace lives here.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
           <section id="kpi" className="section reveal">
-            <SectionHead meta={SECTIONS[1]} />
+            <SectionHead meta={sec('kpi')} />
             <div className="section__body">
               <div className="specimen-stack specimen-stack--narrow">
                 <Kpi
@@ -453,7 +748,7 @@ function App() {
           </section>
 
           <section id="buttons" className="section reveal">
-            <SectionHead meta={SECTIONS[2]} />
+            <SectionHead meta={sec('buttons')} />
             <div className="section__body">
               <div className="button-row">
                 <Button variant="filled">Primary action</Button>
@@ -467,7 +762,7 @@ function App() {
           </section>
 
           <section id="inputs" className="section reveal">
-            <SectionHead meta={SECTIONS[3]} />
+            <SectionHead meta={sec('inputs')} />
             <div className="section__body">
               <div className="specimen-stack specimen-stack--narrow">
                 <Input
@@ -497,7 +792,7 @@ function App() {
           </section>
 
           <section id="cards" className="section reveal">
-            <SectionHead meta={SECTIONS[4]} />
+            <SectionHead meta={sec('cards')} />
             <div className="section__body">
               <div className="specimen-stack">
                 <Card
@@ -548,7 +843,7 @@ function App() {
           </section>
 
           <section id="context-menu" className="section reveal">
-            <SectionHead meta={SECTIONS[5]} />
+            <SectionHead meta={sec('context-menu')} />
             <div className="section__body">
               <div className="specimen-stack">
                 <ContextMenu
@@ -574,7 +869,7 @@ function App() {
           </section>
 
           <section id="sidesheet" className="section reveal">
-            <SectionHead meta={SECTIONS[6]} />
+            <SectionHead meta={sec('sidesheet')} />
             <div className="section__body">
               <Sidesheet
                 navLabel="All projects"
@@ -604,7 +899,7 @@ function App() {
           </section>
 
           <section id="messages" className="section reveal">
-            <SectionHead meta={SECTIONS[7]} />
+            <SectionHead meta={sec('messages')} />
             <div className="section__body">
               <div className="specimen-stack">
                 <Message
@@ -643,7 +938,7 @@ function App() {
           </section>
 
           <section id="progress" className="section reveal">
-            <SectionHead meta={SECTIONS[8]} />
+            <SectionHead meta={sec('progress')} />
             <div className="section__body">
               <div className="specimen-stack specimen-stack--narrow">
                 <ProgressBar label="Methodology validation" value={32} />
@@ -655,7 +950,7 @@ function App() {
           </section>
 
           <section id="checkbox" className="section reveal">
-            <SectionHead meta={SECTIONS[9]} />
+            <SectionHead meta={sec('checkbox')} />
             <div className="section__body">
               <div className="specimen-stack">
                 <Checkbox
@@ -689,7 +984,7 @@ function App() {
           </section>
 
           <section id="radio" className="section reveal">
-            <SectionHead meta={SECTIONS[10]} />
+            <SectionHead meta={sec('radio')} />
             <div className="section__body">
               <div className="specimen-stack" role="radiogroup" aria-label="Plan and verification">
                 <Radio
@@ -730,7 +1025,7 @@ function App() {
           </section>
 
           <section id="form" className="section reveal">
-            <SectionHead meta={SECTIONS[11]} />
+            <SectionHead meta={sec('form')} />
             <div className="section__body">
               <div className="specimen-form">
                 <Form noValidate onSubmit={(e) => e.preventDefault()}>
@@ -840,7 +1135,7 @@ function App() {
           </section>
 
           <section id="table" className="section reveal">
-            <SectionHead meta={SECTIONS[12]} />
+            <SectionHead meta={sec('table')} />
             <div className="section__body">
               <div className="specimen-table">
                 <DataTable
@@ -860,8 +1155,8 @@ function App() {
           </footer>
         </div>
 
-        <nav className="toc" aria-label="Specimens">
-          <p className="toc__heading">Specimens</p>
+        <nav className="toc" aria-label="Sections">
+          <p className="toc__heading">Sections</p>
           <ul className="toc__list">
             {SECTIONS.map((s) => (
               <li key={s.id}>

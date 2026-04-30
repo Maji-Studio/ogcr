@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Logo } from './Logo'
+import { LogoMark } from './Logo'
 import './Navigation.css'
 
 export type NavItem = {
@@ -58,7 +58,7 @@ export function Navigation({
     <nav className={classes} aria-label="Primary">
       <div className="ogcr-nav__left">
         <div className="ogcr-nav__brand">
-          <Logo width={88} className="ogcr-nav__logo" />
+          <LogoMark width={36} className="ogcr-nav__logo" />
           {product && (
             <>
               <span className="ogcr-nav__divider" aria-hidden="true" />
