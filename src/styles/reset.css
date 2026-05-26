@@ -1,0 +1,67 @@
+/* ============================================================
+ * OGCR Design System — reset
+ * Mirrors `/14 Manukai/.../assets/styles/reset.css`: tiny
+ * normalize layer that pairs with theme.css. Anything beyond
+ * this belongs in global.css or a component stylesheet.
+ * ============================================================ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: light, dark; /* Default light */
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty; /* Prevents orphans on lines */
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :has(:target) {
+    scroll-behavior: smooth;
+  }
+}
+
+ul {
+  list-style: none;
+}
+
+th {
+  font-weight: inherit;
+}
+
+button {
+  font-family: inherit;
+}
+
+*::-webkit-scrollbar {
+  background-color: #ffffff00;
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: rgb(214, 214, 214);
+}

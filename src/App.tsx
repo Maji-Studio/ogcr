@@ -5,7 +5,7 @@ import { Card } from './components/Card'
 import { Pill } from './components/Pill'
 import { ProgressBar } from './components/ProgressBar'
 import { Checkbox, type CheckboxValue } from './components/Checkbox'
-import { Radio } from './components/Radio'
+import { Radio, RadioGroup } from './components/Radio'
 import { Navigation, type NavItem } from './components/Navigation'
 import { SideNavigation, type SideNavigationItem } from './components/SideNavigation'
 import { Kpi } from './components/Kpi'
@@ -443,14 +443,14 @@ function App() {
                   <h3 className="tokens__group-title">Brand & primitives</h3>
                   <ul className="tokens__swatches">
                     {[
-                      { name: '--brand-blue-300', value: '#3f88c6' },
-                      { name: '--brand-blue-800', value: '#1c3d59' },
-                      { name: '--brand-green-500', value: '#6db087' },
-                      { name: '--red-500', value: '#ef4444' },
-                      { name: '--red-600', value: '#dc2626' },
-                      { name: '--orange-400', value: '#fb923c' },
-                      { name: '--orange-500', value: '#f97316' },
-                      { name: '--amber-300', value: '#fcd34d' },
+                      { name: '--color-brand-blue-300', value: '#3f88c6' },
+                      { name: '--color-brand-blue-800', value: '#1c3d59' },
+                      { name: '--color-brand-green-500', value: '#6db087' },
+                      { name: '--color-red-500', value: '#ef4444' },
+                      { name: '--color-red-600', value: '#dc2626' },
+                      { name: '--color-orange-400', value: '#fb923c' },
+                      { name: '--color-orange-500', value: '#f97316' },
+                      { name: '--color-amber-300', value: '#fcd34d' },
                     ].map((t) => (
                       <li key={t.name} className="tokens__swatch">
                         <span className="tokens__chip" style={{ background: t.value }} />
@@ -465,14 +465,14 @@ function App() {
                   <h3 className="tokens__group-title">Surface</h3>
                   <ul className="tokens__swatches">
                     {[
-                      { name: '--surface-page', value: '#f8f3ef' },
-                      { name: '--surface-light', value: '#ffffff' },
-                      { name: '--surface-neutral', value: '#f5f5f4' },
-                      { name: '--surface-strong', value: '#0f3655' },
-                      { name: '--surface-inverted', value: '#443321' },
-                      { name: '--surface-positive', value: '#e2efe6' },
-                      { name: '--surface-warning', value: '#ffedd5' },
-                      { name: '--surface-negative', value: '#fee2e2' },
+                      { name: '--color-surface-page', value: '#f8f3ef' },
+                      { name: '--color-surface-light', value: '#ffffff' },
+                      { name: '--color-surface-neutral', value: '#f5f5f4' },
+                      { name: '--color-surface-strong', value: '#0f3655' },
+                      { name: '--color-surface-inverted', value: '#443321' },
+                      { name: '--color-surface-positive', value: '#e2efe6' },
+                      { name: '--color-surface-warning', value: '#ffedd5' },
+                      { name: '--color-surface-negative', value: '#fee2e2' },
                     ].map((t) => (
                       <li key={t.name} className="tokens__swatch">
                         <span className="tokens__chip" style={{ background: t.value }} />
@@ -487,12 +487,12 @@ function App() {
                   <h3 className="tokens__group-title">Text & icon</h3>
                   <ul className="tokens__swatches">
                     {[
-                      { name: '--text-primary', value: '#0f3655' },
-                      { name: '--text-secondary', value: '#6a8196' },
-                      { name: '--text-neutral', value: '#334155' },
-                      { name: '--text-positive', value: '#416c51' },
-                      { name: '--text-negative', value: '#b91c1c' },
-                      { name: '--text-warning', value: '#c2410c' },
+                      { name: '--color-text-primary', value: '#0f3655' },
+                      { name: '--color-text-secondary', value: '#6a8196' },
+                      { name: '--color-text-neutral', value: '#334155' },
+                      { name: '--color-text-positive', value: '#416c51' },
+                      { name: '--color-text-negative', value: '#b91c1c' },
+                      { name: '--color-text-warning', value: '#c2410c' },
                     ].map((t) => (
                       <li key={t.name} className="tokens__swatch">
                         <span className="tokens__chip" style={{ background: t.value }} />
@@ -507,14 +507,14 @@ function App() {
                   <h3 className="tokens__group-title">Border</h3>
                   <ul className="tokens__swatches">
                     {[
-                      { name: '--border-light', value: '#e7e5e4' },
-                      { name: '--border-medium', value: '#d6d3d1' },
-                      { name: '--border-strong', value: '#a8a29e' },
-                      { name: '--border-high-contrast', value: '#443321' },
-                      { name: '--border-positive-light', value: '#c5dfce' },
-                      { name: '--border-warning-light', value: '#fed7aa' },
-                      { name: '--border-negative-light', value: '#fecaca' },
-                      { name: '--border-negative-strong', value: '#dc2626' },
+                      { name: '--color-border-light', value: '#e7e5e4' },
+                      { name: '--color-border-medium', value: '#d6d3d1' },
+                      { name: '--color-border-strong', value: '#a8a29e' },
+                      { name: '--color-border-high-contrast', value: '#443321' },
+                      { name: '--color-border-positive-light', value: '#c5dfce' },
+                      { name: '--color-border-warning-light', value: '#fed7aa' },
+                      { name: '--color-border-negative-light', value: '#fecaca' },
+                      { name: '--color-border-negative-strong', value: '#dc2626' },
                     ].map((t) => (
                       <li key={t.name} className="tokens__swatch">
                         <span className="tokens__chip" style={{ background: t.value }} />
@@ -529,12 +529,12 @@ function App() {
                   <h3 className="tokens__group-title">Interaction</h3>
                   <ul className="tokens__swatches">
                     {[
-                      { name: '--interaction-primary-default', value: '#4f8263' },
-                      { name: '--interaction-primary-hover', value: '#416c51' },
-                      { name: '--interaction-primary-active', value: '#416c51' },
-                      { name: '--interaction-primary-focus', value: '#e2efe6' },
-                      { name: '--interaction-secondary-focus', value: '#e2d0bf' },
-                      { name: '--focus-ring-error', value: '#fecaca' },
+                      { name: '--color-interaction-primary-default', value: '#4f8263' },
+                      { name: '--color-interaction-primary-hover', value: '#416c51' },
+                      { name: '--color-interaction-primary-active', value: '#416c51' },
+                      { name: '--color-interaction-primary-focus', value: '#e2efe6' },
+                      { name: '--color-interaction-secondary-focus', value: '#e2d0bf' },
+                      { name: '--color-focus-ring-error', value: '#fecaca' },
                     ].map((t) => (
                       <li key={t.name} className="tokens__swatch">
                         <span className="tokens__chip" style={{ background: t.value }} />
@@ -554,9 +554,13 @@ function App() {
                       { name: 'text-h3', size: '20 → 24px', cls: 'text-h3' },
                       { name: 'text-h4', size: '18 → 20px', cls: 'text-h4' },
                       { name: 'text-body', size: '18 → 20px', cls: 'text-body' },
-                      { name: 'text-body-s', size: '14 → 16px', cls: 'text-body-s' },
-                      { name: 'text-label-button', size: '14 → 16px', cls: 'text-label-button' },
-                      { name: 'text-label-input', size: '16px', cls: 'text-label-input' },
+                      { name: 'text-body-l', size: '20 → 24px', cls: 'text-body-l' },
+                      { name: 'text-body-s', size: '14 → 18px', cls: 'text-body-s' },
+                      { name: 'text-lead', size: '20 → 24px', cls: 'text-lead' },
+                      { name: 'text-quote', size: '24 → 32px · italic', cls: 'text-quote' },
+                      { name: 'text-label-button', size: '14 → 18px', cls: 'text-label-button' },
+                      { name: 'text-label-navigation', size: '14 → 18px', cls: 'text-label-navigation' },
+                      { name: 'text-label-input', size: '14px', cls: 'text-label-input' },
                     ].map((t) => (
                       <li key={t.name} className="tokens__type-row">
                         <div className="tokens__type-meta">
@@ -573,13 +577,13 @@ function App() {
                   <h3 className="tokens__group-title">Spacing</h3>
                   <ul className="tokens__scale">
                     {[
-                      { name: '--space-2xs', value: '4px', px: 4 },
-                      { name: '--space-xs', value: '8px', px: 8 },
-                      { name: '--space-s', value: '12px', px: 12 },
-                      { name: '--space-m', value: '16px', px: 16 },
-                      { name: '--space-l', value: '24px', px: 24 },
-                      { name: '--space-xl', value: '32px', px: 32 },
-                      { name: '--space-3xl', value: '64px', px: 64 },
+                      { name: '--spacing-4', value: '4px', px: 4 },
+                      { name: '--spacing-8', value: '8px', px: 8 },
+                      { name: '--spacing-12', value: '12px', px: 12 },
+                      { name: '--spacing-16', value: '16px', px: 16 },
+                      { name: '--spacing-24', value: '24px', px: 24 },
+                      { name: '--spacing-32', value: '32px', px: 32 },
+                      { name: '--spacing-64', value: '64px', px: 64 },
                     ].map((t) => (
                       <li key={t.name} className="tokens__scale-row">
                         <span className="tokens__name">{t.name}</span>
@@ -598,11 +602,11 @@ function App() {
                   <h3 className="tokens__group-title">Radius</h3>
                   <ul className="tokens__radii">
                     {[
-                      { name: '--radius-xs', value: '2px', px: 2 },
-                      { name: '--radius-s', value: '4px', px: 4 },
-                      { name: '--radius-m', value: '8px', px: 8 },
-                      { name: '--radius-l', value: '12px', px: 12 },
-                      { name: '--radius-xl', value: '16px', px: 16 },
+                      { name: '--radius-2', value: '2px', px: 2 },
+                      { name: '--radius-4', value: '4px', px: 4 },
+                      { name: '--radius-8', value: '8px', px: 8 },
+                      { name: '--radius-12', value: '12px', px: 12 },
+                      { name: '--radius-16', value: '16px', px: 16 },
                       { name: '--radius-full', value: '999px', px: 32 },
                     ].map((t) => (
                       <li key={t.name} className="tokens__radius-cell">
@@ -845,8 +849,13 @@ function App() {
           <section id="context-menu" className="section reveal">
             <SectionHead meta={sec('context-menu')} />
             <div className="section__body">
-              <div className="specimen-stack">
+              <div className="specimen-stack" style={{ gap: 16 }}>
                 <ContextMenu
+                  trigger={
+                    <Button variant="outlined" iconLeft={<DotsThreeIcon />}>
+                      Project actions
+                    </Button>
+                  }
                   header="Project actions"
                   status="3 selected"
                   items={[
@@ -857,6 +866,7 @@ function App() {
                   ]}
                 />
                 <ContextMenu
+                  trigger={<Button variant="text">More</Button>}
                   items={[
                     { id: 'rename', label: 'Rename' },
                     { id: 'duplicate', label: 'Duplicate' },
@@ -872,6 +882,7 @@ function App() {
             <SectionHead meta={sec('sidesheet')} />
             <div className="section__body">
               <Sidesheet
+                trigger={<Button>Open sidesheet</Button>}
                 navLabel="All projects"
                 title="Iberian rewilding"
                 status="In review"
@@ -986,40 +997,34 @@ function App() {
           <section id="radio" className="section reveal">
             <SectionHead meta={sec('radio')} />
             <div className="section__body">
-              <div className="specimen-stack" role="radiogroup" aria-label="Plan and verification">
-                <Radio
-                  name="plan"
-                  value="monthly"
-                  label="Monthly"
-                  checked={plan === 'monthly'}
-                  onChange={() => setPlan('monthly')}
-                />
-                <Radio
-                  name="plan"
-                  value="annual"
-                  label="Annual"
-                  checked={plan === 'annual'}
-                  onChange={() => setPlan('annual')}
-                />
-                <Radio name="plan" value="custom" label="Custom" disabled />
-                <Radio
-                  layout="border-left"
-                  name="verify"
-                  value="basic"
-                  label="Basic verification"
-                  secondaryText="Document review only"
-                  checked={plan === 'monthly'}
-                  onChange={() => setPlan('monthly')}
-                />
-                <Radio
-                  layout="border-left"
-                  name="verify"
-                  value="full"
-                  label="Full audit"
-                  secondaryText="Field visit + sampling"
-                  checked={plan === 'annual'}
-                  onChange={() => setPlan('annual')}
-                />
+              <div className="specimen-stack">
+                <RadioGroup
+                  aria-label="Plan"
+                  value={plan}
+                  onValueChange={(v) => setPlan(v as 'monthly' | 'annual')}
+                >
+                  <Radio value="monthly" label="Monthly" />
+                  <Radio value="annual" label="Annual" />
+                  <Radio value="custom" label="Custom" disabled />
+                </RadioGroup>
+                <RadioGroup
+                  aria-label="Verification"
+                  value={plan}
+                  onValueChange={(v) => setPlan(v as 'monthly' | 'annual')}
+                >
+                  <Radio
+                    layout="border-left"
+                    value="monthly"
+                    label="Basic verification"
+                    secondaryText="Document review only"
+                  />
+                  <Radio
+                    layout="border-left"
+                    value="annual"
+                    label="Full audit"
+                    secondaryText="Field visit + sampling"
+                  />
+                </RadioGroup>
               </div>
             </div>
           </section>
@@ -1089,24 +1094,26 @@ function App() {
                     description="Reviewer level required for this submission."
                   >
                     <FormFieldset legend="Verification level" required inline>
-                      <Radio
-                        layout="border-left"
+                      <RadioGroup
+                        aria-label="Verification level"
+                        className="flex flex-row gap-12"
                         name="form-verify"
-                        value="basic"
-                        label="Basic verification"
-                        secondaryText="Document review only"
-                        checked={formVerification === 'basic'}
-                        onChange={() => setFormVerification('basic')}
-                      />
-                      <Radio
-                        layout="border-left"
-                        name="form-verify"
-                        value="full"
-                        label="Full audit"
-                        secondaryText="Field visit and sampling"
-                        checked={formVerification === 'full'}
-                        onChange={() => setFormVerification('full')}
-                      />
+                        value={formVerification}
+                        onValueChange={(v) => setFormVerification(v as 'basic' | 'full')}
+                      >
+                        <Radio
+                          layout="border-left"
+                          value="basic"
+                          label="Basic verification"
+                          secondaryText="Document review only"
+                        />
+                        <Radio
+                          layout="border-left"
+                          value="full"
+                          label="Full audit"
+                          secondaryText="Field visit and sampling"
+                        />
+                      </RadioGroup>
                     </FormFieldset>
                   </FormSection>
 

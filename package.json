@@ -1,35 +1,88 @@
 {
-  "name": "ogcr-design-system",
+  "name": "@ogcr/design-system",
+  "description": "OGCR design system — React 19 components, design tokens, and Tailwind v4 theme bridge.",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0-alpha.0",
   "type": "module",
+  "license": "UNLICENSED",
+  "sideEffects": [
+    "*.css"
+  ],
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./styles.css": "./dist/styles.css"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:lib": "echo 'build:lib will be wired in Phase 3 (vite.lib.config.ts)' && exit 0",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
+    "test": "vitest run --passWithNoTests",
+    "test:watch": "vitest",
+    "changeset": "changeset",
+    "version": "changeset version",
+    "release": "changeset publish"
+  },
+  "peerDependencies": {
+    "react": "^19",
+    "react-dom": "^19",
+    "@base-ui/react": "^1",
+    "@tanstack/react-table": "^8"
   },
   "dependencies": {
-    "@tanstack/react-table": "^8.21.3",
-    "react": "^19.2.5",
-    "react-dom": "^19.2.5"
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^3.6.0"
   },
   "devDependencies": {
     "@babel/core": "^7.29.0",
+    "@base-ui/react": "^1.5.0",
+    "@changesets/cli": "^2.31.0",
+    "@chromatic-com/storybook": "^5.2.1",
     "@eslint/js": "^10.0.1",
     "@rolldown/plugin-babel": "^0.2.3",
+    "@storybook/addon-a11y": "^10.4.1",
+    "@storybook/addon-docs": "^10.4.1",
+    "@storybook/addon-mcp": "^0.6.0",
+    "@storybook/addon-vitest": "^10.4.1",
+    "@storybook/react-vite": "^10.4.1",
+    "@tailwindcss/vite": "^4.3.0",
+    "@tanstack/react-table": "^8.21.3",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/babel__core": "^7.20.5",
     "@types/node": "^24.12.2",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
+    "@vitest/browser-playwright": "4.1.7",
+    "@vitest/coverage-v8": "4.1.7",
     "babel-plugin-react-compiler": "^1.0.0",
     "eslint": "^10.2.1",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
+    "eslint-plugin-storybook": "^10.4.1",
     "globals": "^17.5.0",
+    "jsdom": "^29.1.1",
+    "playwright": "^1.60.0",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "storybook": "^10.4.1",
+    "tailwindcss": "^4.3.0",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.58.2",
-    "vite": "^8.0.10"
+    "vite": "^8.0.10",
+    "vite-plugin-dts": "^5.0.1",
+    "vitest": "^4.1.7"
   }
 }

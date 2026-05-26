@@ -1,0 +1,88 @@
+/* ============================================================
+ * OGCR Design System — global entry
+ * Single import point for consumers and the app itself.
+ *
+ * Load order matters:
+ *   1. tailwindcss — generates utilities & layer scaffolding
+ *   2. reset.css   — tiny normalize layer
+ *   3. theme.css   — design tokens (must come before any rule
+ *                    that references var() or @apply)
+ * ============================================================ */
+
+@import 'tailwindcss';
+@import './reset.css';
+@import './theme.css';
+
+body {
+  font-family: var(--font-standard);
+  font-size: var(--text-m);
+  line-height: 1.5;
+  color: var(--color-text-neutral);
+  background: var(--color-surface-page);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-synthesis: none;
+}
+
+#root {
+  min-height: 100svh;
+}
+
+@layer base {
+  h1 {
+    @apply text-h1;
+  }
+
+  h2 {
+    @apply text-h2;
+  }
+
+  h3 {
+    @apply text-h3;
+  }
+
+  h4 {
+    @apply text-h4;
+  }
+
+  p {
+    @apply text-body;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/* Italic on .text-quote — Tailwind v4's --text-* multi-prop API
+   covers font-size, font-weight, line-height, letter-spacing, but
+   not font-style. Applied here so the .text-quote utility carries
+   italic at every breakpoint, matching Figma typography-styles/body/quote. */
+.text-quote { font-style: italic; }
+
+/* Responsive typography. Tailwind v4 inlines --text-h1 → var(--text-2xl)
+   at build time, so we override the generated utility classes directly
+   at the desktop breakpoint rather than redefining --text-h1 at :root.
+   Resolved sizes mirror Figma's mobile vs desktop breakpoint values. */
+@media (min-width: 1024px) {
+  .text-h1 { font-size: var(--text-3xl); }            /* 40 */
+  .text-h2 { font-size: var(--text-2xl); }            /* 32 */
+  .text-h3 { font-size: var(--text-xl); }             /* 24 */
+  .text-h4 { font-size: var(--text-l); }              /* 20 */
+  .text-body { font-size: var(--text-l); }            /* 20 */
+  .text-body-s { font-size: var(--text-m); }          /* 18 */
+  .text-body-l { font-size: var(--text-xl); }         /* 24 */
+  .text-lead { font-size: var(--text-xl); }           /* 24 */
+  .text-quote { font-size: var(--text-2xl); }         /* 32 */
+  .text-label-button { font-size: var(--text-m); }    /* 18 */
+  .text-label-navigation { font-size: var(--text-m); }/* 18 */
+  /* .text-label-input intentionally not bumped — Figma keeps it at 14 across all breakpoints. */
+}
