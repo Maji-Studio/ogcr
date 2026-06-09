@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { Tooltip } from '.'
+import { Tooltip, TooltipProvider } from '.'
 import { Button } from '../Button'
 import { InfoIcon } from '../icons'
 
@@ -36,4 +36,27 @@ export const OnIconButton: Story = {
     ),
     children: 'Verified removals only.',
   },
+}
+
+/**
+ * Mount one `TooltipProvider` near the app root to share open-delay across
+ * adjacent tooltips — once the first opens, moving to a neighbour shows it
+ * instantly (no reopen delay).
+ */
+export const Grouped: Story = {
+  render: () => (
+    <TooltipProvider delay={400}>
+      <div className="flex items-center gap-12">
+        <Tooltip trigger={<Button variant="outlined">Issuance</Button>}>
+          Credits retire on issuance.
+        </Tooltip>
+        <Tooltip trigger={<Button variant="outlined">Verification</Button>}>
+          Verified removals only.
+        </Tooltip>
+        <Tooltip trigger={<Button variant="outlined">Vintage</Button>}>
+          Vintage reflects the removal year.
+        </Tooltip>
+      </div>
+    </TooltipProvider>
+  ),
 }

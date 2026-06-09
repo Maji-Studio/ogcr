@@ -1,32 +1,21 @@
-import { useId } from 'react'
+import { useId, type ComponentProps } from 'react'
 import { NumberField as BaseNumberField } from '@base-ui/react/number-field'
 import { cn } from '../../lib/cn'
 
-export type NumberFieldProps = {
+export type NumberFieldProps = Omit<
+  ComponentProps<typeof BaseNumberField.Root>,
+  'onValueChange' | 'value' | 'defaultValue'
+> & {
   value?: number | null
   defaultValue?: number
+  /** Reshaped from Base UI: emits just the next value (no event details). */
   onValueChange?: (value: number | null) => void
-  min?: number
-  max?: number
-  step?: number
-  smallStep?: number
-  largeStep?: number
   label?: string
   helperText?: string
   /** Validation message. When set, renders in negative tone and forces `error`. */
   errorText?: string
   error?: boolean
-  disabled?: boolean
-  required?: boolean
-  readOnly?: boolean
   placeholder?: string
-  name?: string
-  id?: string
-  /** `Intl.NumberFormat` options applied to the displayed value. */
-  format?: Intl.NumberFormatOptions
-  className?: string
-  'aria-describedby'?: string
-  'aria-invalid'?: boolean | 'true' | 'false'
 }
 
 function MinusGlyph() {
@@ -75,6 +64,7 @@ export function NumberField({
   className,
   'aria-describedby': ariaDescribedby,
   'aria-invalid': ariaInvalid,
+  ...rest
 }: NumberFieldProps) {
   const generatedId = useId()
   const inputId = id ?? generatedId
@@ -95,6 +85,7 @@ export function NumberField({
         </label>
       )}
       <BaseNumberField.Root
+        {...rest}
         id={inputId}
         value={value}
         defaultValue={value === undefined ? defaultValue : undefined}

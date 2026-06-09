@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { ComponentProps, ReactNode } from 'react'
 import { Tabs as BaseTabs } from '@base-ui/react/tabs'
 import { cn } from '../../lib/cn'
 
@@ -12,7 +12,10 @@ export type TabItem = {
   disabled?: boolean
 }
 
-export type TabsProps = {
+export type TabsProps = Omit<
+  ComponentProps<typeof BaseTabs.Root>,
+  'value' | 'defaultValue' | 'onValueChange' | 'orientation' | 'children' | 'className'
+> & {
   items: TabItem[]
   value?: string
   defaultValue?: string
@@ -28,11 +31,13 @@ export function Tabs({
   onValueChange,
   orientation = 'horizontal',
   className,
+  ...rest
 }: TabsProps) {
   const vertical = orientation === 'vertical'
 
   return (
     <BaseTabs.Root
+      {...rest}
       value={value}
       defaultValue={value === undefined ? (defaultValue ?? items[0]?.value) : undefined}
       onValueChange={onValueChange}

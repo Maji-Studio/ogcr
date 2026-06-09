@@ -1,28 +1,21 @@
-import type { ReactNode } from 'react'
+import type { ComponentProps, ReactNode } from 'react'
 import { Slider as BaseSlider } from '@base-ui/react/slider'
 import { cn } from '../../lib/cn'
 
-export type SliderProps = {
+export type SliderProps = Omit<
+  ComponentProps<typeof BaseSlider.Root<number>>,
+  'value' | 'defaultValue' | 'onValueChange' | 'onValueCommitted'
+> & {
   value?: number
   defaultValue?: number
   onValueChange?: (value: number) => void
   /** Fires once interaction ends (pointer up / keyboard commit). */
   onValueCommitted?: (value: number) => void
-  min?: number
-  max?: number
-  step?: number
   /** Visible label, associated with the control. */
   label?: ReactNode
   /** Render the current value beside the label. */
   showValue?: boolean
-  /** `Intl.NumberFormat` options applied to the displayed value. */
-  format?: Intl.NumberFormatOptions
-  disabled?: boolean
   error?: boolean
-  name?: string
-  id?: string
-  'aria-label'?: string
-  className?: string
 }
 
 export function Slider({
@@ -35,17 +28,15 @@ export function Slider({
   step = 1,
   label,
   showValue = false,
-  format,
   disabled = false,
   error = false,
-  name,
-  id,
   'aria-label': ariaLabel,
   className,
+  ...rest
 }: SliderProps) {
   return (
     <BaseSlider.Root
-      id={id}
+      {...rest}
       value={value}
       defaultValue={value === undefined ? defaultValue : undefined}
       onValueChange={onValueChange}
@@ -54,8 +45,6 @@ export function Slider({
       max={max}
       step={step}
       disabled={disabled}
-      name={name}
-      format={format}
       data-slot="slider"
       className={cn('flex flex-col gap-8 w-full', disabled && 'opacity-50', className)}
     >

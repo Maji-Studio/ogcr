@@ -1,10 +1,16 @@
+import type { ComponentProps } from 'react'
 import { Autocomplete } from '@base-ui/react/autocomplete'
 import { cn } from '../../lib/cn'
 
 export type ComboboxSide = 'top' | 'right' | 'bottom' | 'left'
 export type ComboboxAlign = 'start' | 'center' | 'end'
 
-export type ComboboxProps = {
+// `...rest`/`ref` forward to the input (the styleable surface that carries
+// `data-slot`/`className`); the search/value props drive `Autocomplete.Root`.
+export type ComboboxProps = Omit<
+  ComponentProps<typeof Autocomplete.Input>,
+  'value' | 'defaultValue' | 'onValueChange' | 'children' | 'className' | 'disabled'
+> & {
   /** Options to search through. The chosen string becomes the value. */
   items: string[]
   value?: string
@@ -45,6 +51,7 @@ export function Combobox({
   sideOffset = 8,
   'aria-describedby': ariaDescribedby,
   'aria-invalid': ariaInvalid,
+  ...rest
 }: ComboboxProps) {
   return (
     <Autocomplete.Root
@@ -54,6 +61,7 @@ export function Combobox({
       onValueChange={onValueChange}
     >
       <Autocomplete.Input
+        {...rest}
         id={id}
         name={name}
         placeholder={placeholder}

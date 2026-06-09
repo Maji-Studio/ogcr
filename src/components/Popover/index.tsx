@@ -1,11 +1,11 @@
-import type { ComponentPropsWithoutRef, ReactElement, ReactNode } from 'react'
+import type { ComponentProps, ComponentPropsWithoutRef, ReactElement, ReactNode } from 'react'
 import { Popover as BasePopover } from '@base-ui/react/popover'
 import { cn } from '../../lib/cn'
 
 export type PopoverSide = 'top' | 'right' | 'bottom' | 'left'
 export type PopoverAlign = 'start' | 'center' | 'end'
 
-export type PopoverProps = {
+export type PopoverProps = Omit<ComponentProps<typeof BasePopover.Popup>, 'children' | 'title'> & {
   /** The element that opens the popover. Cloned via Base UI's `render`. */
   trigger: ReactElement
   children?: ReactNode
@@ -22,7 +22,6 @@ export type PopoverProps = {
   showArrow?: boolean
   /** Traps focus + locks page scroll while open. */
   modal?: boolean
-  className?: string
 }
 
 /** Standard pointer used by every floating surface (Popover, Tooltip). */
@@ -55,6 +54,7 @@ export function Popover({
   showArrow = false,
   modal = false,
   className,
+  ...rest
 }: PopoverProps) {
   return (
     <BasePopover.Root
@@ -67,6 +67,7 @@ export function Popover({
       <BasePopover.Portal>
         <BasePopover.Positioner side={side} align={align} sideOffset={sideOffset} className="z-50">
           <BasePopover.Popup
+            {...rest}
             data-slot="popover"
             className={cn(
               'flex flex-col gap-8 p-16 w-[280px] max-w-[calc(100vw-32px)]',

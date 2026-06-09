@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import { useState, type ComponentProps, type ReactNode } from 'react'
 import { Dialog } from '@base-ui/react/dialog'
 import { Avatar } from '../Avatar'
 import { LogoMark } from '../Logo'
@@ -25,7 +25,7 @@ export type SideNavigationUser = {
   initials: string
 }
 
-export type SideNavigationProps = {
+export type SideNavigationProps = Omit<ComponentProps<'aside'>, 'children' | 'onSelect'> & {
   items: SideNavigationItem[]
   activeId: string
   onSelect?: (id: string) => void
@@ -231,6 +231,7 @@ export function SideNavigation({
   layout = 'desktop',
   mobileTrigger,
   className,
+  ...rest
 }: SideNavigationProps) {
   const isMobile = layout === 'mobile'
   const [internalCollapsed, setInternalCollapsed] = useState(defaultCollapsed)
@@ -357,6 +358,7 @@ export function SideNavigation({
 
   return (
     <aside
+      {...rest}
       data-slot="sidebar"
       aria-label="Primary"
       className={cn(

@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { ComponentProps, ReactNode } from 'react'
 import { Toggle as BaseToggle } from '@base-ui/react/toggle'
 import { ToggleGroup as BaseToggleGroup } from '@base-ui/react/toggle-group'
 import { cva, type VariantProps } from 'class-variance-authority'
@@ -28,38 +28,30 @@ const toggle = cva(
 
 export type ToggleSize = NonNullable<VariantProps<typeof toggle>['size']>
 
-export type ToggleProps = {
-  pressed?: boolean
-  defaultPressed?: boolean
+export type ToggleProps = Omit<
+  ComponentProps<typeof BaseToggle>,
+  'onPressedChange'
+> & {
   onPressedChange?: (pressed: boolean) => void
-  /** Identifies the toggle when used inside a ToggleGroup. */
-  value?: string
-  disabled?: boolean
   size?: ToggleSize
-  'aria-label'?: string
   children?: ReactNode
-  className?: string
 }
 
 export function Toggle({
   pressed,
   defaultPressed,
   onPressedChange,
-  value,
-  disabled,
   size,
-  'aria-label': ariaLabel,
   children,
   className,
+  ...rest
 }: ToggleProps) {
   return (
     <BaseToggle
+      {...rest}
       pressed={pressed}
       defaultPressed={pressed === undefined ? defaultPressed : undefined}
       onPressedChange={onPressedChange}
-      value={value}
-      disabled={disabled}
-      aria-label={ariaLabel}
       data-slot="toggle"
       className={cn(toggle({ size }), className)}
     >

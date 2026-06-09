@@ -7,7 +7,7 @@ import {
   type RowData,
   type SortingState,
 } from '@tanstack/react-table'
-import { useState, type ReactNode } from 'react'
+import { useState, type ComponentProps, type ReactNode } from 'react'
 import { cn } from '../../lib/cn'
 
 declare module '@tanstack/react-table' {
@@ -18,7 +18,7 @@ declare module '@tanstack/react-table' {
   }
 }
 
-export type DataTableProps<T> = {
+export type DataTableProps<T> = Omit<ComponentProps<'table'>, 'children'> & {
   columns: ColumnDef<T>[]
   data: T[]
   caption?: ReactNode
@@ -26,7 +26,6 @@ export type DataTableProps<T> = {
   regionLabel?: string
   emptyState?: ReactNode
   initialSorting?: SortingState
-  className?: string
 }
 
 const alignClass = (align?: 'left' | 'right' | 'center') =>
@@ -40,6 +39,7 @@ export function DataTable<T>({
   emptyState,
   initialSorting,
   className,
+  ...rest
 }: DataTableProps<T>) {
   const [sorting, setSorting] = useState<SortingState>(initialSorting ?? [])
   const table = useReactTable({
@@ -67,7 +67,7 @@ export function DataTable<T>({
         aria-label={regionName}
         className="w-full overflow-x-auto"
       >
-        <table className="w-full border-collapse font-standard">
+        <table {...rest} className="w-full border-collapse font-standard">
           {caption && (
             <caption className="caption-top text-left py-12 px-16 font-mono text-[11px] uppercase tracking-[0.18em] text-text-secondary bg-surface-neutral border-b border-border-light">
               {caption}

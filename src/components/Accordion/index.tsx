@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { ComponentProps, ReactNode } from 'react'
 import { Accordion as BaseAccordion } from '@base-ui/react/accordion'
 import { CaretDownIcon } from '../icons'
 import { cn } from '../../lib/cn'
@@ -10,7 +10,10 @@ export type AccordionItemData = {
   disabled?: boolean
 }
 
-export type AccordionProps = {
+export type AccordionProps = Omit<
+  ComponentProps<typeof BaseAccordion.Root>,
+  'value' | 'defaultValue' | 'onValueChange' | 'multiple' | 'disabled' | 'children' | 'className'
+> & {
   items: AccordionItemData[]
   value?: string[]
   defaultValue?: string[]
@@ -29,9 +32,11 @@ export function Accordion({
   multiple = false,
   disabled,
   className,
+  ...rest
 }: AccordionProps) {
   return (
     <BaseAccordion.Root
+      {...rest}
       value={value}
       defaultValue={value === undefined ? defaultValue : undefined}
       onValueChange={onValueChange}

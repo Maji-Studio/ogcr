@@ -1,4 +1,4 @@
-import type { ReactElement, ReactNode } from 'react'
+import type { ComponentProps, ReactElement, ReactNode } from 'react'
 import { AlertDialog as BaseAlertDialog } from '@base-ui/react/alert-dialog'
 import { Button } from '../Button'
 import { dialogBackdropClassName, dialogPopupClassName } from '../Dialog'
@@ -6,7 +6,10 @@ import { cn } from '../../lib/cn'
 
 export type AlertDialogTone = 'default' | 'danger'
 
-export type AlertDialogProps = {
+export type AlertDialogProps = Omit<
+  ComponentProps<typeof BaseAlertDialog.Popup>,
+  'title' | 'children'
+> & {
   title: ReactNode
   description?: ReactNode
   /** The element that opens the dialog. Cloned via Base UI's `render`. */
@@ -44,6 +47,7 @@ export function AlertDialog({
   defaultOpen,
   onOpenChange,
   className,
+  ...rest
 }: AlertDialogProps) {
   return (
     <BaseAlertDialog.Root
@@ -55,6 +59,7 @@ export function AlertDialog({
       <BaseAlertDialog.Portal>
         <BaseAlertDialog.Backdrop data-slot="alert-dialog-backdrop" className={dialogBackdropClassName} />
         <BaseAlertDialog.Popup
+          {...rest}
           data-slot="alert-dialog"
           className={cn(dialogPopupClassName, 'w-[400px]', className)}
         >

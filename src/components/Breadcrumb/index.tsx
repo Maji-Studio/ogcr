@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { ComponentProps, ReactNode } from 'react'
 import { cn } from '../../lib/cn'
 
 export type BreadcrumbItem = {
@@ -7,13 +7,12 @@ export type BreadcrumbItem = {
   onClick?: () => void
 }
 
-export type BreadcrumbProps = {
+export type BreadcrumbProps = Omit<ComponentProps<'nav'>, 'children'> & {
   items: BreadcrumbItem[]
   /** Separator between crumbs. Defaults to a chevron. */
   separator?: ReactNode
   /** Accessible name for the nav landmark. */
   label?: string
-  className?: string
 }
 
 function ChevronSeparator() {
@@ -36,9 +35,9 @@ const crumbBase =
 const crumbLink =
   'text-text-secondary hover:text-text-primary cursor-pointer bg-transparent border-0 p-0'
 
-export function Breadcrumb({ items, separator, label = 'Breadcrumb', className }: BreadcrumbProps) {
+export function Breadcrumb({ items, separator, label = 'Breadcrumb', className, ...rest }: BreadcrumbProps) {
   return (
-    <nav aria-label={label} data-slot="breadcrumb" className={className}>
+    <nav {...rest} aria-label={label} data-slot="breadcrumb" className={className}>
       <ol className="flex items-center gap-8 list-none m-0 p-0">
         {items.map((item, index) => {
           const isLast = index === items.length - 1

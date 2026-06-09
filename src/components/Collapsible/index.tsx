@@ -1,19 +1,18 @@
-import type { ReactNode } from 'react'
+import type { ComponentProps, ReactNode } from 'react'
 import { Collapsible as BaseCollapsible } from '@base-ui/react/collapsible'
 import { CaretDownIcon } from '../icons'
 import { cn } from '../../lib/cn'
 
-export type CollapsibleProps = {
+export type CollapsibleProps = Omit<
+  ComponentProps<typeof BaseCollapsible.Root>,
+  'onOpenChange' | 'children'
+> & {
   /** Content rendered inside the default toggle button. */
   trigger: ReactNode
   children?: ReactNode
-  open?: boolean
-  defaultOpen?: boolean
   onOpenChange?: (open: boolean) => void
-  disabled?: boolean
   /** Hide the default chevron affordance. */
   hideChevron?: boolean
-  className?: string
 }
 
 export function Collapsible({
@@ -22,16 +21,16 @@ export function Collapsible({
   open,
   defaultOpen,
   onOpenChange,
-  disabled,
   hideChevron = false,
   className,
+  ...rest
 }: CollapsibleProps) {
   return (
     <BaseCollapsible.Root
+      {...rest}
       open={open}
       defaultOpen={open === undefined ? defaultOpen : undefined}
       onOpenChange={onOpenChange}
-      disabled={disabled}
       data-slot="collapsible"
       className={cn('flex flex-col w-full', className)}
     >

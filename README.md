@@ -6,7 +6,7 @@
 
 ## What's in here
 
-- **`src/components/`** — ~37 components on [Base UI](https://base-ui.com) primitives, styled with Tailwind v4 tokens and [CVA](https://cva.style) variants. Overlays (`Dialog`, `AlertDialog`, `Popover`, `Select`, `Combobox`, `Tooltip`, `ContextMenu`, `Sidesheet`), inputs (`Input`, `Textarea`, `NumberField`, `Checkbox`, `Radio`, `Switch`, `Slider`, `Toggle`/`ToggleGroup`, `Form`), structure (`Accordion`, `Collapsible`, `Tabs`, `Table`, `Separator`, `Card`, `Breadcrumb`, `Pagination`, `Navigation`, `SideNavigation`), and feedback/display (`Toast`, `Message`, `Skeleton`, `ProgressBar`, `Pill`, `Kpi`, `Avatar`, `Logo`, `icons`). `src/index.ts` is the public barrel.
+- **`src/components/`** — 42 components on [Base UI](https://base-ui.com) primitives (plus [react-day-picker](https://daypicker.dev) for the calendar), styled with Tailwind v4 tokens and [CVA](https://cva.style) variants. Overlays (`Dialog`, `AlertDialog`, `Popover`, `Select`, `Combobox`, `Tooltip`, `Menu`, `ContextMenu`, `Sidesheet`), inputs (`Input`, `Textarea`, `NumberField`, `Checkbox`, `Radio`, `Switch`, `Slider`, `Toggle`/`ToggleGroup`, `Calendar`, `DatePicker`, `Form`), structure (`Accordion`, `Collapsible`, `Tabs`, `Table`, `Toolbar`, `ScrollArea`, `Separator`, `Card`, `Breadcrumb`, `Pagination`, `Navigation`, `SideNavigation`), and feedback/display (`Toast`, `Message`, `Skeleton`, `ProgressBar`, `Pill`, `Kpi`, `Avatar`, `Logo`, `icons`). `src/index.ts` is the public barrel.
 - **`src/styles/`** — design tokens as Tailwind v4 `@theme` custom properties (`theme.css`), a small reset, and the `global.css` entry. Tokens are reconciled from the OGCR Figma file.
 - **`docs/design-system.md`** — the authoritative spec: tokens, component anatomy, and conventions.
 
@@ -22,7 +22,7 @@ import { Button, Dialog, useToast } from '@ogcr/design-system'
 import '@ogcr/design-system/styles.css' // tokens + Tailwind utilities + reset
 ```
 
-Peer dependencies the consumer provides: `react`/`react-dom` (^19), `@base-ui/react` (^1), and `@tanstack/react-table` (^8, only if you use `Table`). Icons (`@phosphor-icons/react`) and `cva`/`clsx`/`tailwind-merge` ship as regular dependencies and are externalized from the bundle so a single copy is deduped.
+Peer dependencies the consumer provides: `react`/`react-dom` (^19), `@base-ui/react` (^1), and `@tanstack/react-table` (^8, only if you use `Table`). Icons (`@phosphor-icons/react`), `react-day-picker` (used by `Calendar`/`DatePicker`), and `cva`/`clsx`/`tailwind-merge` ship as regular dependencies and are externalized from the bundle so a single copy is deduped.
 
 ## Local development
 

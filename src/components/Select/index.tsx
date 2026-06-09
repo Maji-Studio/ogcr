@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { ComponentProps, ReactNode } from 'react'
 import { Select as BaseSelect } from '@base-ui/react/select'
 import { cn } from '../../lib/cn'
 import { CaretDownIcon } from '../icons'
@@ -12,7 +12,12 @@ export type SelectOption = {
   disabled?: boolean
 }
 
-export type SelectProps = {
+// `...rest`/`ref` forward to the trigger (the styleable surface that carries
+// `data-slot`/`className`); the flat value/selection props drive `Select.Root`.
+export type SelectProps = Omit<
+  ComponentProps<typeof BaseSelect.Trigger>,
+  'value' | 'defaultValue' | 'onValueChange' | 'children' | 'className' | 'disabled'
+> & {
   options: SelectOption[]
   value?: string | null
   defaultValue?: string | null
@@ -56,6 +61,7 @@ export function Select({
   'aria-labelledby': ariaLabelledby,
   'aria-describedby': ariaDescribedby,
   'aria-invalid': ariaInvalid,
+  ...rest
 }: SelectProps) {
   return (
     <BaseSelect.Root
@@ -68,6 +74,7 @@ export function Select({
       required={required}
     >
       <BaseSelect.Trigger
+        {...rest}
         id={id}
         aria-label={ariaLabel}
         aria-labelledby={ariaLabelledby}

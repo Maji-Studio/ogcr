@@ -1540,11 +1540,60 @@ Transient, imperatively-triggered notifications. **Wraps:** Base UI `Toast`.
 
 Small label revealed on hover/focus. **Wraps:** Base UI `Tooltip`. *(Promoted from §7 spec-only — now built.)*
 
-- **Exports:** `Tooltip`; types `TooltipSide`, `TooltipAlign`, `TooltipProps`.
-- **Props:** `trigger: ReactElement` (cloned via `render`), `children` (content), `side?='top'`, `align?='center'`, `sideOffset?=8`, `showArrow?=true`, `delay?=200`, `closeDelay?=0`, `open?`, `defaultOpen?`, `onOpenChange?`.
-- **Anatomy:** `Provider` › `Root` › `Trigger` + `Portal` › `Positioner` › `Popup` (+ `Arrow`).
+- **Exports:** `Tooltip`, `TooltipProvider`; types `TooltipSide`, `TooltipAlign`, `TooltipProps`, `TooltipProviderProps`.
+- **Props:** `trigger: ReactElement` (cloned via `render`), `children` (content), `side?='top'`, `align?='center'`, `sideOffset?=8`, `showArrow?=true`, `delay?=200`, `closeDelay?=0`, `open?`, `defaultOpen?`, `onOpenChange?` (plus any Base UI `Popup` prop via `...rest`).
+- **Anatomy:** `Provider` › `Root` › `Trigger` + `Portal` › `Positioner` › `Popup` (+ `Arrow`). Each `Tooltip` self-provides; mount the optional standalone `TooltipProvider` (`delay?=200`, `closeDelay?=0`) once near the app root so moving between adjacent tooltips skips the reopen delay (Base UI delay grouping).
 - **Dimensions/tokens:** popup `padding: 8px 12px`, `max-width: 260px`, `--surface-strong` bg + `--surface-light` text, `--radius-m`, `--elevation-l`, `text-s`; 20×10 arrow on one of four sides.
 - **Behavior:** supplemental only — never the sole label for a control; pair with `aria-describedby`/`aria-label` on the trigger. (Note: implemented on `--surface-strong`, not the `--surface-inverted` the original §7 spec proposed.)
+
+### 4.35 Calendar
+
+Month grid for date selection. **Wraps:** `react-day-picker` v9 `DayPicker`.
+
+- **Exports:** `Calendar`; type `CalendarProps` (= `ComponentProps<typeof DayPicker>` — the full DayPicker API).
+- **Props:** everything DayPicker takes — `mode` (`single | multiple | range`) with the matching `selected`/`onSelect`, `showOutsideDays?=true`, `startMonth`/`endMonth` (nav bounds), `disabled` matchers, `captionLayout`, `dir` (RTL), `defaultMonth`, plus `className` and a `classNames` map that merges over the OGCR defaults.
+- **Anatomy/tokens:** root `padding: 16px`, `--surface-light`; nav + day buttons 36×36, `--radius-m`; weekday header `text-xs --text-secondary`; nav chevrons swapped for Phosphor `CaretLeft/Right`.
+- **Selection layering:** the range band is the **cell** background (`--interaction-primary-focus`); the round endpoint fill is on the **day button** (`--interaction-primary-default` + white text); `range_middle` resets its own button so only the band shows; `today` is a ring (`--interaction-primary-default`), not a text color, so it never fights selected-text.
+- **Behavior:** consumers do **not** import `react-day-picker/style.css` — styling is fully class-driven here. RTL nav is handled by DayPicker when `dir="rtl"` is passed through.
+
+### 4.36 DatePicker
+
+Single-date field that opens a Calendar in a Popover. **Composition:** Popover + Calendar.
+
+- **Exports:** `DatePicker`; type `DatePickerProps`.
+- **Props:** `value?: Date`, `defaultValue?`, `onChange?(date: Date | undefined)`, `placeholder?='Select date'`, `disabled?`, `minDate?` / `maxDate?` (disable out-of-range days **and** limit Calendar nav), `disabledDates?: Matcher | Matcher[]`, `clearable?=false`, `formatOptions?: Intl.DateTimeFormatOptions` (default `{ year:'numeric', month:'short', day:'numeric' }`), `error?=false`, `required?`, `id?`, `aria-label`/`-describedby`/`-invalid`.
+- **Anatomy:** `[data-slot=date-picker]` › Popover `[data-slot=date-picker-trigger]` (`[data-slot=date-picker-value]` + calendar icon, or `[data-slot=date-picker-clear]` ✕) › `Calendar mode="single"`.
+- **Dimensions/tokens:** trigger `height: 48px`, `width: 240px`, `padding: 0 16px`, `--radius-l` — mirrors Input; invalid → `--border-negative-strong` + `--shadow-focus-error`.
+- **Behavior:** controlled or uncontrolled; selecting a day closes the popover; forwards `id` / `aria-describedby` / `aria-invalid` / `required` to the trigger so `FormField` lights it up exactly like `Input` (`error` is the standalone equivalent of `aria-invalid`); `clearable` overlays an ✕ when a date is set. Free-text entry, `DateRangePicker`, and a `locale` prop are deferred — see `docs/component-pickups-plan.md`.
+
+### 4.37 Menu
+
+Click-triggered dropdown menu — the richer sibling of ContextMenu. **Wraps:** Base UI `Menu`.
+
+- **Exports:** `Menu`; types `MenuItem` (union) + `MenuActionItem`, `MenuCheckboxItem`, `MenuRadioGroupItem`, `MenuLinkItem`, `MenuSeparatorItem`, `MenuGroupItem`, `MenuSubItem`, `MenuProps`.
+- **Props:** `trigger: ReactElement` (cloned via `render`), `items: MenuItem[]`, `open?`, `defaultOpen?`, `onOpenChange?(open)`, `side?='bottom'`, `align?='start'`, `sideOffset?=8`, `showArrow?=false`, `maxHeight?` (scrolls overflowing items).
+- **Item model:** `action` (`icon?`, muted `shortcut?` hint, `onSelect`, `disabled?`, `destructive?`), `checkbox` (check glyph), `radio-group` (filled-dot indicator, single-select), `link` (`href`), `separator`, `group` (optional uppercase label), and `submenu` (recursive `items`, opens to the right). Use `ContextMenu` for a plain action list; reach for `Menu` when you need state-bearing items or nesting.
+- **Anatomy/tokens:** popup `min-w: 220px`, `max-w: 320px`, `padding: 8px`, `--surface-light`, `--border-light`, `--radius-l`, `--elevation-l`; items `py-8 px-12`, `--radius-m`, `text-s`; highlighted `--surface-neutral`; destructive `--text-negative` / hover `--surface-negative`.
+- **Behavior:** `maxHeight` scrolls via native overflow (keyboard-aware — deliberately **not** the `ScrollArea` component, which would fight scroll-into-view); Base UI's `menu` part has no `Separator`, so separators render as a styled `role="separator"`; checkbox/radio items stay open on click (`closeOnClick=false`).
+
+### 4.38 ScrollArea
+
+Styled, cross-browser custom scrollbar. **Wraps:** Base UI `ScrollArea`.
+
+- **Exports:** `ScrollArea`; type `ScrollAreaProps`.
+- **Props:** `children`, `maxHeight?: number | string` (constrains the viewport so content clips), `orientation?='vertical'` (`vertical | horizontal | both`), `scrollbars?='hover'` (`hover | always`), `className`, `viewportClassName` (e.g. inner padding).
+- **Anatomy:** `Root [data-slot=scroll-area]` › `Viewport` (children) + `Scrollbar [data-slot=scroll-area-scrollbar]` › `Thumb` + `Corner`.
+- **Dimensions/tokens:** scrollbar 10px thick, `padding: 2px`; thumb `--radius-l`, `--border-medium` → hover `--border-strong`.
+- **Behavior:** pass `maxHeight` (or a height-constrained `className`) so the viewport actually clips and scrolls; the thumb auto-hides when idle and appears on hover/scroll, or stays visible whenever content overflows when `scrollbars="always"`.
+
+### 4.39 Toolbar
+
+Roving-focus container for grouped controls. **Wraps:** Base UI `Toolbar`.
+
+- **Exports:** `Toolbar`, `ToolbarButton`, `ToolbarGroup`, `ToolbarSeparator`, `ToolbarLink`, `ToolbarInput`; types `ToolbarOrientation`, `ToolbarDensity`, `ToolbarProps`, and each part's `*Props`.
+- **Props:** `Toolbar` — `children`, `orientation?='horizontal'` (`horizontal | vertical`), `density?='comfortable'` (`comfortable | compact`), `aria-label` (names the `role="toolbar"` landmark), `className`. Parts extend their Base UI component props; `ToolbarButton` accepts `render` to project an existing control (e.g. a `Toggle` / `ToggleGroup`) into the roving-focus model.
+- **Dimensions/tokens:** container `--surface-light`, `--border-light`, `--radius-l`; interactive parts 36px (comfortable) / 32px (compact) tall via density context, `--radius-m`, hover `--surface-neutral`, `--shadow-focus-primary`; separator 1px `--border-light`.
+- **Behavior:** arrow keys move between items and only one item is in the tab order; `density` is set once on `Toolbar` and flows to the parts through context; `ToolbarInput` is a search/filter field that stays in the roving-focus order. Overflow / "more"-menu collapsing is deferred — see `docs/component-pickups-plan.md`.
 
 ---
 

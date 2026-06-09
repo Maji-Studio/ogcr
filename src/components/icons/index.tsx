@@ -34,9 +34,14 @@ import {
   Bell,
   DotsThree,
   CaretDown,
+  CaretLeft,
+  CaretRight,
   SidebarSimple,
   Gear,
   Leaf,
+  Check,
+  Circle,
+  CalendarBlank,
 } from '@phosphor-icons/react'
 
 /** Wrap a Phosphor glyph so it is decorative (`aria-hidden`) unless overridden. */
@@ -65,6 +70,11 @@ export const UserIcon = decorative(User, 'UserIcon')
 export const BellIcon = decorative(Bell, 'BellIcon')
 export const DotsThreeIcon = decorative(DotsThree, 'DotsThreeIcon')
 export const CaretDownIcon = decorative(CaretDown, 'CaretDownIcon')
+export const CaretLeftIcon = decorative(CaretLeft, 'CaretLeftIcon')
+export const CaretRightIcon = decorative(CaretRight, 'CaretRightIcon')
 export const PanelLeftIcon = decorative(SidebarSimple, 'PanelLeftIcon')
 export const GearIcon = decorative(Gear, 'GearIcon')
 export const LeafIcon = decorative(Leaf, 'LeafIcon')
+export const CheckIcon = decorative(Check, 'CheckIcon')
+export const CircleIcon = decorative(Circle, 'CircleIcon')
+export const CalendarIcon = decorative(CalendarBlank, 'CalendarIcon')

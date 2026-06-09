@@ -1,4 +1,4 @@
-import type { ReactElement, ReactNode } from 'react'
+import type { ComponentProps, ReactElement, ReactNode } from 'react'
 import { Dialog } from '@base-ui/react/dialog'
 import { Button } from '../Button'
 import { Pill } from '../Pill'
@@ -11,7 +11,10 @@ export type SidesheetAction = {
   onClick?: () => void
 }
 
-export type SidesheetProps = {
+export type SidesheetProps = Omit<
+  ComponentProps<typeof Dialog.Popup>,
+  'title' | 'children'
+> & {
   title: ReactNode
   trigger?: ReactElement
   navLabel?: string
@@ -42,6 +45,7 @@ export function Sidesheet({
   defaultOpen,
   onOpenChange,
   modal = true,
+  ...rest
 }: SidesheetProps) {
   return (
     <Dialog.Root
@@ -61,6 +65,7 @@ export function Sidesheet({
           )}
         />
         <Dialog.Popup
+          {...rest}
           data-slot="sidesheet"
           className={cn(
             'fixed top-0 right-0 z-50 flex flex-col w-[480px] h-screen max-w-[100vw] bg-surface-light shadow-elevation-l overflow-hidden',

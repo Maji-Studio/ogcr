@@ -1,10 +1,11 @@
-import { useId } from 'react'
+import { useId, type ComponentProps } from 'react'
 import { Switch as BaseSwitch } from '@base-ui/react/switch'
 import { cn } from '../../lib/cn'
 
-export type SwitchProps = {
-  checked?: boolean
-  defaultChecked?: boolean
+export type SwitchProps = Omit<
+  ComponentProps<typeof BaseSwitch.Root>,
+  'onCheckedChange' | 'onChange'
+> & {
   /** Fires with the next checked state. */
   onCheckedChange?: (next: boolean) => void
   /** @deprecated use `onCheckedChange` for parity with Base UI naming. */
@@ -13,15 +14,6 @@ export type SwitchProps = {
   label?: string
   secondaryText?: string
   error?: boolean
-  disabled?: boolean
-  required?: boolean
-  readOnly?: boolean
-  name?: string
-  value?: string
-  id?: string
-  className?: string
-  'aria-describedby'?: string
-  'aria-invalid'?: boolean | 'true' | 'false'
 }
 
 export function Switch({
@@ -33,14 +25,11 @@ export function Switch({
   secondaryText,
   error = false,
   disabled = false,
-  required,
-  readOnly,
-  name,
-  value,
   id,
   className,
   'aria-describedby': ariaDescribedby,
   'aria-invalid': ariaInvalid,
+  ...rest
 }: SwitchProps) {
   const generatedId = useId()
   const inputId = id ?? generatedId
@@ -51,15 +40,12 @@ export function Switch({
 
   const control = (
     <BaseSwitch.Root
+      {...rest}
       id={inputId}
       checked={checked}
       defaultChecked={checked === undefined ? defaultChecked : undefined}
       onCheckedChange={emitChange}
       disabled={disabled}
-      required={required}
-      readOnly={readOnly}
-      name={name}
-      value={value}
       aria-invalid={ariaInvalid ?? (error || undefined)}
       aria-describedby={ariaDescribedby}
       data-slot="switch"

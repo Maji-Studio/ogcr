@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { ComponentProps, ReactNode } from 'react'
 import { Toast as BaseToast } from '@base-ui/react/toast'
 import { cn } from '../../lib/cn'
 import {
@@ -28,13 +28,17 @@ function isToastTone(value: string | undefined): value is ToastTone {
   return value != null && value in TONES
 }
 
-function ToastList() {
+/** Props forwarded onto every per-toast `BaseToast.Root` (the styleable item surface). */
+type ToastItemProps = Omit<ComponentProps<typeof BaseToast.Root>, 'toast' | 'children'>
+
+function ToastList({ className, ...rest }: ToastItemProps) {
   const { toasts } = useToast()
   return toasts.map((toast) => {
     const tone = isToastTone(toast.type) ? toast.type : 'neutral'
     const { accent, icon, iconColor } = TONES[tone]
     return (
       <BaseToast.Root
+        {...rest}
         key={toast.id}
         toast={toast}
         data-slot="toast"
@@ -45,6 +49,7 @@ function ToastList() {
           'data-[starting-style]:opacity-0 data-[starting-style]:translate-y-2',
           'data-[ending-style]:opacity-0 data-[ending-style]:translate-y-2',
           accent,
+          className,
         )}
       >
         <span
@@ -72,7 +77,7 @@ function ToastList() {
   })
 }
 
-export type ToastProviderProps = {
+export type ToastProviderProps = ToastItemProps & {
   children: ReactNode
   /** Default auto-dismiss timeout in ms. `0` disables auto-dismiss. */
   timeout?: number
@@ -83,8 +88,11 @@ export type ToastProviderProps = {
 /**
  * Wrap the app once. Mounts the toast viewport (bottom-right) and exposes
  * the `useToast()` hook to any descendant for imperative toasts.
+ *
+ * Any extra props (and `ref`) are forwarded onto every rendered toast item's
+ * `BaseToast.Root` (the styleable surface carrying `data-slot="toast"`).
  */
-export function ToastProvider({ children, timeout, limit }: ToastProviderProps) {
+export function ToastProvider({ children, timeout, limit, ...rest }: ToastProviderProps) {
   return (
     <BaseToast.Provider timeout={timeout} limit={limit}>
       {children}
@@ -93,7 +101,7 @@ export function ToastProvider({ children, timeout, limit }: ToastProviderProps) 
           data-slot="toast-viewport"
           className="fixed bottom-0 right-0 z-[100] flex flex-col gap-8 p-16 w-[400px] max-w-[100vw] outline-none"
         >
-          <ToastList />
+          <ToastList {...rest} />
         </BaseToast.Viewport>
       </BaseToast.Portal>
     </BaseToast.Provider>

@@ -41,6 +41,17 @@ import { AlertDialog } from './components/AlertDialog'
 import { Skeleton } from './components/Skeleton'
 import { Textarea } from './components/Textarea'
 import { Tooltip } from './components/Tooltip'
+import { Menu } from './components/Menu'
+import {
+  Toolbar,
+  ToolbarButton,
+  ToolbarGroup,
+  ToolbarSeparator,
+  ToolbarInput,
+} from './components/Toolbar'
+import { ScrollArea } from './components/ScrollArea'
+import { Calendar } from './components/Calendar'
+import { DatePicker } from './components/DatePicker'
 import { ToastProvider, useToast } from './components/Toast'
 import {
   ArrowRightIcon,
@@ -618,6 +629,71 @@ const SECTIONS: SectionMeta[] = [
       { dt: 'Delay', dd: 'open 200ms · close 0ms' },
     ],
   },
+  {
+    id: 'menu',
+    num: '36',
+    kicker: 'Module',
+    title: 'Menu',
+    lede: 'A click-triggered dropdown built on Base UI. The richer sibling of Context menu — groups with labels, checkbox and single-select radio items, nested submenus, and an optional pointer arrow, driven by a recursive items model.',
+    figmaNode: '—',
+    spec: [
+      { dt: 'Items', dd: 'action · checkbox · radio · submenu' },
+      { dt: 'Groups', dd: 'label · separator' },
+      { dt: 'Scroll', dd: 'maxHeight · keyboard-aware' },
+    ],
+  },
+  {
+    id: 'toolbar',
+    num: '37',
+    kicker: 'Module',
+    title: 'Toolbar',
+    lede: 'A roving-focus container for grouped controls. Arrow keys move between items while only one stays in the tab order. Buttons, groups, separators, links, and a search input, at two densities.',
+    figmaNode: '—',
+    spec: [
+      { dt: 'Parts', dd: 'button · group · separator · input' },
+      { dt: 'Density', dd: 'comfortable · compact' },
+      { dt: 'Focus', dd: 'roving · arrow keys' },
+    ],
+  },
+  {
+    id: 'scroll-area',
+    num: '38',
+    kicker: 'Component',
+    title: 'Scroll area',
+    lede: 'A styled, cross-browser scrollbar for long lists and panels. The thin tokenised thumb auto-hides when idle and appears on hover or scroll, with an always-visible variant.',
+    figmaNode: '—',
+    spec: [
+      { dt: 'Orientation', dd: 'vertical · horizontal · both' },
+      { dt: 'Thumb', dd: 'hover · always' },
+      { dt: 'Clip', dd: 'maxHeight' },
+    ],
+  },
+  {
+    id: 'calendar',
+    num: '39',
+    kicker: 'Module',
+    title: 'Calendar',
+    lede: 'A tokenised month grid on react-day-picker. Single, multiple, or range selection with a banded middle and round endpoints, a today ring, multi-month layout, and dropdown captions.',
+    figmaNode: '—',
+    spec: [
+      { dt: 'Modes', dd: 'single · multiple · range' },
+      { dt: 'Today', dd: 'ring · never fights selected' },
+      { dt: 'Layout', dd: 'numberOfMonths · dropdown caption' },
+    ],
+  },
+  {
+    id: 'date-picker',
+    num: '40',
+    kicker: 'Module',
+    title: 'Date picker',
+    lede: 'A single-date field that opens a Calendar in a Popover. Controlled or uncontrolled, with min–max bounds, a clear affordance, and full Form/Field binding so it lights up like an Input.',
+    figmaNode: '—',
+    spec: [
+      { dt: 'Trigger', dd: '48px · matches Input' },
+      { dt: 'Bounds', dd: 'minDate · maxDate · disabledDates' },
+      { dt: 'States', dd: 'default · error · disabled · clearable' },
+    ],
+  },
 ]
 
 const SECTION_BY_ID = Object.fromEntries(SECTIONS.map((s) => [s.id, s])) as Record<string, SectionMeta>
@@ -742,6 +818,8 @@ function App() {
   const [boldOn, setBoldOn] = useState(false)
   const [notify, setNotify] = useState(true)
   const [ledgerPage, setLedgerPage] = useState(3)
+  const [calDate, setCalDate] = useState<Date | undefined>(new Date(2026, 3, 22))
+  const [sampleDate, setSampleDate] = useState<Date | undefined>(new Date(2026, 3, 22))
 
   return (
     <ToastProvider>
@@ -1476,11 +1554,11 @@ function App() {
                   </FormSection>
 
                   <FormFooter note="Required fields are marked *">
-                    <Button variant="text" type="button">Cancel</Button>
-                    <Button variant="outlined" type="button">Save draft</Button>
                     <Button variant="filled" type="submit" iconRight={<ArrowRightIcon />}>
                       Submit for review
                     </Button>
+                    <Button variant="outlined" type="button">Save draft</Button>
+                    <Button variant="text" type="button">Cancel</Button>
                   </FormFooter>
                 </Form>
               </div>
@@ -1964,6 +2042,162 @@ function App() {
                 >
                   A plain tooltip without the pointer.
                 </Tooltip>
+              </div>
+            </div>
+          </section>
+
+          <section id="menu" className="section reveal">
+            <SectionHead meta={sec('menu')} />
+            <div className="section__body">
+              <div className="button-row">
+                <Menu
+                  trigger={
+                    <Button variant="outlined" iconLeft={<DotsThreeIcon />}>
+                      Project menu
+                    </Button>
+                  }
+                  items={[
+                    {
+                      type: 'group',
+                      id: 'view',
+                      label: 'View',
+                      items: [
+                        { id: 'overview', label: 'Overview', icon: <SquaresFourIcon />, shortcut: '⌘1' },
+                        { id: 'sampling', label: 'Sampling', icon: <FlaskIcon />, shortcut: '⌘2' },
+                      ],
+                    },
+                    { type: 'separator', id: 'sep-1' },
+                    { type: 'checkbox', id: 'flagged', label: 'Show flagged only', defaultChecked: true },
+                    {
+                      type: 'radio-group',
+                      id: 'sort',
+                      defaultValue: 'updated',
+                      options: [
+                        { value: 'updated', label: 'Sort by updated' },
+                        { value: 'credits', label: 'Sort by credits' },
+                      ],
+                    },
+                    { type: 'separator', id: 'sep-2' },
+                    {
+                      type: 'submenu',
+                      id: 'export',
+                      label: 'Export as',
+                      icon: <ChartBarIcon />,
+                      items: [
+                        { id: 'csv', label: 'CSV' },
+                        { id: 'json', label: 'JSON' },
+                      ],
+                    },
+                    { id: 'archive', label: 'Archive project', destructive: true },
+                  ]}
+                />
+                <Menu
+                  showArrow
+                  trigger={<Button variant="text">More</Button>}
+                  items={[
+                    { id: 'rename', label: 'Rename', icon: <FolderIcon /> },
+                    { id: 'invite', label: 'Invite reviewer', icon: <UserIcon /> },
+                    { type: 'separator', id: 'sep' },
+                    { id: 'remove', label: 'Remove from list', destructive: true },
+                  ]}
+                />
+              </div>
+            </div>
+          </section>
+
+          <section id="toolbar" className="section reveal">
+            <SectionHead meta={sec('toolbar')} />
+            <div className="section__body">
+              <div className="specimen-stack" style={{ gap: 16 }}>
+                <Toolbar aria-label="Project toolbar">
+                  <ToolbarGroup>
+                    <ToolbarButton aria-label="Grid view">
+                      <SquaresFourIcon />
+                    </ToolbarButton>
+                    <ToolbarButton aria-label="Chart view">
+                      <ChartBarIcon />
+                    </ToolbarButton>
+                    <ToolbarButton aria-label="Files view">
+                      <FolderIcon />
+                    </ToolbarButton>
+                  </ToolbarGroup>
+                  <ToolbarSeparator />
+                  <ToolbarInput
+                    aria-label="Filter projects"
+                    placeholder="Filter projects…"
+                    className="flex-1"
+                  />
+                  <ToolbarSeparator />
+                  <ToolbarButton>Export</ToolbarButton>
+                </Toolbar>
+                <Toolbar aria-label="Compact toolbar" density="compact">
+                  <ToolbarButton aria-label="Overview">
+                    <SquaresFourIcon />
+                  </ToolbarButton>
+                  <ToolbarButton aria-label="Sampling">
+                    <FlaskIcon />
+                  </ToolbarButton>
+                  <ToolbarSeparator />
+                  <ToolbarButton aria-label="Settings">
+                    <GearIcon />
+                  </ToolbarButton>
+                </Toolbar>
+              </div>
+            </div>
+          </section>
+
+          <section id="scroll-area" className="section reveal">
+            <SectionHead meta={sec('scroll-area')} />
+            <div className="section__body">
+              <div className="specimen-stack specimen-stack--narrow">
+                <ScrollArea
+                  maxHeight={200}
+                  className="border border-border-light rounded-12 bg-surface-light"
+                  viewportClassName="p-16"
+                >
+                  <div className="kv-list">
+                    {ISSUANCES.concat(ISSUANCES).map((row, i) => (
+                      <div key={`${row.project}-${i}`} className="kv-row">
+                        <span className="kv-row__key">{row.project}</span>
+                        <span className="kv-row__value">
+                          {row.credits.toLocaleString('en-US')} t
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </div>
+            </div>
+          </section>
+
+          <section id="calendar" className="section reveal">
+            <SectionHead meta={sec('calendar')} />
+            <div className="section__body">
+              <div className="button-row" style={{ alignItems: 'flex-start' }}>
+                <Calendar
+                  mode="single"
+                  selected={calDate}
+                  onSelect={setCalDate}
+                  defaultMonth={new Date(2026, 3, 1)}
+                  className="border border-border-light rounded-16 shadow-elevation-l"
+                />
+              </div>
+            </div>
+          </section>
+
+          <section id="date-picker" className="section reveal">
+            <SectionHead meta={sec('date-picker')} />
+            <div className="section__body">
+              <div className="specimen-stack specimen-stack--narrow">
+                <DatePicker
+                  value={sampleDate}
+                  onChange={setSampleDate}
+                  clearable
+                  formatOptions={{ year: 'numeric', month: 'long', day: 'numeric' }}
+                />
+                <DatePicker placeholder="Sampling date" />
+                <DatePicker error placeholder="Date required" />
+                <DatePicker defaultValue={new Date(2026, 3, 22)} disabled />
               </div>
             </div>
           </section>

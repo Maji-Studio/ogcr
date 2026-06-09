@@ -1,4 +1,4 @@
-import type { ReactElement, ReactNode } from 'react'
+import type { ComponentProps, ReactElement, ReactNode } from 'react'
 import { Dialog as BaseDialog } from '@base-ui/react/dialog'
 import { Button } from '../Button'
 import { XIcon } from '../icons'
@@ -14,7 +14,10 @@ export type DialogAction = {
   closeOnClick?: boolean
 }
 
-export type DialogProps = {
+export type DialogProps = Omit<
+  ComponentProps<typeof BaseDialog.Popup>,
+  'title' | 'children'
+> & {
   title: ReactNode
   /** The element that opens the dialog. Cloned via Base UI's `render`. */
   trigger?: ReactElement
@@ -70,6 +73,7 @@ export function Dialog({
   defaultOpen,
   onOpenChange,
   className,
+  ...rest
 }: DialogProps) {
   return (
     <BaseDialog.Root
@@ -81,6 +85,7 @@ export function Dialog({
       <BaseDialog.Portal>
         <BaseDialog.Backdrop data-slot="dialog-backdrop" className={dialogBackdropClassName} />
         <BaseDialog.Popup
+          {...rest}
           data-slot="dialog"
           className={cn(dialogPopupClassName, sizeWidth[size], className)}
         >

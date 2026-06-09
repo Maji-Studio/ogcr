@@ -1,4 +1,4 @@
-import type { ReactElement, ReactNode } from 'react'
+import type { ComponentProps, ReactElement, ReactNode } from 'react'
 import { Menu } from '@base-ui/react/menu'
 import { Pill } from '../Pill'
 import { cn } from '../../lib/cn'
@@ -12,7 +12,12 @@ export type ContextMenuItem = {
   destructive?: boolean
 }
 
-export type ContextMenuProps = {
+// `...rest`/`ref` forward to the popup (the styleable surface that carries
+// `data-slot`/`className`), not the trigger — mirrors `Popover`.
+export type ContextMenuProps = Omit<
+  ComponentProps<typeof Menu.Popup>,
+  'children' | 'className'
+> & {
   trigger: ReactElement
   header?: string
   status?: string
@@ -38,6 +43,7 @@ export function ContextMenu({
   side = 'bottom',
   align = 'start',
   sideOffset = 8,
+  ...rest
 }: ContextMenuProps) {
   return (
     <Menu.Root
@@ -49,6 +55,7 @@ export function ContextMenu({
       <Menu.Portal>
         <Menu.Positioner side={side} align={align} sideOffset={sideOffset}>
           <Menu.Popup
+            {...rest}
             data-slot="context-menu"
             className={cn(
               'w-[320px] flex flex-col gap-16 p-16 bg-surface-light border border-border-light rounded-12 shadow-elevation-l',

@@ -1,7 +1,8 @@
+import type { ComponentProps } from 'react'
 import { ArrowLeftIcon, ArrowRightIcon } from '../icons'
 import { cn } from '../../lib/cn'
 
-export type PaginationProps = {
+export type PaginationProps = Omit<ComponentProps<'nav'>, 'children' | 'onChange'> & {
   /** Current page (1-based). */
   page: number
   /** Total number of pages. */
@@ -9,7 +10,6 @@ export type PaginationProps = {
   onPageChange?: (page: number) => void
   /** Pages shown either side of the current page. Defaults to 1. */
   siblingCount?: number
-  className?: string
 }
 
 function range(start: number, end: number): number[] {
@@ -57,6 +57,7 @@ export function Pagination({
   onPageChange,
   siblingCount = 1,
   className,
+  ...rest
 }: PaginationProps) {
   const pages = getPaginationRange(page, pageCount, siblingCount)
   const go = (next: number) => {
@@ -64,7 +65,7 @@ export function Pagination({
   }
 
   return (
-    <nav aria-label="Pagination" data-slot="pagination" className={className}>
+    <nav {...rest} aria-label="Pagination" data-slot="pagination" className={className}>
       <ul className="flex items-center gap-4 list-none m-0 p-0">
         <li>
           <button

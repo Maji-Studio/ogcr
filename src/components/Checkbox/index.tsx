@@ -1,4 +1,4 @@
-import { useId } from 'react'
+import { useId, type ComponentProps } from 'react'
 import { Checkbox as BaseCheckbox } from '@base-ui/react/checkbox'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '../../lib/cn'
@@ -21,9 +21,11 @@ const wrapper = cva(
 export type CheckboxLayout = NonNullable<VariantProps<typeof wrapper>['layout']>
 export type CheckboxValue = boolean | 'indeterminate'
 
-export type CheckboxProps = {
+export type CheckboxProps = Omit<
+  ComponentProps<typeof BaseCheckbox.Root>,
+  'checked' | 'onCheckedChange'
+> & {
   checked?: CheckboxValue
-  defaultChecked?: boolean
   /** Fires with the next checked state. Alias for `onChange` (kept for compat). */
   onCheckedChange?: (next: boolean) => void
   /** @deprecated use `onCheckedChange` for parity with Base UI naming. */
@@ -32,11 +34,6 @@ export type CheckboxProps = {
   secondaryText?: string
   layout?: CheckboxLayout
   error?: boolean
-  disabled?: boolean
-  required?: boolean
-  name?: string
-  value?: string
-  id?: string
   className?: string
 }
 
@@ -50,11 +47,9 @@ export function Checkbox({
   layout = 'inline',
   error = false,
   disabled = false,
-  required,
-  name,
-  value,
   id,
   className,
+  ...rest
 }: CheckboxProps) {
   const generatedId = useId()
   const inputId = id ?? generatedId
@@ -68,14 +63,12 @@ export function Checkbox({
 
   const indicator = (
     <BaseCheckbox.Root
+      {...rest}
       id={inputId}
       checked={isChecked}
       defaultChecked={checked === undefined ? defaultChecked : undefined}
       indeterminate={indeterminate}
       disabled={disabled}
-      required={required}
-      name={name}
-      value={value}
       aria-invalid={error || undefined}
       onCheckedChange={emitChange}
       data-slot="checkbox-box"

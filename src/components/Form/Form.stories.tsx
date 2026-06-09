@@ -36,9 +36,9 @@ export const Submission: Story = {
         <Checkbox label="I confirm the data above is accurate and complete." />
       </FormSection>
       <FormFooter note="Required fields are marked *">
-        <Button variant="text" type="button">Cancel</Button>
-        <Button variant="outlined" type="button">Save draft</Button>
         <Button variant="filled" type="submit" iconRight={<ArrowRightIcon />}>Submit for review</Button>
+        <Button variant="outlined" type="button">Save draft</Button>
+        <Button variant="text" type="button">Cancel</Button>
       </FormFooter>
     </Form>
   ),

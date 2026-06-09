@@ -66,6 +66,7 @@ export default defineConfig({
         /^@base-ui\/react($|\/)/,
         /^@tanstack\/react-table($|\/)/,
         /^@phosphor-icons\/react($|\/)/,
+        /^react-day-picker($|\/)/,
         'class-variance-authority',
         'clsx',
         'tailwind-merge',
