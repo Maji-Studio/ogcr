@@ -12,7 +12,7 @@
 }
 
 html {
-  color-scheme: light, dark; /* Default light */
+  color-scheme: light; /* Light-only: no dark mode is implemented */
 }
 
 html,

@@ -2,6 +2,7 @@ import {
   cloneElement,
   isValidElement,
   useId,
+  type ComponentPropsWithoutRef,
   type FormHTMLAttributes,
   type HTMLAttributes,
   type ReactElement,
@@ -116,7 +117,12 @@ export function FormField({
   ...rest
 }: FormFieldProps) {
   const generatedId = useId()
-  const controlId = htmlFor ?? generatedId
+  // Prefer an explicit htmlFor, then the child's own id, then a generated id —
+  // so the <label htmlFor> always matches the id injected into the cloned child.
+  const childId = isValidElement(children)
+    ? (children as ReactElement<WiredFieldChildProps>).props.id
+    : undefined
+  const controlId = htmlFor ?? childId ?? generatedId
   const helperId = helperText || errorText ? `${controlId}-helper` : undefined
   const error = Boolean(errorText)
 
@@ -126,7 +132,7 @@ export function FormField({
   const wiredChild =
     isValidElement(children)
       ? cloneElement(children as ReactElement<WiredFieldChildProps>, {
-          id: (children as ReactElement<WiredFieldChildProps>).props.id ?? controlId,
+          id: controlId,
           'aria-describedby': mergeDescribedBy(
             (children as ReactElement<WiredFieldChildProps>).props['aria-describedby'],
             helperId,
@@ -172,7 +178,7 @@ export function FormField({
   )
 }
 
-export type FormFieldsetProps = Omit<HTMLAttributes<HTMLFieldSetElement>, 'disabled'> & {
+export type FormFieldsetProps = ComponentPropsWithoutRef<'fieldset'> & {
   legend: ReactNode
   helperText?: ReactNode
   errorText?: ReactNode

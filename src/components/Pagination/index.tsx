@@ -65,7 +65,7 @@ export function Pagination({
   }
 
   return (
-    <nav {...rest} aria-label="Pagination" data-slot="pagination" className={className}>
+    <nav aria-label="Pagination" {...rest} data-slot="pagination" className={className}>
       <ul className="flex items-center gap-4 list-none m-0 p-0">
         <li>
           <button

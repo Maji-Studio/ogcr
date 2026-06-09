@@ -16,12 +16,182 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
-    "./styles.css": "./dist/styles.css"
+    "./styles.css": "./dist/styles.css",
+    "./manifest.json": "./dist/manifest.json",
+    "./llms.txt": "./dist/llms.txt",
+    "./Accordion": {
+      "types": "./dist/components/Accordion/index.d.ts",
+      "import": "./dist/components/Accordion/index.js"
+    },
+    "./AlertDialog": {
+      "types": "./dist/components/AlertDialog/index.d.ts",
+      "import": "./dist/components/AlertDialog/index.js"
+    },
+    "./Avatar": {
+      "types": "./dist/components/Avatar/index.d.ts",
+      "import": "./dist/components/Avatar/index.js"
+    },
+    "./Breadcrumb": {
+      "types": "./dist/components/Breadcrumb/index.d.ts",
+      "import": "./dist/components/Breadcrumb/index.js"
+    },
+    "./Button": {
+      "types": "./dist/components/Button/index.d.ts",
+      "import": "./dist/components/Button/index.js"
+    },
+    "./Calendar": {
+      "types": "./dist/components/Calendar/index.d.ts",
+      "import": "./dist/components/Calendar/index.js"
+    },
+    "./Card": {
+      "types": "./dist/components/Card/index.d.ts",
+      "import": "./dist/components/Card/index.js"
+    },
+    "./Checkbox": {
+      "types": "./dist/components/Checkbox/index.d.ts",
+      "import": "./dist/components/Checkbox/index.js"
+    },
+    "./Collapsible": {
+      "types": "./dist/components/Collapsible/index.d.ts",
+      "import": "./dist/components/Collapsible/index.js"
+    },
+    "./Combobox": {
+      "types": "./dist/components/Combobox/index.d.ts",
+      "import": "./dist/components/Combobox/index.js"
+    },
+    "./ContextMenu": {
+      "types": "./dist/components/ContextMenu/index.d.ts",
+      "import": "./dist/components/ContextMenu/index.js"
+    },
+    "./DatePicker": {
+      "types": "./dist/components/DatePicker/index.d.ts",
+      "import": "./dist/components/DatePicker/index.js"
+    },
+    "./Dialog": {
+      "types": "./dist/components/Dialog/index.d.ts",
+      "import": "./dist/components/Dialog/index.js"
+    },
+    "./Form": {
+      "types": "./dist/components/Form/index.d.ts",
+      "import": "./dist/components/Form/index.js"
+    },
+    "./icons": {
+      "types": "./dist/components/icons/index.d.ts",
+      "import": "./dist/components/icons/index.js"
+    },
+    "./Input": {
+      "types": "./dist/components/Input/index.d.ts",
+      "import": "./dist/components/Input/index.js"
+    },
+    "./Kpi": {
+      "types": "./dist/components/Kpi/index.d.ts",
+      "import": "./dist/components/Kpi/index.js"
+    },
+    "./Logo": {
+      "types": "./dist/components/Logo/index.d.ts",
+      "import": "./dist/components/Logo/index.js"
+    },
+    "./Menu": {
+      "types": "./dist/components/Menu/index.d.ts",
+      "import": "./dist/components/Menu/index.js"
+    },
+    "./Message": {
+      "types": "./dist/components/Message/index.d.ts",
+      "import": "./dist/components/Message/index.js"
+    },
+    "./Navigation": {
+      "types": "./dist/components/Navigation/index.d.ts",
+      "import": "./dist/components/Navigation/index.js"
+    },
+    "./NumberField": {
+      "types": "./dist/components/NumberField/index.d.ts",
+      "import": "./dist/components/NumberField/index.js"
+    },
+    "./Pagination": {
+      "types": "./dist/components/Pagination/index.d.ts",
+      "import": "./dist/components/Pagination/index.js"
+    },
+    "./Pill": {
+      "types": "./dist/components/Pill/index.d.ts",
+      "import": "./dist/components/Pill/index.js"
+    },
+    "./Popover": {
+      "types": "./dist/components/Popover/index.d.ts",
+      "import": "./dist/components/Popover/index.js"
+    },
+    "./ProgressBar": {
+      "types": "./dist/components/ProgressBar/index.d.ts",
+      "import": "./dist/components/ProgressBar/index.js"
+    },
+    "./Radio": {
+      "types": "./dist/components/Radio/index.d.ts",
+      "import": "./dist/components/Radio/index.js"
+    },
+    "./ScrollArea": {
+      "types": "./dist/components/ScrollArea/index.d.ts",
+      "import": "./dist/components/ScrollArea/index.js"
+    },
+    "./Select": {
+      "types": "./dist/components/Select/index.d.ts",
+      "import": "./dist/components/Select/index.js"
+    },
+    "./Separator": {
+      "types": "./dist/components/Separator/index.d.ts",
+      "import": "./dist/components/Separator/index.js"
+    },
+    "./SideNavigation": {
+      "types": "./dist/components/SideNavigation/index.d.ts",
+      "import": "./dist/components/SideNavigation/index.js"
+    },
+    "./Sidesheet": {
+      "types": "./dist/components/Sidesheet/index.d.ts",
+      "import": "./dist/components/Sidesheet/index.js"
+    },
+    "./Skeleton": {
+      "types": "./dist/components/Skeleton/index.d.ts",
+      "import": "./dist/components/Skeleton/index.js"
+    },
+    "./Slider": {
+      "types": "./dist/components/Slider/index.d.ts",
+      "import": "./dist/components/Slider/index.js"
+    },
+    "./Switch": {
+      "types": "./dist/components/Switch/index.d.ts",
+      "import": "./dist/components/Switch/index.js"
+    },
+    "./Table": {
+      "types": "./dist/components/Table/index.d.ts",
+      "import": "./dist/components/Table/index.js"
+    },
+    "./Tabs": {
+      "types": "./dist/components/Tabs/index.d.ts",
+      "import": "./dist/components/Tabs/index.js"
+    },
+    "./Textarea": {
+      "types": "./dist/components/Textarea/index.d.ts",
+      "import": "./dist/components/Textarea/index.js"
+    },
+    "./Toast": {
+      "types": "./dist/components/Toast/index.d.ts",
+      "import": "./dist/components/Toast/index.js"
+    },
+    "./Toggle": {
+      "types": "./dist/components/Toggle/index.d.ts",
+      "import": "./dist/components/Toggle/index.js"
+    },
+    "./Toolbar": {
+      "types": "./dist/components/Toolbar/index.d.ts",
+      "import": "./dist/components/Toolbar/index.js"
+    },
+    "./Tooltip": {
+      "types": "./dist/components/Tooltip/index.d.ts",
+      "import": "./dist/components/Tooltip/index.js"
+    }
   },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "build:lib": "vite build --config vite.lib.config.ts && rm -f dist/styles.js dist/styles.js.map",
+    "build:lib": "vite build --config vite.lib.config.ts && rm -f dist/styles.js dist/styles.js.map && node scripts/generate-lib-meta.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
     "storybook": "storybook dev -p 6006",

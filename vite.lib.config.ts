@@ -3,6 +3,7 @@ import react, { reactCompilerPreset } from '@vitejs/plugin-react';
 import babel from '@rolldown/plugin-babel';
 import tailwindcss from '@tailwindcss/vite';
 import dts from 'vite-plugin-dts';
+import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -10,6 +11,23 @@ const dirname =
   typeof __dirname !== 'undefined'
     ? __dirname
     : path.dirname(fileURLToPath(import.meta.url));
+
+// One build entry per component directory (src/components/<Name>/index.tsx) so consumers can
+// deep-import a single component — `@ogcr/design-system/Button` — and not just the barrel. The
+// output key `components/<Name>/index` lands at dist/components/<Name>/index.js (matched by the
+// generated `exports` map subpath `./<Name>`). Coupled code (Popover, Calendar, cn) hoists into
+// shared chunks/ automatically, so each component file stays thin. scripts/generate-lib-meta.mjs
+// reads these same directories to keep the exports map, manifest.json, and llms.txt in sync.
+const componentsDir = path.resolve(dirname, 'src/components');
+const componentEntries = Object.fromEntries(
+  fs
+    .readdirSync(componentsDir, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => [
+      `components/${entry.name}/index`,
+      path.resolve(componentsDir, entry.name, 'index.tsx'),
+    ]),
+);
 
 // Library build for @ogcr/design-system.
 //
@@ -59,6 +77,7 @@ export default defineConfig({
       input: {
         index: path.resolve(dirname, 'src/index.ts'),
         styles: path.resolve(dirname, 'src/styles/global.css'),
+        ...componentEntries,
       },
       external: [
         /^react($|\/)/,

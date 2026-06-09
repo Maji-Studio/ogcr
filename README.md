@@ -18,9 +18,14 @@ npm install @ogcr/design-system
 ```
 
 ```tsx
-import { Button, Dialog, useToast } from '@ogcr/design-system'
-import '@ogcr/design-system/styles.css' // tokens + Tailwind utilities + reset
+import { Button, Dialog, useToast } from '@ogcr/design-system' // barrel (tree-shaken by your bundler)
+import { Button } from '@ogcr/design-system/Button'            // or deep-import a single component
+import '@ogcr/design-system/styles.css'                        // tokens + Tailwind utilities + reset (import once)
 ```
+
+The barrel is ESM with `"sideEffects": ["*.css"]`, so a bundler (Vite/webpack/Rollup/esbuild) tree-shakes the components you don't import. Every component also has a `./<Name>` subpath (`@ogcr/design-system/Button`) for explicit deep imports and non-bundler setups — the `exports` map and subpaths are generated from `src/components/*` by `scripts/generate-lib-meta.mjs` during `build:lib`. **The stylesheet does not split** — `styles.css` is one file (~53 KB) regardless of how many components you use; import it once.
+
+Machine-readable indexes ship in the package for tooling and LLM exploration: **`@ogcr/design-system/manifest.json`** (structured: every component's import path, exported symbols, and types path) and **`@ogcr/design-system/llms.txt`** (llms.txt format — one line per component with its import). Both are regenerated on every `build:lib`.
 
 Peer dependencies the consumer provides: `react`/`react-dom` (^19), `@base-ui/react` (^1), and `@tanstack/react-table` (^8, only if you use `Table`). Icons (`@phosphor-icons/react`), `react-day-picker` (used by `Calendar`/`DatePicker`), and `cva`/`clsx`/`tailwind-merge` ship as regular dependencies and are externalized from the bundle so a single copy is deduped.
 

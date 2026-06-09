@@ -44,7 +44,7 @@ export type SideNavigationProps = Omit<ComponentProps<'aside'>, 'children' | 'on
 
 const navButton = (active: boolean, collapsed: boolean) =>
   cn(
-    'relative flex items-center gap-12 w-full h-40 px-12 bg-transparent border-0 rounded-8 cursor-pointer text-left',
+    'group relative flex items-center gap-12 w-full h-40 px-12 bg-transparent border-0 rounded-8 cursor-pointer text-left',
     'font-standard font-medium text-s tracking-[0.28px]',
     'transition-[background-color,color] duration-150',
     'hover:bg-surface-neutral hover:text-text-primary',

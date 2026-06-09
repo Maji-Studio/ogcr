@@ -799,6 +799,7 @@ function App() {
   const [marketing, setMarketing] = useState<CheckboxValue>('indeterminate')
   const [card1, setCard1] = useState<CheckboxValue>(true)
   const [plan, setPlan] = useState('annual')
+  const [verificationPlan, setVerificationPlan] = useState('basic')
   const [activeNav, setActiveNav] = useState('overview')
   const [activeMobileNav, setActiveMobileNav] = useState('sampling')
   const [activeSidebar, setActiveSidebar] = useState('farm-parcels')
@@ -1433,18 +1434,18 @@ function App() {
                 </RadioGroup>
                 <RadioGroup
                   aria-label="Verification"
-                  value={plan}
-                  onValueChange={(v) => setPlan(v as 'monthly' | 'annual')}
+                  value={verificationPlan}
+                  onValueChange={(v) => setVerificationPlan(v as 'basic' | 'full')}
                 >
                   <Radio
                     layout="border-left"
-                    value="monthly"
+                    value="basic"
                     label="Basic verification"
                     secondaryText="Document review only"
                   />
                   <Radio
                     layout="border-left"
-                    value="annual"
+                    value="full"
                     label="Full audit"
                     secondaryText="Field visit + sampling"
                   />
