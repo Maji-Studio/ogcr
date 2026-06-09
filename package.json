@@ -2,7 +2,7 @@
   "name": "@ogcr/design-system",
   "description": "OGCR design system — React 19 components, design tokens, and Tailwind v4 theme bridge.",
   "private": true,
-  "version": "0.1.0-alpha.0",
+  "version": "0.1.0",
   "type": "module",
   "license": "UNLICENSED",
   "sideEffects": [
