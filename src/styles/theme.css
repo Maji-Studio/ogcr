@@ -1,0 +1,274 @@
+/* ============================================================
+ * OGCR Design System — theme tokens
+ * Source of truth: Figma file 2P6XrQJhT8I39IR5LGK7RT
+ *   (OGCR – Design System) — variable collections.
+ *
+ * Convention mirrors `/14 Manukai/.../assets/styles` — a single
+ * `@theme inline` block holds primitives + semantics + scales +
+ * typography in one place. Tailwind v4 surfaces every token as a
+ * utility (`bg-color-surface-positive`, `p-16`, `rounded-12`,
+ * `text-h1`) and CSS resolves the var() refs at runtime, which
+ * preserves themability (override any token under :root and the
+ * utilities follow).
+ *
+ * Layers (top-to-bottom in this file):
+ *   1. Primitive colors   — raw palette
+ *   2. Semantic colors    — text / icon / surface / border /
+ *                           interaction / focus (what components
+ *                           consume)
+ *   3. Spacing scale      — --spacing-0 .. --spacing-320 (px)
+ *   4. Radius scale       — --radius-2 .. --radius-48 + full
+ *   5. Elevation
+ *   6. Typography         — families, weights, size primitives,
+ *                           multi-prop semantic tokens (--text-h1
+ *                           with sibling --text-h1--font-weight etc.)
+ *   7. Motion
+ *
+ * Components should consume the semantic layer, never the
+ * primitive layer directly.
+ *
+ * Last reconciled with Figma variables: 2026-05-24.
+ * ============================================================ */
+
+@theme inline {
+  /* --- 1. Primitive colors ----------------------------------- */
+  --color-brand-blue-300: #3f88c6;
+  --color-brand-blue-800: #1c3d59;
+  --color-brand-green-500: #6db087;
+
+  --color-red-500: #ef4444;
+  --color-red-600: #dc2626;
+  --color-orange-400: #fb923c;
+  --color-orange-500: #f97316;
+  --color-amber-300: #fcd34d;
+  --color-yellow-300: #fde047;       /* Figma: yellow/300 */
+  --color-white: #ffffff;
+
+  /* --- 2. Semantic colors ------------------------------------ */
+  /* Text */
+  --color-text-primary: #0f3655;
+  --color-text-secondary: #6a8196;
+  --color-text-neutral: #334155;
+  --color-text-positive: #4f8263;    /* Figma: text/positive */
+  --color-text-negative: #b91c1c;
+  --color-text-warning: #c2410c;
+  --color-text-progress: #265277;    /* Figma: text/progress */
+
+  /* Icon */
+  --color-icon-primary: #0f3655;
+  --color-icon-secondary: #6a8196;
+  --color-icon-neutral: #334155;
+  --color-icon-positive: #4f8263;    /* Figma: icon/positive */
+  --color-icon-negative: #b91c1c;
+  --color-icon-warning: #c2410c;
+  --color-icon-progress: #265277;    /* Figma: icon/progress */
+
+  /* Surface */
+  --color-surface-page: #f8f3ef;
+  --color-surface-light: #ffffff;
+  --color-surface-neutral: #f5f5f4;
+  --color-surface-strong: #0f3655;
+  --color-surface-inverted: #443321;
+  --color-surface-positive: #e2efe6;
+  --color-surface-warning: #ffedd5;
+  --color-surface-negative: #fee2e2;
+  --color-surface-progress: #e2edf6; /* Figma: surface/progress */
+
+  /* Border */
+  --color-border-light: #e7e5e4;
+  --color-border-medium: #d6d3d1;
+  --color-border-strong: #a8a29e;
+  --color-border-default: #01012e14;
+  --color-border-high-contrast: #443321;
+  --color-border-positive-light: #c5dfce;
+  --color-border-warning-light: #fed7aa;
+  --color-border-negative-light: #fecaca;
+  --color-border-negative-strong: #dc2626;
+
+  /* Interaction */
+  --color-interaction-primary-default: #4f8263;
+  --color-interaction-primary-hover: #335641;       /* Figma: interaction/primary-hover */
+  --color-interaction-primary-active: #335641;      /* Figma: interaction/primary-active */
+  --color-interaction-primary-focus: #e2efe6;
+  --color-interaction-secondary-focus: #c3daed;     /* Figma: interaction/secondary-focus */
+  --color-interaction-tertiary-active: #e2efe6;     /* Figma: interaction/tertiary-active */
+  --color-focus-ring-error: #fecaca;
+
+  /* Focus rings (Figma effects: focus-primary / focus-secondary)
+     Two-stop pattern: an inner 2px surface-light halo creates breathing
+     room between the focused element and the visible 4px ring, which
+     uses a contrast-AA-compliant token (≥3:1 against neutral surfaces,
+     per WCAG SC 2.4.11). The pale interaction-*-focus tints remain
+     available as background washes (e.g. SideNavigation active item)
+     but are no longer the ring color — they read as 1.0–1.2:1 against
+     surface-page and would be invisible.
+     Used on focused inputs, buttons, checkboxes, radios, segmented
+     controls, and any custom button that needs a visible ring. */
+  --shadow-focus-primary:
+    0 0 0 2px var(--color-surface-light),
+    0 0 0 4px var(--color-interaction-primary-default);
+  --shadow-focus-secondary:
+    0 0 0 2px var(--color-surface-light),
+    0 0 0 4px var(--color-interaction-primary-default);
+  --shadow-focus-error:
+    0 0 0 2px var(--color-surface-light),
+    0 0 0 4px var(--color-icon-negative);
+
+  /* --- 3. Spacing scale (px) --------------------------------- */
+  --spacing-0: 0px;
+  --spacing-1: 1px;
+  --spacing-2: 2px;
+  --spacing-4: 4px;
+  --spacing-6: 6px;
+  --spacing-8: 8px;
+  --spacing-10: 10px;
+  --spacing-12: 12px;
+  --spacing-16: 16px;
+  --spacing-20: 20px;
+  --spacing-24: 24px;
+  --spacing-28: 28px;
+  --spacing-32: 32px;
+  --spacing-36: 36px;
+  --spacing-40: 40px;
+  --spacing-48: 48px;
+  --spacing-56: 56px;
+  --spacing-64: 64px;
+  --spacing-72: 72px;
+  --spacing-80: 80px;
+  --spacing-96: 96px;
+  --spacing-128: 128px;
+  --spacing-160: 160px;
+  --spacing-192: 192px;
+  --spacing-256: 256px;
+  --spacing-320: 320px;
+
+  /* --- 4. Radius scale (px) ---------------------------------- */
+  --radius-2: 2px;
+  --radius-4: 4px;
+  --radius-8: 8px;
+  --radius-12: 12px;
+  --radius-16: 16px;
+  --radius-20: 20px;
+  --radius-24: 24px;
+  --radius-32: 32px;
+  --radius-48: 48px;
+  --radius-full: 9999px;
+
+  /* --- 5. Elevation ------------------------------------------ */
+  --shadow-elevation-l:
+    0 0 2px 0 rgba(68, 51, 33, 0.08),
+    0 8px 16px 0 rgba(68, 51, 33, 0.16);
+
+  /* --- 6. Typography ----------------------------------------- */
+  /* Families */
+  --font-standard: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Helvetica Now Display', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* Weights — values match Figma typography/font/style.
+     "bold" = 700 (Inter Bold). If you need 600 (Inter Semi Bold),
+     introduce a separate --font-weight-semibold token. */
+  --font-weight-default: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 700;
+
+  /* Size primitives (rem). xs–5xl mirror Figma typography/font/size.
+     --text-xxs (12px) is code-only — kept because App.css consumes it;
+     not present in Figma. */
+  --text-xxs: 0.75rem;     /* 12px — code-only */
+  --text-xs: 0.625rem;     /* 10px */
+  --text-s: 0.875rem;      /* 14px */
+  --text-m: 1rem;          /* 16px */
+  --text-l: 1.25rem;       /* 20px */
+  --text-xl: 1.5rem;       /* 24px */
+  --text-2xl: 2rem;        /* 32px */
+  --text-3xl: 2.5rem;      /* 40px */
+  --text-4xl: 3rem;        /* 48px */
+  --text-5xl: 4rem;        /* 64px */
+
+  /* Semantic typography (multi-prop pattern).
+     Tailwind v4 generates `.text-h1 { font-size, font-weight,
+     line-height, letter-spacing }` from these sibling props.
+     Responsive bumps are applied by redefining these tokens
+     inside a media query in global.css. */
+  --text-h1: var(--text-2xl);
+  --text-h1--font-weight: var(--font-weight-medium);
+  --text-h1--line-height: 1.2;
+  --text-h1--letter-spacing: 0%;
+
+  --text-h2: var(--text-xl);
+  --text-h2--font-weight: var(--font-weight-medium);
+  --text-h2--line-height: 1.2;
+  --text-h2--letter-spacing: 0%;
+
+  --text-h3: var(--text-l);
+  --text-h3--font-weight: var(--font-weight-medium);
+  --text-h3--line-height: 1.2;
+  --text-h3--letter-spacing: 0%;
+
+  --text-h4: var(--text-m);
+  --text-h4--font-weight: var(--font-weight-medium);
+  --text-h4--line-height: 1.2;
+  --text-h4--letter-spacing: 0%;
+
+  /* body-m — Figma typography-styles/body/body-m. */
+  --text-body: var(--text-m);
+  --text-body--font-weight: var(--font-weight-default);
+  --text-body--line-height: 1.5;
+  --text-body--letter-spacing: 0%;
+
+  /* body-s — Figma typography-styles/body/body-s. */
+  --text-body-s: var(--text-s);
+  --text-body-s--font-weight: var(--font-weight-default);
+  --text-body-s--line-height: 1.4;
+  --text-body-s--letter-spacing: 0%;
+
+  /* body-l — Figma typography-styles/body/body-l. */
+  --text-body-l: var(--text-l);
+  --text-body-l--font-weight: var(--font-weight-default);
+  --text-body-l--line-height: 1.5;
+  --text-body-l--letter-spacing: 0%;
+
+  /* lead — Figma typography-styles/body/lead.
+     Same resolved sizes as body-l; kept separate for semantic intent. */
+  --text-lead: var(--text-l);
+  --text-lead--font-weight: var(--font-weight-default);
+  --text-lead--line-height: 1.5;
+  --text-lead--letter-spacing: 0%;
+
+  /* quote — Figma typography-styles/body/quote.
+     Italic is not part of Tailwind v4's --text-* multi-prop API,
+     so the italic style is applied in global.css via .text-quote. */
+  --text-quote: var(--text-xl);
+  --text-quote--font-weight: var(--font-weight-default);
+  --text-quote--line-height: 1.4;
+  --text-quote--letter-spacing: 0%;
+
+  /* label/button — Figma typography-styles/labels/button. */
+  --text-label-button: var(--text-s);
+  --text-label-button--font-weight: var(--font-weight-medium);
+  --text-label-button--line-height: 1;
+  --text-label-button--letter-spacing: 0.02em;
+
+  /* label/navigation — Figma typography-styles/labels/navigation. */
+  --text-label-navigation: var(--text-s);
+  --text-label-navigation--font-weight: var(--font-weight-medium);
+  --text-label-navigation--line-height: 1;
+  --text-label-navigation--letter-spacing: 0.02em;
+
+  /* label/input-field — Figma typography-styles/labels/input-field.
+     14px at every breakpoint per Figma; no responsive bump. */
+  --text-label-input: var(--text-s);
+  --text-label-input--font-weight: var(--font-weight-medium);
+  --text-label-input--line-height: 1.4;
+  --text-label-input--letter-spacing: 0%;
+
+  /* --- 7. Motion --------------------------------------------- */
+  --motion-fast: 150ms ease-out;
+  --motion-base: 200ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* Responsive typography lives in global.css. Tailwind v4 derefs the
+   --text-h1 → var(--text-2xl) chain at compile time, so re-routing
+   the responsive bump via a :root override here would be inert. The
+   responsive bumps target the generated utility classes directly. */

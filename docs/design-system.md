@@ -1083,10 +1083,10 @@ Pieces: `Form` (`<form>` wrapper), `FormSection` (step + title + description + b
   </section>
 
   <footer class="ogcr-form__footer">
-    <p class="ogcr-form__footer-note">Required fields are marked *</p>
     <div class="ogcr-form__footer-actions">
-      <!-- text · outlined · filled buttons -->
+      <!-- filled · outlined · text buttons (primary CTA first / leftmost) -->
     </div>
+    <p class="ogcr-form__footer-note">Required fields are marked *</p>
   </footer>
 </form>
 ```
@@ -1186,7 +1186,7 @@ Pieces: `Form` (`<form>` wrapper), `FormSection` (step + title + description + b
 }
 .ogcr-form__footer-actions {
   display: flex; align-items: center; gap: var(--space-xs);
-  flex-wrap: wrap; justify-content: flex-end;
+  flex-wrap: wrap; justify-content: flex-start; /* CTAs anchored bottom-left */
 }
 @media (max-width: 520px) {
   .ogcr-form__footer { flex-direction: column; align-items: stretch; }
@@ -1201,7 +1201,7 @@ Behavior:
 - `FormFieldset` defaults to a vertical body; add `ogcr-form__fieldset--inline` (or pass `inline` to the React component) to lay options out horizontally — useful for short radio/checkbox card pairs. Stacks under 520px.
 - Field-level error: pass `errorText`; the wrapper sets `ogcr-form__field--error` and the helper turns `--text-negative`. Primitives like Input expose their own `error` boolean — the Form wrappers don't override it, they coexist.
 - Required indicator: the `*` is `aria-hidden`; pair with `required` on the underlying input for assistive tech.
-- Footer: left-side mono note (e.g. "Required fields are marked *"), right-side action stack. Stacks on narrow widths.
+- Footer: left-side action stack (primary CTA first / leftmost), right-side mono note (e.g. "Required fields are marked *"). CTAs are anchored bottom-**left**, not bottom-right. Stacks on narrow widths.
 
 ### 4.14 DataTable
 
@@ -1345,6 +1345,255 @@ Behavior:
 - Hover row: `--surface-neutral` background tint. Last row drops the dashed border so it doesn't double up with the table's own border.
 - Empty state: single full-span cell with mono-caps copy ("No records" by default).
 - Responsive: header row never wraps (`white-space: nowrap`); the wrapper `.ogcr-table__scroll` provides horizontal overflow on narrow viewports.
+
+---
+
+> **§4.15 onward — implementation note.** The components below are built on [Base UI](https://base-ui.com) behavior primitives styled with Tailwind v4 token utilities (`bg-surface-*`, `rounded-12`, `shadow-elevation-l`, `shadow-focus-*`), not the hand-authored `ogcr-*` CSS used above. So they are specified by **part anatomy, props, key dimensions, and behavior** rather than copy-paste CSS. The token values in §1 remain the source of truth; the React API (exported symbols + props) is documented as the contract consumers bind to. Each `data-slot` attribute marks a stylable part. Naming of props is exact — `onValueChange` / `onPressedChange` / `onCheckedChange` differ by component.
+
+### 4.15 Textarea
+
+Multi-line text control mirroring the Input field. **No primitive — native `<textarea>`.**
+
+- **Exports:** `Textarea`; types `TextareaResize`, `TextareaProps` (extends `TextareaHTMLAttributes`).
+- **Props:** `label?`, `helperText?`, `errorText?` (forces error tone, overrides `helperText`), `error?=false`, `resize?='vertical'` (`none | vertical | horizontal | both`), `rows?=4`.
+- **Anatomy:** `[data-slot=textarea]` › `[data-slot=textarea-label]` + `[data-slot=textarea-control]` + `[data-slot=textarea-helper]`.
+- **Dimensions/tokens:** control `min-height: 96px`, `padding: 12px 16px`, `--radius-l`, `text-m`; border `--border-medium` → hover `--border-strong` → focus `--interaction-primary-default` + `--shadow-focus-primary`. Error: `--border-negative-strong` + `--shadow-focus-error`.
+- **Behavior:** auto-wires `aria-invalid` / `aria-describedby`; helper switches to `--text-negative` in error.
+
+### 4.16 Avatar
+
+Person/entity marker with image-or-initials fallback. **Wraps:** Base UI `Avatar` (`Root`/`Image`/`Fallback`).
+
+- **Exports:** `Avatar`, `deriveInitials` (helper); types `AvatarSize`, `AvatarShape`, `AvatarProps`.
+- **Props:** `src?`, `alt?`, `name?`, `initials?` (overrides derived), `size?='m'` (`xs | s | m | l | xl`), `shape?='circle'` (`circle | square`), `delay?` (fallback delay, ms).
+- **Dimensions/tokens:** sizes 24 / 28 / 32 / 40 / 48 px square; `circle` → `--radius-full`, `square` → `--radius-l`; fallback `--surface-strong` bg + white text.
+- **Behavior:** renders image when it loads; otherwise explicit `initials`, else initials derived from `name` (`"Jane Cooper" → "JC"`).
+
+### 4.17 Select
+
+Single-choice dropdown; trigger mirrors the Input field. **Wraps:** Base UI `Select`.
+
+- **Exports:** `Select`; types `SelectSide`, `SelectAlign`, `SelectOption`, `SelectProps`. `SelectOption = { value: string; label: ReactNode; disabled? }`.
+- **Props:** `options`, `value?: string | null`, `defaultValue?`, `onValueChange?(value: string | null)`, `placeholder?='Select…'`, `error?=false`, `disabled?`, `required?`, `name?`, `side?='bottom'`, `align?='start'`, `sideOffset?=8`, plus `aria-label`/`-labelledby`.
+- **Anatomy:** `Trigger` (`role=combobox`) › `Value` + caret `Icon`; `Portal` › `Positioner` › `Popup` › `Item`/`ItemText`/`ItemIndicator`.
+- **Dimensions/tokens:** trigger `height: 48px`, `padding: 0 16px`, `--radius-l` — identical to Input; popup `min-width: var(--anchor-width)`, `max-height: min(var(--available-height), 320px)`, `--elevation-l`; caret rotates 180° on open.
+- **Behavior:** controlled or uncontrolled; the `combobox` trigger needs an accessible name from an external label, not its value.
+
+### 4.18 Combobox
+
+Type-ahead autocomplete over a list of strings. **Wraps:** Base UI `Autocomplete`.
+
+- **Exports:** `Combobox`; types `ComboboxSide`, `ComboboxAlign`, `ComboboxProps`.
+- **Props:** `items: string[]`, `value?`, `defaultValue?`, `onValueChange?(value: string)`, `placeholder?='Search…'`, `emptyMessage?='No matches found.'`, `error?=false`, `disabled?`, `side?='bottom'`, `align?='start'`, `sideOffset?=8`.
+- **Anatomy:** `Input` › `Portal` › `Positioner` › `Popup` › `Empty` + `List` › `Item`.
+- **Dimensions/tokens:** input matches Select/Input (`height: 48px`, `--radius-l`); popup `min-width: var(--anchor-width)`, `max-height: min(…, 320px)`, `--elevation-l`.
+- **Behavior:** filters `items` as you type; renders `emptyMessage` when nothing matches.
+
+### 4.19 NumberField
+
+Numeric input with steppers, clamping, and `Intl` formatting. **Wraps:** Base UI `NumberField`.
+
+- **Exports:** `NumberField`; type `NumberFieldProps`.
+- **Props:** `value?: number | null`, `defaultValue?`, `onValueChange?(value: number | null)`, `min?`, `max?`, `step?`, `smallStep?`, `largeStep?`, `label?`, `helperText?`, `errorText?` (forces error), `error?=false`, `disabled?`, `readOnly?`, `placeholder?`, `format?: Intl.NumberFormatOptions`.
+- **Anatomy:** `Group` › `Decrement` + `Input` + `Increment`.
+- **Dimensions/tokens:** group `height: 48px`, `--radius-l`; steppers `width: 44px` with divider borders; input centered + `tabular-nums`.
+- **Behavior:** steppers honor small/large step modifiers; value clamps to `min`/`max`; `errorText` overrides `helperText`.
+
+### 4.20 Slider
+
+Single-value range control. **Wraps:** Base UI `Slider`.
+
+- **Exports:** `Slider`; type `SliderProps`.
+- **Props:** `value?: number`, `defaultValue?`, `onValueChange?(value)`, `onValueCommitted?(value)`, `min?=0`, `max?=100`, `step?=1`, `label?`, `showValue?=false`, `format?`, `error?=false`, `disabled?`, `aria-label?`.
+- **Anatomy:** `Label` + `Value` (header) over `Control` › `Track` › `Indicator` + `Thumb`.
+- **Dimensions/tokens:** track `height: 6px`, `--radius-full`, `--border-medium`; indicator `--interaction-primary-default`; thumb 20×20, `--radius-full`, 2px ring. Error → negative indicator/thumb + `--shadow-focus-error`.
+- **Behavior:** `onValueChange` fires continuously while dragging; `onValueCommitted` fires once on release / keyboard commit.
+
+### 4.21 Toggle
+
+Two-state pressable button, standalone or grouped. **Wraps:** Base UI `Toggle` / `ToggleGroup`.
+
+- **Exports:** `Toggle`, `ToggleGroup`; types `ToggleSize`, `ToggleProps`, `ToggleGroupItem`, `ToggleGroupProps`.
+- **Toggle props:** `pressed?`, `defaultPressed?`, `onPressedChange?(pressed: boolean)`, `value?`, `size?='m'` (`s | m`), `disabled?`, `aria-label?`.
+- **Group props:** `items: ToggleGroupItem[]`, `value?: string[]`, `defaultValue?`, `onValueChange?(value: string[])`, `multiple?=false`, `size?`, `disabled?`, `aria-label?`. `ToggleGroupItem = { value; label?; icon?; disabled? }`.
+- **Dimensions/tokens:** Toggle `s`=32 / `m`=40 px tall, `--radius-m` items; group is `role=toolbar`, `--radius-l`, `--surface-neutral`; pressed Toggle → `--interaction-primary-focus`, pressed segment → `--surface-light`.
+- **Behavior:** standalone is on/off; group is single-select unless `multiple`; value carried as a string array.
+
+### 4.22 Switch
+
+Binary on/off control with optional inline label. **Wraps:** Base UI `Switch`.
+
+- **Exports:** `Switch`; type `SwitchProps`.
+- **Props:** `checked?`, `defaultChecked?`, `onCheckedChange?(next: boolean)`, `onChange?` (**@deprecated**), `label?`, `secondaryText?`, `error?=false`, `disabled?`, `readOnly?`, `required?`, `name?`, `value?`.
+- **Anatomy:** `Root` › `Thumb`; with `label`, wrapped in `<label>` with optional `secondaryText`.
+- **Dimensions/tokens:** track 40×24, `--radius-full`; thumb 20×20, slides `translateX(16px)` when checked; checked track `--interaction-primary-default`. Error → negative track + `--shadow-focus-error`.
+- **Behavior:** renders the bare control when no `label`; both `onCheckedChange` and legacy `onChange` fire.
+
+### 4.23 Tabs
+
+Sibling panels with a sliding active indicator. **Wraps:** Base UI `Tabs`.
+
+- **Exports:** `Tabs`; types `TabsOrientation`, `TabItem`, `TabsProps`. `TabItem = { value; label; icon?; content; disabled? }`.
+- **Props:** `items`, `value?`, `defaultValue?`, `onValueChange?(value: string)`, `orientation?='horizontal'` (`horizontal | vertical`).
+- **Anatomy:** `List` › `Tab` + animated `Indicator`; `Panel` per item.
+- **Dimensions/tokens:** tab `padding: 12px`, `--radius-m`; 2px indicator `--interaction-primary-default` driven by `--active-tab-width/left` (horizontal) or `--active-tab-height/top` (vertical).
+- **Behavior:** uncontrolled default falls back to the first item; panels are read from the same `items` array.
+
+### 4.24 Accordion
+
+Stack of headers expanding to reveal content. **Wraps:** Base UI `Accordion`.
+
+- **Exports:** `Accordion`; types `AccordionItemData`, `AccordionProps`. `AccordionItemData = { value; title; content; disabled? }`.
+- **Props:** `items`, `value?: string[]`, `defaultValue?`, `onValueChange?(value: string[])`, `multiple?=false`, `disabled?`.
+- **Anatomy:** `Item` › `Header` › `Trigger` (+ chevron) + `Panel`.
+- **Dimensions/tokens:** items divided by `border-b --border-light`; panel animates `height: var(--accordion-panel-height)`; chevron rotates 180° on open.
+- **Behavior:** single-open by default; `multiple` allows several panels open; value is a string array.
+
+### 4.25 Collapsible
+
+Single trigger that shows/hides one region. **Wraps:** Base UI `Collapsible`.
+
+- **Exports:** `Collapsible`; type `CollapsibleProps`.
+- **Props:** `trigger: ReactNode`, `open?`, `defaultOpen?`, `onOpenChange?(open: boolean)`, `disabled?`, `hideChevron?=false`.
+- **Anatomy:** `Trigger` (+ optional chevron) › `Panel`.
+- **Dimensions/tokens:** trigger `padding-y: 8px`, `--radius-m`, `text-s`; panel animates `height: var(--collapsible-panel-height)`; chevron 16×16.
+- **Behavior:** one open/close region with an optional built-in chevron affordance.
+
+### 4.26 Breadcrumb
+
+Hierarchical trail to the current page. **No primitive — `nav > ol > li`.**
+
+- **Exports:** `Breadcrumb`; types `BreadcrumbItem`, `BreadcrumbProps`. `BreadcrumbItem = { label; href?; onClick? }`.
+- **Props:** `items`, `separator?` (default chevron), `label?='Breadcrumb'` (nav landmark name).
+- **Dimensions/tokens:** `gap: 8px`, crumbs `text-s` + `--radius-s`; separator 16×16, `--icon-secondary`.
+- **Behavior:** renders a link when `href`, a button when only `onClick`, plain text otherwise; the last crumb is non-interactive with `aria-current="page"`.
+
+### 4.27 Pagination
+
+Page navigation with a truncated window. **No primitive — `nav > ul > li > button`.**
+
+- **Exports:** `Pagination`, `getPaginationRange` (helper); type `PaginationProps`.
+- **Props:** `page: number` (1-based), `pageCount: number`, `onPageChange?(page: number)`, `siblingCount?=1`.
+- **Helper:** `getPaginationRange(page, pageCount, siblingCount=1): Array<number | 'ellipsis'>`.
+- **Dimensions/tokens:** cells `min-width: 40px`, `height: 40px`, `--radius-m`; active `--interaction-primary-default` on `--surface-page` text; prev/next icon cells 40px.
+- **Behavior:** keeps first/last + current ±siblings in view, inserting `ellipsis` markers; ignores out-of-range / same-page clicks.
+
+### 4.28 Separator
+
+One-pixel divider, optionally labeled. **Wraps:** Base UI `Separator` (plain `div role=separator` for the labeled case).
+
+- **Exports:** `Separator`; types `SeparatorOrientation`, `SeparatorProps`.
+- **Props:** `orientation?='horizontal'` (`horizontal | vertical`), `label?` (horizontal only).
+- **Dimensions/tokens:** line `--border-light`; horizontal `height: 1px; width: 100%`, vertical `width: 1px; align-self: stretch`; label `text-s --text-secondary`.
+- **Behavior:** a horizontal separator with `label` renders the label centered between two rules; a string label becomes the accessible name.
+
+### 4.29 Popover
+
+Floating surface anchored to a trigger. **Wraps:** Base UI `Popover`.
+
+- **Exports:** `Popover`, `PopoverArrowSvg`; types `PopoverSide`, `PopoverAlign`, `PopoverProps`.
+- **Props:** `trigger: ReactElement` (cloned via `render`), `title?` (wires `aria-labelledby`), `description?` (wires `aria-describedby`), `open?`, `defaultOpen?`, `onOpenChange?(open: boolean)`, `side?='bottom'`, `align?='center'`, `sideOffset?=8`, `showArrow?=false`, `modal?=false`.
+- **Anatomy:** `Trigger` › `Portal` › `Positioner` › `Popup` (+ `Arrow`, `Title`, `Description`).
+- **Dimensions/tokens:** popup `width: 280px`, `max-width: calc(100vw - 32px)`, `padding: 16px`, `--radius-l`, `--elevation-l`.
+- **Behavior:** non-modal by default; `modal` traps focus and locks scroll; title/description auto-wire ARIA.
+
+### 4.30 Dialog
+
+Centered modal for focused tasks. **Wraps:** Base UI `Dialog`.
+
+- **Exports:** `Dialog`, `dialogBackdropClassName`, `dialogPopupClassName` (shared class strings); types `DialogSize`, `DialogAction`, `DialogProps`.
+- **Props:** `title`, `trigger?: ReactElement`, `description?`, `primaryAction?`, `secondaryAction?`, `showClose?=true`, `size?='m'` (`s | m | l`), `open?`, `defaultOpen?`, `onOpenChange?(open: boolean)`. `DialogAction = { label; variant?; onClick?; closeOnClick?=true }`.
+- **Anatomy:** `Trigger` › `Portal` › `Backdrop` + `Popup` › `Title` + `Description` + body + footer + `Close`.
+- **Dimensions/tokens:** sizes `s`=400 / `m`=512 / `l`=640 px wide; popup `--radius-xl`, `padding: 24px`, `--elevation-l`; backdrop `rgba(0,0,0,.4)`. Primary action defaults to `filled`, secondary to `outlined`.
+- **Behavior:** footer actions are anchored bottom-**left** (`justify-start`) with the primary CTA first/leftmost, then the secondary; actions close after `onClick` unless `closeOnClick: false`; corner close button optional.
+
+### 4.31 AlertDialog
+
+Compact confirmation modal for consequential actions. **Wraps:** Base UI `AlertDialog` (reuses Dialog's backdrop/popup classes).
+
+- **Exports:** `AlertDialog`; types `AlertDialogTone`, `AlertDialogProps`.
+- **Props:** `title`, `description?`, `trigger?: ReactElement`, `confirmLabel?='Confirm'`, `cancelLabel?='Cancel'`, `onConfirm?`, `onCancel?`, `tone?='default'` (`default | danger`), `open?`, `defaultOpen?`, `onOpenChange?`.
+- **Dimensions/tokens:** fixed `width: 400px`; `danger` confirm → `--border-negative-strong` bg + white text.
+- **Behavior:** footer actions are anchored bottom-**left** (`justify-start`) with the confirm CTA first/leftmost, then cancel; both confirm and cancel are wrapped in `Close` (always dismiss via a choice); no corner close button.
+
+### 4.32 Skeleton
+
+Pulsing placeholder for loading content. **No primitive — decorative `div`/`span` (`aria-hidden`).**
+
+- **Exports:** `Skeleton`; types `SkeletonVariant`, `SkeletonProps`.
+- **Props:** `variant?='rectangular'` (`text | rectangular | circular`), `width?: number | string`, `height?: number | string`, `lines?: number` (text only). Numeric `width`/`height` coerce to `px`.
+- **Dimensions/tokens:** `--surface-neutral` bg + `animate-pulse`; text `height: 1em` + `--radius-s`, rectangular `--radius-l`, circular `--radius-full`.
+- **Behavior:** `variant="text"` with `lines > 1` renders N stacked lines, the last shortened to 60%.
+
+### 4.33 Toast
+
+Transient, imperatively-triggered notifications. **Wraps:** Base UI `Toast`.
+
+- **Exports:** `ToastProvider`, `useToast` (= `Toast.useToastManager`); types `ToastTone`, `ToastProviderProps`.
+- **Provider props:** `children`, `timeout?` (auto-dismiss ms; `0` disables), `limit?` (max concurrent).
+- **Tones:** `neutral | success | error | warning | info`, set per toast via `type` — each maps to a `border-l-4` accent + icon (Bell / CheckCircle / WarningOctagon / Warning / Info). Unknown `type` → `neutral`.
+- **Anatomy:** `Provider` › `Portal` › `Viewport` › `Root` › icon + `Title` + `Description` + optional `Action` + `Close`.
+- **Dimensions/tokens:** toast `padding: 16px 40px 16px 16px`, `--radius-l`, `--elevation-l`; viewport fixed bottom-right, `width: 400px`, `z-index: 100`.
+- **Behavior:** wrap the app once in `ToastProvider`; call `useToast().add({ title, description, type, actionProps? })` from any descendant to push, close, or update toasts.
+
+### 4.34 Tooltip
+
+Small label revealed on hover/focus. **Wraps:** Base UI `Tooltip`. *(Promoted from §7 spec-only — now built.)*
+
+- **Exports:** `Tooltip`, `TooltipProvider`; types `TooltipSide`, `TooltipAlign`, `TooltipProps`, `TooltipProviderProps`.
+- **Props:** `trigger: ReactElement` (cloned via `render`), `children` (content), `side?='top'`, `align?='center'`, `sideOffset?=8`, `showArrow?=true`, `delay?=200`, `closeDelay?=0`, `open?`, `defaultOpen?`, `onOpenChange?` (plus any Base UI `Popup` prop via `...rest`).
+- **Anatomy:** `Provider` › `Root` › `Trigger` + `Portal` › `Positioner` › `Popup` (+ `Arrow`). Each `Tooltip` self-provides; mount the optional standalone `TooltipProvider` (`delay?=200`, `closeDelay?=0`) once near the app root so moving between adjacent tooltips skips the reopen delay (Base UI delay grouping).
+- **Dimensions/tokens:** popup `padding: 8px 12px`, `max-width: 260px`, `--surface-strong` bg + `--surface-light` text, `--radius-m`, `--elevation-l`, `text-s`; 20×10 arrow on one of four sides.
+- **Behavior:** supplemental only — never the sole label for a control; pair with `aria-describedby`/`aria-label` on the trigger. (Note: implemented on `--surface-strong`, not the `--surface-inverted` the original §7 spec proposed.)
+
+### 4.35 Calendar
+
+Month grid for date selection. **Wraps:** `react-day-picker` v9 `DayPicker`.
+
+- **Exports:** `Calendar`; type `CalendarProps` (= `ComponentProps<typeof DayPicker>` — the full DayPicker API).
+- **Props:** everything DayPicker takes — `mode` (`single | multiple | range`) with the matching `selected`/`onSelect`, `showOutsideDays?=true`, `startMonth`/`endMonth` (nav bounds), `disabled` matchers, `captionLayout`, `dir` (RTL), `defaultMonth`, plus `className` and a `classNames` map that merges over the OGCR defaults.
+- **Anatomy/tokens:** root `padding: 16px`, `--surface-light`; nav + day buttons 36×36, `--radius-m`; weekday header `text-xs --text-secondary`; nav chevrons swapped for Phosphor `CaretLeft/Right`.
+- **Selection layering:** the range band is the **cell** background (`--interaction-primary-focus`); the round endpoint fill is on the **day button** (`--interaction-primary-default` + white text); `range_middle` resets its own button so only the band shows; `today` is a ring (`--interaction-primary-default`), not a text color, so it never fights selected-text.
+- **Behavior:** consumers do **not** import `react-day-picker/style.css` — styling is fully class-driven here. RTL nav is handled by DayPicker when `dir="rtl"` is passed through.
+
+### 4.36 DatePicker
+
+Single-date field that opens a Calendar in a Popover. **Composition:** Popover + Calendar.
+
+- **Exports:** `DatePicker`; type `DatePickerProps`.
+- **Props:** `value?: Date`, `defaultValue?`, `onChange?(date: Date | undefined)`, `placeholder?='Select date'`, `disabled?`, `minDate?` / `maxDate?` (disable out-of-range days **and** limit Calendar nav), `disabledDates?: Matcher | Matcher[]`, `clearable?=false`, `formatOptions?: Intl.DateTimeFormatOptions` (default `{ year:'numeric', month:'short', day:'numeric' }`), `error?=false`, `required?`, `id?`, `aria-label`/`-describedby`/`-invalid`.
+- **Anatomy:** `[data-slot=date-picker]` › Popover `[data-slot=date-picker-trigger]` (`[data-slot=date-picker-value]` + calendar icon, or `[data-slot=date-picker-clear]` ✕) › `Calendar mode="single"`.
+- **Dimensions/tokens:** trigger `height: 48px`, `width: 240px`, `padding: 0 16px`, `--radius-l` — mirrors Input; invalid → `--border-negative-strong` + `--shadow-focus-error`.
+- **Behavior:** controlled or uncontrolled; selecting a day closes the popover; forwards `id` / `aria-describedby` / `aria-invalid` / `required` to the trigger so `FormField` lights it up exactly like `Input` (`error` is the standalone equivalent of `aria-invalid`); `clearable` overlays an ✕ when a date is set. Free-text entry, `DateRangePicker`, and a `locale` prop are deferred — see `docs/component-pickups-plan.md`.
+
+### 4.37 Menu
+
+Click-triggered dropdown menu — the richer sibling of ContextMenu. **Wraps:** Base UI `Menu`.
+
+- **Exports:** `Menu`; types `MenuItem` (union) + `MenuActionItem`, `MenuCheckboxItem`, `MenuRadioGroupItem`, `MenuLinkItem`, `MenuSeparatorItem`, `MenuGroupItem`, `MenuSubItem`, `MenuProps`.
+- **Props:** `trigger: ReactElement` (cloned via `render`), `items: MenuItem[]`, `open?`, `defaultOpen?`, `onOpenChange?(open)`, `side?='bottom'`, `align?='start'`, `sideOffset?=8`, `showArrow?=false`, `maxHeight?` (scrolls overflowing items).
+- **Item model:** `action` (`icon?`, muted `shortcut?` hint, `onSelect`, `disabled?`, `destructive?`), `checkbox` (check glyph), `radio-group` (filled-dot indicator, single-select), `link` (`href`), `separator`, `group` (optional uppercase label), and `submenu` (recursive `items`, opens to the right). Use `ContextMenu` for a plain action list; reach for `Menu` when you need state-bearing items or nesting.
+- **Anatomy/tokens:** popup `min-w: 220px`, `max-w: 320px`, `padding: 8px`, `--surface-light`, `--border-light`, `--radius-l`, `--elevation-l`; items `py-8 px-12`, `--radius-m`, `text-s`; highlighted `--surface-neutral`; destructive `--text-negative` / hover `--surface-negative`.
+- **Behavior:** `maxHeight` scrolls via native overflow (keyboard-aware — deliberately **not** the `ScrollArea` component, which would fight scroll-into-view); Base UI's `menu` part has no `Separator`, so separators render as a styled `role="separator"`; checkbox/radio items stay open on click (`closeOnClick=false`).
+
+### 4.38 ScrollArea
+
+Styled, cross-browser custom scrollbar. **Wraps:** Base UI `ScrollArea`.
+
+- **Exports:** `ScrollArea`; type `ScrollAreaProps`.
+- **Props:** `children`, `maxHeight?: number | string` (constrains the viewport so content clips), `orientation?='vertical'` (`vertical | horizontal | both`), `scrollbars?='hover'` (`hover | always`), `className`, `viewportClassName` (e.g. inner padding).
+- **Anatomy:** `Root [data-slot=scroll-area]` › `Viewport` (children) + `Scrollbar [data-slot=scroll-area-scrollbar]` › `Thumb` + `Corner`.
+- **Dimensions/tokens:** scrollbar 10px thick, `padding: 2px`; thumb `--radius-l`, `--border-medium` → hover `--border-strong`.
+- **Behavior:** pass `maxHeight` (or a height-constrained `className`) so the viewport actually clips and scrolls; the thumb auto-hides when idle and appears on hover/scroll, or stays visible whenever content overflows when `scrollbars="always"`.
+
+### 4.39 Toolbar
+
+Roving-focus container for grouped controls. **Wraps:** Base UI `Toolbar`.
+
+- **Exports:** `Toolbar`, `ToolbarButton`, `ToolbarGroup`, `ToolbarSeparator`, `ToolbarLink`, `ToolbarInput`; types `ToolbarOrientation`, `ToolbarDensity`, `ToolbarProps`, and each part's `*Props`.
+- **Props:** `Toolbar` — `children`, `orientation?='horizontal'` (`horizontal | vertical`), `density?='comfortable'` (`comfortable | compact`), `aria-label` (names the `role="toolbar"` landmark), `className`. Parts extend their Base UI component props; `ToolbarButton` accepts `render` to project an existing control (e.g. a `Toggle` / `ToggleGroup`) into the roving-focus model.
+- **Dimensions/tokens:** container `--surface-light`, `--border-light`, `--radius-l`; interactive parts 36px (comfortable) / 32px (compact) tall via density context, `--radius-m`, hover `--surface-neutral`, `--shadow-focus-primary`; separator 1px `--border-light`.
+- **Behavior:** arrow keys move between items and only one item is in the tab order; `density` is set once on `Toolbar` and flows to the parts through context; `ToolbarInput` is a search/filter field that stays in the roving-focus order. Overflow / "more"-menu collapsing is deferred — see `docs/component-pickups-plan.md`.
 
 ---
 
@@ -1495,20 +1744,15 @@ These have Figma specs but no code yet. Implement when needed, following §1 tok
 - Icon size 20px inside a 40px target.
 - Same color/variant logic as Button minus the label.
 
-### 7.2 Tooltip
-- Bg: `--surface-inverted` (#443321). Text: `--surface-page` (#f8f3ef), `text-body-s` (Inter 14, line-height 1.4).
-- Padding: 6px (y) × `--space-xs` (x). Gap: `--space-xs`. Radius: `--radius-m`.
-- Arrow: 11.5×5px, on one of four sides.
-- Variants: `side ∈ {top, right, bottom, left}`. Apply `--elevation-l` if floating above complex content.
-- Tooltip is supplemental — never the only label for an action. Pair with `aria-describedby`.
+> Tooltip is now built — see §4.34.
 
-### 7.3 Charts
+### 7.2 Charts
 Five primitives in Figma: `Area Chart Interactive`, `Area Chart`, `Bar Chart`, `Line Chart`, `Pie Chart`.
 - Primary series: `--interaction-primary-default`.
 - Additional series: rotate through brand + primitive palette.
 - Axis labels: `text-body-s`, `--text-secondary`.
 
-### 7.4 Map
+### 7.3 Map
 Reference implementation only. Recommendation in Figma: prefer open-source / MapBox. Wrap behind an app-side `Map` component to avoid vendor lock-in.
 
 ---

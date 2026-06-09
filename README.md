@@ -1,30 +1,51 @@
 # OGCR Design System
 
-Reference implementation of the OGCR design system. This repo is the source other OGCR frontend projects look to when they need tokens, component behavior, or visual conventions — copy from here, don't reinvent.
+`@ogcr/design-system` — the React component library, design tokens, and Tailwind v4 theme bridge for OGCR frontends. This repo is the single source other OGCR projects build on; import from the package rather than reinventing components or re-deriving tokens.
+
+> Status: `0.1.0-alpha.0`, `private` — not yet published to npm. The publishable artifact is produced locally by `npm run build:lib`. `docs/design-system.md` is the authoritative written spec; when spec and code disagree, the spec wins.
 
 ## What's in here
 
-- **[`docs/design-system.md`](docs/design-system.md)** — the authoritative spec. Tokens, component anatomy, and the CSS that defines them. When the spec and code disagree, the spec wins.
-- **[`src/components/`](src/components/)** — example library. One working React + CSS implementation of the spec (Button, Card, Checkbox, ContextMenu, Form, Input, Kpi, Message, Navigation, Pill, ProgressBar, Radio, Sidesheet, Table, icons, Logo). Treat it as a reference, not a published package — there is no build output for consumers yet.
+- **`src/components/`** — 42 components on [Base UI](https://base-ui.com) primitives (plus [react-day-picker](https://daypicker.dev) for the calendar), styled with Tailwind v4 tokens and [CVA](https://cva.style) variants. Overlays (`Dialog`, `AlertDialog`, `Popover`, `Select`, `Combobox`, `Tooltip`, `Menu`, `ContextMenu`, `Sidesheet`), inputs (`Input`, `Textarea`, `NumberField`, `Checkbox`, `Radio`, `Switch`, `Slider`, `Toggle`/`ToggleGroup`, `Calendar`, `DatePicker`, `Form`), structure (`Accordion`, `Collapsible`, `Tabs`, `Table`, `Toolbar`, `ScrollArea`, `Separator`, `Card`, `Breadcrumb`, `Pagination`, `Navigation`, `SideNavigation`), and feedback/display (`Toast`, `Message`, `Skeleton`, `ProgressBar`, `Pill`, `Kpi`, `Avatar`, `Logo`, `icons`). `src/index.ts` is the public barrel.
+- **`src/styles/`** — design tokens as Tailwind v4 `@theme` custom properties (`theme.css`), a small reset, and the `global.css` entry. Tokens are reconciled from the OGCR Figma file.
+- **`docs/design-system.md`** — the authoritative spec: tokens, component anatomy, and conventions.
 
-## Using this as a reference
+## Install & use (in an OGCR app)
 
-- Pulling a component into another project: read the matching section in `docs/design-system.md` first, then crib the JSX/CSS from `src/components/`.
-- Tokens live in `src/index.css` as plain CSS custom properties. Copy the `:root` block (and the `prefers-color-scheme: dark` overrides) rather than re-deriving values.
-- Stick to the CSS-variable approach. No Tailwind, CSS-in-JS, or token pipeline — keep downstream projects aligned.
+```bash
+# Once published; today, consume via the local build:lib output / workspace link.
+npm install @ogcr/design-system
+```
+
+```tsx
+import { Button, Dialog, useToast } from '@ogcr/design-system' // barrel (tree-shaken by your bundler)
+import { Button } from '@ogcr/design-system/Button'            // or deep-import a single component
+import '@ogcr/design-system/styles.css'                        // tokens + Tailwind utilities + reset (import once)
+```
+
+The barrel is ESM with `"sideEffects": ["*.css"]`, so a bundler (Vite/webpack/Rollup/esbuild) tree-shakes the components you don't import. Every component also has a `./<Name>` subpath (`@ogcr/design-system/Button`) for explicit deep imports and non-bundler setups — the `exports` map and subpaths are generated from `src/components/*` by `scripts/generate-lib-meta.mjs` during `build:lib`. **The stylesheet does not split** — `styles.css` is one file (~53 KB) regardless of how many components you use; import it once.
+
+Machine-readable indexes ship in the package for tooling and LLM exploration: **`@ogcr/design-system/manifest.json`** (structured: every component's import path, exported symbols, and types path) and **`@ogcr/design-system/llms.txt`** (llms.txt format — one line per component with its import). Both are regenerated on every `build:lib`.
+
+Peer dependencies the consumer provides: `react`/`react-dom` (^19), `@base-ui/react` (^1), and `@tanstack/react-table` (^8, only if you use `Table`). Icons (`@phosphor-icons/react`), `react-day-picker` (used by `Calendar`/`DatePicker`), and `cva`/`clsx`/`tailwind-merge` ship as regular dependencies and are externalized from the bundle so a single copy is deduped.
 
 ## Local development
 
-- `npm run dev` — Vite dev server with HMR
-- `npm run build` — `tsc -b` then a Vite production build (fails on type errors)
+- `npm run dev` — Vite dev server with HMR (the demo app in `src/App.tsx`)
+- `npm run storybook` — Storybook 9 (component workbench; `npm run build-storybook` for a static build)
+- `npm run test` — jsdom unit suite (Vitest)
+- `npm run test:a11y` — axe accessibility checks over every story in a headless Chromium (needs `npx playwright install chromium-headless-shell`)
 - `npm run lint` — ESLint over the repo
-- `npm run preview` — serve `dist/` to sanity-check the production output
-
-No test runner is configured.
+- `npm run build` — type-check + Vite app build (fails on type errors)
+- `npm run build:lib` — produce the publishable `dist/` (`index.js` ESM, bundled `index.d.ts`, `styles.css`)
+- `npm run changeset` / `release` — Changesets versioning/publish flow
 
 ## Stack notes
 
-- **React 19 + TypeScript + Vite.**
-- **React Compiler is on** via `@rolldown/plugin-babel` in `vite.config.ts`. Components auto-memoize at build time — skip manual `useMemo` / `useCallback` / `React.memo` unless the compiler can't handle the case.
-- **TypeScript project references**: `tsconfig.json` delegates to `tsconfig.app.json` (browser) and `tsconfig.node.json` (Vite config). Both must type-check.
+- **React 19 + TypeScript + Vite**, **Tailwind v4** tokens, **Base UI** behavior primitives, **CVA + `cn()`** for variants.
+- **React Compiler is on** (`@rolldown/plugin-babel` + `reactCompilerPreset()`). Components auto-memoize at build time — skip manual `useMemo` / `useCallback` / `React.memo` unless the compiler can't (e.g. `Table`).
+- **Theming is Tailwind v4 `@theme inline`.** Extend the token layer in `src/styles/theme.css`; consume the semantic tokens (`bg-surface-*`, `text-text-*`, `shadow-focus-*`), not raw hex. There is no dark mode yet — see `CLAUDE.md` for the `@theme inline` mechanics that any dark-mode work must account for.
+- **TypeScript project references**: `tsconfig.json` delegates to `tsconfig.app.json` and `tsconfig.node.json`; `tsc -b` must pass for both.
 - **ESLint flat config** in `eslint.config.js`; `dist/` is globally ignored.
+
+See `CLAUDE.md` for the non-obvious, cross-file details (the two Vitest setups, `@theme inline` themability, Base UI prop gotchas, the a11y gate, and library-build externalization).
