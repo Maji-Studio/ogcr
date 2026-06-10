@@ -2,7 +2,7 @@
 
 `@ogcr/design-system` — the React component library, design tokens, and Tailwind v4 theme bridge for OGCR frontends. This repo is the single source other OGCR projects build on; import from the package rather than reinventing components or re-deriving tokens.
 
-> Status: `0.1.0-alpha.0`, `private` — not yet published to npm. The publishable artifact is produced locally by `npm run build:lib`. `docs/design-system.md` is the authoritative written spec; when spec and code disagree, the spec wins.
+> Status: `0.1.0`, public — published to npm under public access (`publishConfig.access: public`). The publishable artifact is produced by `npm run build:lib`. `docs/design-system.md` is the authoritative written spec; when spec and code disagree, the spec wins.
 
 ## What's in here
 
@@ -27,7 +27,13 @@ The barrel is ESM with `"sideEffects": ["*.css"]`, so a bundler (Vite/webpack/Ro
 
 Machine-readable indexes ship in the package for tooling and LLM exploration: **`@ogcr/design-system/manifest.json`** (structured: every component's import path, exported symbols, and types path) and **`@ogcr/design-system/llms.txt`** (llms.txt format — one line per component with its import). Both are regenerated on every `build:lib`.
 
-Peer dependencies the consumer provides: `react`/`react-dom` (^19), `@base-ui/react` (^1), and `@tanstack/react-table` (^8, only if you use `Table`). Icons (`@phosphor-icons/react`), `react-day-picker` (used by `Calendar`/`DatePicker`), and `cva`/`clsx`/`tailwind-merge` ship as regular dependencies and are externalized from the bundle so a single copy is deduped.
+### Imports, SSR boundaries & peers — the consumption contract
+
+- **`Table` is deep-import only.** It is intentionally **not** re-exported from the barrel; import it as `import { Table } from '@ogcr/design-system/Table'`. It is the one component that pulls in `@tanstack/react-table`, so keeping it off the barrel means consumers who never render a table don't drag that peer into their dependency graph. `@tanstack/react-table` is declared an **optional** peer (`peerDependenciesMeta`) — install it only if you use `Table`; the install won't warn otherwise.
+- **`'use client'` boundary.** Every component entry — the barrel (`@ogcr/design-system`) and each deep import (`@ogcr/design-system/Button`) — ships with a `'use client'` directive as its first line. In a React Server Components app (Next.js App Router, etc.) importing from either draws the server/client boundary at the package edge, so the components Just Work from a Server Component. For the **smallest** client boundary in an RSC/perf-sensitive app, deep-import the specific components you render rather than pulling the whole barrel across the boundary.
+- **`cn()` is exported, and dependency-free.** The same `clsx` + `tailwind-merge` class-merge helper the components use is available as `import { cn } from '@ogcr/design-system'` (barrel) or, with **no** `'use client'` directive and no React in its graph, as `import { cn } from '@ogcr/design-system/cn'` — use the `/cn` deep import when you need to compose class names in a Server Component or other pure context.
+
+Peer dependencies the consumer provides: `react`/`react-dom` (^19), `@base-ui/react` (^1), and `@tanstack/react-table` (^8, **optional** — only if you use `Table`). Icons (`@phosphor-icons/react`), `react-day-picker` (used by `Calendar`/`DatePicker`), and `cva`/`clsx`/`tailwind-merge` ship as regular dependencies and are externalized from the bundle so a single copy is deduped.
 
 ## Local development
 

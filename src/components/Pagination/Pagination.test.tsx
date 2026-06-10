@@ -45,4 +45,21 @@ describe('Pagination', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Page 3' }))
     expect(onPageChange).not.toHaveBeenCalled()
   })
+
+  it('overrides the default copy via props (the strings seam)', () => {
+    render(
+      <Pagination
+        page={1}
+        pageCount={3}
+        navLabel="Paginación"
+        previousLabel="Anterior"
+        nextLabel="Siguiente"
+        pageLabel={(p) => `Página ${p}`}
+      />,
+    )
+    expect(screen.getByRole('navigation', { name: 'Paginación' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Anterior' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Siguiente' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Página 2' })).toBeInTheDocument()
+  })
 })

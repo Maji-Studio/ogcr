@@ -33,10 +33,17 @@ export * from './components/Sidesheet'
 export * from './components/Skeleton'
 export * from './components/Slider'
 export * from './components/Switch'
-export * from './components/Table'
+// Table is intentionally NOT re-exported from the barrel: it is the only component that pulls in
+// @tanstack/react-table (an optional peer). Deep-import it instead — `@ogcr/design-system/Table` —
+// so barrel consumers who never render a Table don't drag the peer into their graph.
 export * from './components/Tabs'
 export * from './components/Textarea'
 export * from './components/Toast'
 export * from './components/Toggle'
 export * from './components/Toolbar'
 export * from './components/Tooltip'
+
+// Utilities (not components). cn() is the class-merge helper every component uses internally;
+// exported so consumers can compose className overrides with the same clsx + tailwind-merge
+// semantics. Also available as the dependency-free deep import `@ogcr/design-system/cn`.
+export { cn } from './lib/cn'

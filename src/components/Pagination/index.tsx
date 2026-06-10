@@ -1,5 +1,6 @@
 import type { ComponentProps } from 'react'
 import { ArrowLeftIcon, ArrowRightIcon } from '../icons'
+import { dsStrings } from '../../lib/strings'
 import { cn } from '../../lib/cn'
 
 export type PaginationProps = Omit<ComponentProps<'nav'>, 'children' | 'onChange'> & {
@@ -10,6 +11,14 @@ export type PaginationProps = Omit<ComponentProps<'nav'>, 'children' | 'onChange
   onPageChange?: (page: number) => void
   /** Pages shown either side of the current page. Defaults to 1. */
   siblingCount?: number
+  /** aria-label for the <nav> landmark. */
+  navLabel?: string
+  /** aria-label for the previous-page button. */
+  previousLabel?: string
+  /** aria-label for the next-page button. */
+  nextLabel?: string
+  /** aria-label for a numbered page button, given its 1-based page number. */
+  pageLabel?: (page: number) => string
 }
 
 function range(start: number, end: number): number[] {
@@ -56,6 +65,10 @@ export function Pagination({
   pageCount,
   onPageChange,
   siblingCount = 1,
+  navLabel = dsStrings.pagination.navLabel,
+  previousLabel = dsStrings.pagination.previousLabel,
+  nextLabel = dsStrings.pagination.nextLabel,
+  pageLabel = dsStrings.pagination.pageLabel,
   className,
   ...rest
 }: PaginationProps) {
@@ -65,12 +78,12 @@ export function Pagination({
   }
 
   return (
-    <nav aria-label="Pagination" {...rest} data-slot="pagination" className={className}>
+    <nav aria-label={navLabel} {...rest} data-slot="pagination" className={className}>
       <ul className="flex items-center gap-4 list-none m-0 p-0">
         <li>
           <button
             type="button"
-            aria-label="Previous page"
+            aria-label={previousLabel}
             disabled={page <= 1}
             onClick={() => go(page - 1)}
             className={cn(cell, iconCell)}
@@ -88,7 +101,7 @@ export function Pagination({
             <li key={p}>
               <button
                 type="button"
-                aria-label={`Page ${p}`}
+                aria-label={pageLabel(p)}
                 aria-current={p === page ? 'page' : undefined}
                 onClick={() => go(p)}
                 className={cn(cell, p === page && activeCell)}
@@ -101,7 +114,7 @@ export function Pagination({
         <li>
           <button
             type="button"
-            aria-label="Next page"
+            aria-label={nextLabel}
             disabled={page >= pageCount}
             onClick={() => go(page + 1)}
             className={cn(cell, iconCell)}

@@ -31,4 +31,12 @@ describe('Combobox', () => {
     render(<Combobox items={items} error placeholder="Search" />)
     expect(screen.getByPlaceholderText('Search')).toHaveAttribute('aria-invalid', 'true')
   })
+
+  it('associates a label and links helperText via aria-describedby', () => {
+    render(<Combobox items={items} label="Pathway" helperText="Start typing to search" />)
+    const input = screen.getByLabelText('Pathway')
+    const describedBy = input.getAttribute('aria-describedby')
+    expect(describedBy).toBeTruthy()
+    expect(document.getElementById(describedBy!)).toHaveTextContent('Start typing to search')
+  })
 })

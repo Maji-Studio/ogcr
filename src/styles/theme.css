@@ -6,10 +6,35 @@
  * Convention mirrors `/14 Manukai/.../assets/styles` — a single
  * `@theme inline` block holds primitives + semantics + scales +
  * typography in one place. Tailwind v4 surfaces every token as a
- * utility (`bg-color-surface-positive`, `p-16`, `rounded-12`,
- * `text-h1`) and CSS resolves the var() refs at runtime, which
- * preserves themability (override any token under :root and the
- * utilities follow).
+ * utility (`bg-surface-positive`, `p-16`, `rounded-12`, `text-h1`).
+ *
+ * THE `@theme inline` CONTRACT (what actually ships — verified
+ * against built styles.css, not the old folklore):
+ *   - `inline` controls how UTILITIES reference a token: the token's
+ *     *value* is baked directly into the utility body. A token whose
+ *     value is a LITERAL (`--radius-12: 12px`) bakes that literal
+ *     (`.rounded-12{border-radius:12px}`) — NOT runtime-themeable.
+ *     A token whose value is a `var()` REFERENCE
+ *     (`--color-surface-page: var(--ds-surface-page)`) bakes the
+ *     reference (`.bg-surface-page{background-color:var(--ds-…)}`) —
+ *     runtime-themeable via that var.
+ *   - Tailwind STILL emits each referenced token to `:root,:host`
+ *     (e.g. `--color-surface-page:var(--ds-surface-page)`), so plain
+ *     `var(--color-*)` refs elsewhere (global.css `body`, the
+ *     `--shadow-focus-*` tokens below) resolve correctly. It does
+ *     NOT recursively inline a `--shadow-*` token's nested
+ *     `var(--color-*)`, so the focus shadows ride the seam through
+ *     that emitted `:root` property.
+ *
+ * THE SEAM: all 49 COLOR tokens here are `var(--ds-*)` references
+ * into src/styles/palette.css, which holds the brand hex literals as
+ * runtime `:root` custom properties. That is what makes colors
+ * themeable; palette.css is the only place a brand hex appears, and
+ * scripts/check-token-seam.mjs (npm run check:tokens) fails the build
+ * if any color utility re-bakes a literal here. Radius / spacing /
+ * font / elevation tokens stay literal by design (no brand-variance
+ * need yet — moving them onto the seam later is the same mechanical
+ * step).
  *
  * Layers (top-to-bottom in this file):
  *   1. Primitive colors   — raw palette
@@ -31,68 +56,68 @@
  * ============================================================ */
 
 @theme inline {
-  /* --- 1. Primitive colors ----------------------------------- */
-  --color-brand-blue-300: #3f88c6;
-  --color-brand-blue-800: #1c3d59;
-  --color-brand-green-500: #6db087;
+  /* --- 1. Primitive colors (→ palette.css seam) -------------- */
+  --color-brand-blue-300: var(--ds-brand-blue-300);
+  --color-brand-blue-800: var(--ds-brand-blue-800);
+  --color-brand-green-500: var(--ds-brand-green-500);
 
-  --color-red-500: #ef4444;
-  --color-red-600: #dc2626;
-  --color-orange-400: #fb923c;
-  --color-orange-500: #f97316;
-  --color-amber-300: #fcd34d;
-  --color-yellow-300: #fde047;       /* Figma: yellow/300 */
-  --color-white: #ffffff;
+  --color-red-500: var(--ds-red-500);
+  --color-red-600: var(--ds-red-600);
+  --color-orange-400: var(--ds-orange-400);
+  --color-orange-500: var(--ds-orange-500);
+  --color-amber-300: var(--ds-amber-300);
+  --color-yellow-300: var(--ds-yellow-300);     /* Figma: yellow/300 */
+  --color-white: var(--ds-white);
 
-  /* --- 2. Semantic colors ------------------------------------ */
+  /* --- 2. Semantic colors (→ palette.css seam) --------------- */
   /* Text */
-  --color-text-primary: #0f3655;
-  --color-text-secondary: #6a8196;
-  --color-text-neutral: #334155;
-  --color-text-positive: #4f8263;    /* Figma: text/positive */
-  --color-text-negative: #b91c1c;
-  --color-text-warning: #c2410c;
-  --color-text-progress: #265277;    /* Figma: text/progress */
+  --color-text-primary: var(--ds-text-primary);
+  --color-text-secondary: var(--ds-text-secondary);
+  --color-text-neutral: var(--ds-text-neutral);
+  --color-text-positive: var(--ds-text-positive);      /* Figma: text/positive */
+  --color-text-negative: var(--ds-text-negative);
+  --color-text-warning: var(--ds-text-warning);
+  --color-text-progress: var(--ds-text-progress);      /* Figma: text/progress */
 
   /* Icon */
-  --color-icon-primary: #0f3655;
-  --color-icon-secondary: #6a8196;
-  --color-icon-neutral: #334155;
-  --color-icon-positive: #4f8263;    /* Figma: icon/positive */
-  --color-icon-negative: #b91c1c;
-  --color-icon-warning: #c2410c;
-  --color-icon-progress: #265277;    /* Figma: icon/progress */
+  --color-icon-primary: var(--ds-icon-primary);
+  --color-icon-secondary: var(--ds-icon-secondary);
+  --color-icon-neutral: var(--ds-icon-neutral);
+  --color-icon-positive: var(--ds-icon-positive);      /* Figma: icon/positive */
+  --color-icon-negative: var(--ds-icon-negative);
+  --color-icon-warning: var(--ds-icon-warning);
+  --color-icon-progress: var(--ds-icon-progress);      /* Figma: icon/progress */
 
   /* Surface */
-  --color-surface-page: #f8f3ef;
-  --color-surface-light: #ffffff;
-  --color-surface-neutral: #f5f5f4;
-  --color-surface-strong: #0f3655;
-  --color-surface-inverted: #443321;
-  --color-surface-positive: #e2efe6;
-  --color-surface-warning: #ffedd5;
-  --color-surface-negative: #fee2e2;
-  --color-surface-progress: #e2edf6; /* Figma: surface/progress */
+  --color-surface-page: var(--ds-surface-page);
+  --color-surface-light: var(--ds-surface-light);
+  --color-surface-neutral: var(--ds-surface-neutral);
+  --color-surface-strong: var(--ds-surface-strong);
+  --color-surface-inverted: var(--ds-surface-inverted);
+  --color-surface-positive: var(--ds-surface-positive);
+  --color-surface-warning: var(--ds-surface-warning);
+  --color-surface-negative: var(--ds-surface-negative);
+  --color-surface-progress: var(--ds-surface-progress); /* Figma: surface/progress */
 
   /* Border */
-  --color-border-light: #e7e5e4;
-  --color-border-medium: #d6d3d1;
-  --color-border-strong: #a8a29e;
-  --color-border-default: #01012e14;
-  --color-border-high-contrast: #443321;
-  --color-border-positive-light: #c5dfce;
-  --color-border-warning-light: #fed7aa;
-  --color-border-negative-light: #fecaca;
-  --color-border-negative-strong: #dc2626;
+  --color-border-light: var(--ds-border-light);
+  --color-border-medium: var(--ds-border-medium);
+  --color-border-strong: var(--ds-border-strong);
+  --color-border-default: var(--ds-border-default);
+  --color-border-high-contrast: var(--ds-border-high-contrast);
+  --color-border-positive-light: var(--ds-border-positive-light);
+  --color-border-warning-light: var(--ds-border-warning-light);
+  --color-border-negative-light: var(--ds-border-negative-light);
+  --color-border-negative-strong: var(--ds-border-negative-strong);
 
   /* Interaction */
-  --color-interaction-primary-default: #4f8263;
-  --color-interaction-primary-hover: #335641;       /* Figma: interaction/primary-hover */
-  --color-interaction-primary-active: #335641;      /* Figma: interaction/primary-active */
-  --color-interaction-primary-focus: #e2efe6;
-  --color-interaction-secondary-focus: #c3daed;     /* Figma: interaction/secondary-focus */
-  --color-interaction-tertiary-active: #e2efe6;     /* Figma: interaction/tertiary-active */
-  --color-focus-ring-error: #fecaca;
+  --color-interaction-primary-default: var(--ds-interaction-primary-default);
+  --color-interaction-primary-hover: var(--ds-interaction-primary-hover);     /* Figma: interaction/primary-hover */
+  --color-interaction-primary-active: var(--ds-interaction-primary-active);   /* Figma: interaction/primary-active */
+  --color-interaction-primary-focus: var(--ds-interaction-primary-focus);
+  --color-interaction-secondary-focus: var(--ds-interaction-secondary-focus); /* Figma: interaction/secondary-focus */
+  --color-interaction-tertiary-active: var(--ds-interaction-tertiary-active); /* Figma: interaction/tertiary-active */
+  --color-focus-ring-error: var(--ds-focus-ring-error);
 
   /* Focus rings (Figma effects: focus-primary / focus-secondary)
      Two-stop pattern: an inner 2px surface-light halo creates breathing

@@ -3,12 +3,15 @@
  * Single import point for consumers and the app itself.
  *
  * Load order matters:
- *   1. tailwindcss — generates utilities & layer scaffolding
- *   2. reset.css   — tiny normalize layer
- *   3. theme.css   — design tokens (must come before any rule
+ *   1. palette.css — runtime --ds-* brand palette (the theming
+ *                    seam; theme.css token values reference it)
+ *   2. tailwindcss — generates utilities & layer scaffolding
+ *   3. reset.css   — tiny normalize layer
+ *   4. theme.css   — design tokens (must come before any rule
  *                    that references var() or @apply)
  * ============================================================ */
 
+@import './palette.css';
 @import 'tailwindcss';
 @import './reset.css';
 @import './theme.css';

@@ -8,22 +8,13 @@ import {
   type ReactElement,
   type ReactNode,
 } from 'react'
+import { FieldProvider, mergeIds } from '../../lib/field'
 import { cn } from '../../lib/cn'
 
 type WiredFieldChildProps = {
   id?: string
   'aria-describedby'?: string
   'aria-invalid'?: boolean | 'true' | 'false'
-}
-
-/** Merge ids into a space-separated aria-describedby value, dedup-safe. */
-function mergeDescribedBy(...ids: Array<string | undefined>) {
-  const set = new Set<string>()
-  for (const id of ids) {
-    if (!id) continue
-    for (const part of id.split(/\s+/).filter(Boolean)) set.add(part)
-  }
-  return set.size ? Array.from(set).join(' ') : undefined
 }
 
 export type FormProps = FormHTMLAttributes<HTMLFormElement>
@@ -126,14 +117,15 @@ export function FormField({
   const helperId = helperText || errorText ? `${controlId}-helper` : undefined
   const error = Boolean(errorText)
 
-  // Wire the single child control to the label + helper + error semantics.
-  // Falls back to rendering children as-is when more than one element is
-  // passed (custom composition) — consumers in that case must wire ids manually.
+  // Our own controls (Input, Select, …) read the FieldContext below and wire themselves. The
+  // cloneElement here is the fallback path for opaque children (a raw <input>, a third-party
+  // control) that don't consume the context — it injects the same id/aria so they still associate.
+  // Both paths agree (same controlId/helperId/error), and mergeIds dedups any overlap.
   const wiredChild =
     isValidElement(children)
       ? cloneElement(children as ReactElement<WiredFieldChildProps>, {
           id: controlId,
-          'aria-describedby': mergeDescribedBy(
+          'aria-describedby': mergeIds(
             (children as ReactElement<WiredFieldChildProps>).props['aria-describedby'],
             helperId,
           ),
@@ -162,7 +154,16 @@ export function FormField({
           )}
         </label>
       )}
-      {wiredChild}
+      <FieldProvider
+        value={{
+          controlId,
+          describedBy: helperId,
+          invalid: error || undefined,
+          required,
+        }}
+      >
+        {wiredChild}
+      </FieldProvider>
       {(errorText || helperText) && (
         <p
           id={helperId}

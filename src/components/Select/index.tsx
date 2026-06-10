@@ -1,5 +1,8 @@
 import type { ComponentProps, ReactNode } from 'react'
 import { Select as BaseSelect } from '@base-ui/react/select'
+import { OVERLAY_SIDE_OFFSET, overlayPopupClassName } from '../../lib/overlay'
+import { useField, type FieldAriaInvalid } from '../../lib/field'
+import { dsStrings } from '../../lib/strings'
 import { cn } from '../../lib/cn'
 import { CaretDownIcon } from '../icons'
 
@@ -28,6 +31,12 @@ export type SelectProps = Omit<
   name?: string
   id?: string
   error?: boolean
+  /** Optional label rendered above the trigger (associated via `htmlFor`). */
+  label?: ReactNode
+  /** Helper text below the trigger; replaced by `errorText` when that is set. */
+  helperText?: ReactNode
+  /** Validation message. When set, renders in negative tone and forces `error`. */
+  errorText?: ReactNode
   /** Applies to the trigger element. */
   className?: string
   side?: SelectSide
@@ -47,23 +56,36 @@ export function Select({
   value,
   defaultValue,
   onValueChange,
-  placeholder = 'Select…',
+  placeholder = dsStrings.select.placeholder,
   disabled = false,
   required,
   name,
   id,
   error = false,
+  label,
+  helperText,
+  errorText,
   className,
   side = 'bottom',
   align = 'start',
-  sideOffset = 8,
+  sideOffset = OVERLAY_SIDE_OFFSET,
   'aria-label': ariaLabel,
   'aria-labelledby': ariaLabelledby,
   'aria-describedby': ariaDescribedby,
   'aria-invalid': ariaInvalid,
   ...rest
 }: SelectProps) {
-  return (
+  const field = useField({
+    id,
+    label,
+    helperText,
+    errorText,
+    error,
+    'aria-describedby': ariaDescribedby,
+    'aria-invalid': ariaInvalid as FieldAriaInvalid | undefined,
+  })
+
+  const control = (
     <BaseSelect.Root
       items={options.map((option) => ({ label: option.label, value: option.value }))}
       value={value}
@@ -75,11 +97,11 @@ export function Select({
     >
       <BaseSelect.Trigger
         {...rest}
-        id={id}
+        id={field.controlProps.id}
         aria-label={ariaLabel}
         aria-labelledby={ariaLabelledby}
-        aria-invalid={ariaInvalid ?? (error || undefined)}
-        aria-describedby={ariaDescribedby}
+        aria-invalid={field.controlProps['aria-invalid']}
+        aria-describedby={field.controlProps['aria-describedby']}
         data-slot="select-trigger"
         className={cn(
           'group flex items-center justify-between gap-12 w-full h-48 px-16 text-left',
@@ -90,7 +112,7 @@ export function Select({
           'focus-visible:border-interaction-primary-default focus-visible:shadow-focus-primary',
           'data-[popup-open]:border-interaction-primary-default',
           'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-60 data-[disabled]:hover:border-border-medium',
-          error && 'border-border-negative-strong focus-visible:shadow-focus-error',
+          field.isError && 'border-border-negative-strong focus-visible:shadow-focus-error',
           className,
         )}
       >
@@ -112,16 +134,13 @@ export function Select({
           align={align}
           sideOffset={sideOffset}
           alignItemWithTrigger={false}
-          className="z-50 outline-none"
+          className="z-[var(--ds-z-overlay)] outline-none"
         >
           <BaseSelect.Popup
             data-slot="select"
             className={cn(
               'min-w-[var(--anchor-width)] max-h-[min(var(--available-height),320px)] overflow-y-auto p-4',
-              'bg-surface-light border border-border-light rounded-12 shadow-elevation-l',
-              'outline-none origin-[var(--transform-origin)] transition-[transform,opacity] duration-150',
-              'data-[starting-style]:opacity-0 data-[ending-style]:opacity-0',
-              'data-[starting-style]:scale-95 data-[ending-style]:scale-95',
+              overlayPopupClassName,
             )}
           >
             {options.map((option) => (
@@ -162,5 +181,38 @@ export function Select({
         </BaseSelect.Positioner>
       </BaseSelect.Portal>
     </BaseSelect.Root>
+  )
+
+  // Standalone with no label/helper (or inside a FormField that owns the chrome): render the
+  // control bare, preserving the original structure. Otherwise wrap it with its label + helper.
+  if (!field.renderChrome || (!label && !field.descriptionText)) {
+    return control
+  }
+
+  return (
+    <div data-slot="select-field" className="flex flex-col gap-4 w-full">
+      {label && (
+        <label
+          htmlFor={field.fieldId}
+          data-slot="select-label"
+          className="font-standard font-normal text-s leading-[1.4] text-text-secondary"
+        >
+          {label}
+        </label>
+      )}
+      {control}
+      {field.descriptionText && (
+        <p
+          id={field.descriptionId}
+          data-slot="select-helper"
+          className={cn(
+            'm-0 font-standard font-normal text-s leading-[1.4]',
+            field.isError ? 'text-text-negative' : 'text-text-secondary',
+          )}
+        >
+          {field.descriptionText}
+        </p>
+      )}
+    </div>
   )
 }

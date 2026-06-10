@@ -77,6 +77,10 @@ export default defineConfig({
       input: {
         index: path.resolve(dirname, 'src/index.ts'),
         styles: path.resolve(dirname, 'src/styles/global.css'),
+        // The cn() class-merge helper as a dependency-free deep import (`@ogcr/design-system/cn`).
+        // Key `lib/cn` keeps the JS (dist/lib/cn.js) and dts (dist/lib/cn.d.ts) aligned under the
+        // src-mirroring entryRoot, so the `./cn` export subpath resolves both.
+        'lib/cn': path.resolve(dirname, 'src/lib/cn.ts'),
         ...componentEntries,
       },
       external: [

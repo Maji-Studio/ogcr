@@ -1,4 +1,5 @@
-import { useId, type TextareaHTMLAttributes } from 'react'
+import { type TextareaHTMLAttributes } from 'react'
+import { useField, type FieldAriaInvalid } from '../../lib/field'
 import { cn } from '../../lib/cn'
 
 export type TextareaResize = 'none' | 'vertical' | 'horizontal' | 'both'
@@ -23,24 +24,30 @@ export function Textarea({
   label,
   helperText,
   errorText,
-  error: errorProp = false,
+  error = false,
   resize = 'vertical',
   rows = 4,
   id,
   className,
+  'aria-describedby': ariaDescribedby,
+  'aria-invalid': ariaInvalid,
   ...rest
 }: TextareaProps) {
-  const generatedId = useId()
-  const inputId = id ?? generatedId
-  const error = errorProp || Boolean(errorText)
-  const description = errorText ?? helperText
-  const helperId = description ? `${inputId}-helper` : undefined
+  const field = useField({
+    id,
+    label,
+    helperText,
+    errorText,
+    error,
+    'aria-describedby': ariaDescribedby,
+    'aria-invalid': ariaInvalid as FieldAriaInvalid | undefined,
+  })
 
   return (
     <div data-slot="textarea" className={cn('flex flex-col gap-4 w-full', className)}>
-      {label && (
+      {field.renderChrome && label && (
         <label
-          htmlFor={inputId}
+          htmlFor={field.fieldId}
           data-slot="textarea-label"
           className="font-standard font-normal text-s leading-[1.4] text-text-secondary"
         >
@@ -48,7 +55,6 @@ export function Textarea({
         </label>
       )}
       <textarea
-        id={inputId}
         data-slot="textarea-control"
         rows={rows}
         className={cn(
@@ -60,22 +66,21 @@ export function Textarea({
           'focus:border-interaction-primary-default focus:shadow-focus-primary',
           'disabled:cursor-not-allowed disabled:text-text-secondary disabled:opacity-60',
           resizeClass[resize],
-          error && 'border-border-negative-strong focus:shadow-focus-error',
+          field.isError && 'border-border-negative-strong focus:shadow-focus-error',
         )}
-        aria-invalid={error || undefined}
-        aria-describedby={helperId}
         {...rest}
+        {...field.controlProps}
       />
-      {description && (
+      {field.renderChrome && field.descriptionText && (
         <p
-          id={helperId}
+          id={field.descriptionId}
           data-slot="textarea-helper"
           className={cn(
             'm-0 font-standard font-normal text-s leading-[1.4]',
-            error ? 'text-text-negative' : 'text-text-secondary',
+            field.isError ? 'text-text-negative' : 'text-text-secondary',
           )}
         >
-          {description}
+          {field.descriptionText}
         </p>
       )}
     </div>

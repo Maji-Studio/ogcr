@@ -1,5 +1,7 @@
 import type { ComponentProps, ReactNode } from 'react'
 import { Toast as BaseToast } from '@base-ui/react/toast'
+import { overlaySurfaceClassName } from '../../lib/overlay'
+import { dsStrings } from '../../lib/strings'
 import { cn } from '../../lib/cn'
 import {
   BellIcon,
@@ -29,9 +31,16 @@ function isToastTone(value: string | undefined): value is ToastTone {
 }
 
 /** Props forwarded onto every per-toast `BaseToast.Root` (the styleable item surface). */
-type ToastItemProps = Omit<ComponentProps<typeof BaseToast.Root>, 'toast' | 'children'>
+type ToastItemProps = Omit<ComponentProps<typeof BaseToast.Root>, 'toast' | 'children'> & {
+  /** Accessible label for each toast's close button. */
+  dismissLabel?: string
+}
 
-function ToastList({ className, ...rest }: ToastItemProps) {
+function ToastList({
+  className,
+  dismissLabel = dsStrings.toast.dismissLabel,
+  ...rest
+}: ToastItemProps) {
   const { toasts } = useToast()
   return toasts.map((toast) => {
     const tone = isToastTone(toast.type) ? toast.type : 'neutral'
@@ -44,7 +53,9 @@ function ToastList({ className, ...rest }: ToastItemProps) {
         data-slot="toast"
         className={cn(
           'relative flex items-start gap-12 w-full p-16 pr-40',
-          'bg-surface-light border border-border-light border-l-4 rounded-12 shadow-elevation-l outline-none',
+          // Shared card surface; the colored left accent (border-l-4 + tone) rides on top.
+          overlaySurfaceClassName,
+          'border-l-4 outline-none',
           'transition-all duration-200',
           'data-[starting-style]:opacity-0 data-[starting-style]:translate-y-2',
           'data-[ending-style]:opacity-0 data-[ending-style]:translate-y-2',
@@ -66,7 +77,7 @@ function ToastList({ className, ...rest }: ToastItemProps) {
           )}
         </div>
         <BaseToast.Close
-          aria-label="Dismiss"
+          aria-label={dismissLabel}
           data-slot="toast-close"
           className="absolute top-12 right-12 inline-flex items-center justify-center w-24 h-24 bg-transparent border-0 rounded-8 cursor-pointer text-icon-secondary outline-none transition-colors duration-150 hover:bg-surface-neutral hover:text-icon-primary focus-visible:shadow-focus-primary [&>svg]:w-16 [&>svg]:h-16"
         >
@@ -99,7 +110,7 @@ export function ToastProvider({ children, timeout, limit, ...rest }: ToastProvid
       <BaseToast.Portal>
         <BaseToast.Viewport
           data-slot="toast-viewport"
-          className="fixed bottom-0 right-0 z-[100] flex flex-col gap-8 p-16 w-[400px] max-w-[100vw] outline-none"
+          className="fixed bottom-0 right-0 z-[var(--ds-z-toast)] flex flex-col gap-8 p-16 w-[400px] max-w-[100vw] outline-none"
         >
           <ToastList {...rest} />
         </BaseToast.Viewport>

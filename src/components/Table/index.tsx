@@ -8,6 +8,7 @@ import {
   type SortingState,
 } from '@tanstack/react-table'
 import { useState, type ComponentProps, type ReactNode } from 'react'
+import { dsStrings } from '../../lib/strings'
 import { cn } from '../../lib/cn'
 
 declare module '@tanstack/react-table' {
@@ -133,7 +134,7 @@ export function DataTable<T>({
                   colSpan={columns.length}
                   className="py-32 px-16 text-center text-text-secondary text-s font-mono uppercase tracking-[0.12em]"
                 >
-                  {emptyState ?? 'No records'}
+                  {emptyState ?? dsStrings.table.emptyMessage}
                 </td>
               </tr>
             ) : (

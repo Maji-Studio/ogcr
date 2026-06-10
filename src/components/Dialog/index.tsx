@@ -2,6 +2,8 @@ import type { ComponentProps, ReactElement, ReactNode } from 'react'
 import { Dialog as BaseDialog } from '@base-ui/react/dialog'
 import { Button } from '../Button'
 import { XIcon } from '../icons'
+import { overlayBackdropClassName, overlaySurfaceClassName } from '../../lib/overlay'
+import { dsStrings } from '../../lib/strings'
 import { cn } from '../../lib/cn'
 
 export type DialogSize = 's' | 'm' | 'l'
@@ -28,6 +30,8 @@ export type DialogProps = Omit<
   secondaryAction?: DialogAction
   /** Render the corner close affordance. Defaults to `true`. */
   showClose?: boolean
+  /** Accessible label for the corner close button. */
+  closeLabel?: string
   size?: DialogSize
   open?: boolean
   defaultOpen?: boolean
@@ -43,18 +47,17 @@ const sizeWidth: Record<DialogSize, string> = {
 
 /** Shared centered backdrop used by Dialog and AlertDialog. */
 // eslint-disable-next-line react-refresh/only-export-components -- shared class string reused by AlertDialog
-export const dialogBackdropClassName = cn(
-  'fixed inset-0 z-50 bg-black/40',
-  'data-[starting-style]:opacity-0 data-[ending-style]:opacity-0',
-  'transition-opacity duration-200',
-)
+export const dialogBackdropClassName = cn(overlayBackdropClassName, 'z-[var(--ds-z-overlay)]')
 
 /** Shared centered popup chrome used by Dialog and AlertDialog. */
 // eslint-disable-next-line react-refresh/only-export-components -- shared class string reused by AlertDialog
 export const dialogPopupClassName = cn(
-  'fixed left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2',
+  'fixed left-1/2 top-1/2 z-[var(--ds-z-overlay)] -translate-x-1/2 -translate-y-1/2',
   'flex flex-col gap-16 p-24 max-w-[calc(100vw-32px)] max-h-[calc(100dvh-32px)] overflow-y-auto',
-  'bg-surface-light border border-border-light rounded-16 shadow-elevation-l outline-none',
+  // Centered modal: the shared card surface, but rounded-16 (vs the popup default 12) and a
+  // longer, origin-center transition rather than the anchored positioned-popup motion.
+  overlaySurfaceClassName,
+  'rounded-16 outline-none',
   'origin-center transition-[transform,opacity] duration-200',
   'data-[starting-style]:opacity-0 data-[ending-style]:opacity-0',
   'data-[starting-style]:scale-95 data-[ending-style]:scale-95',
@@ -68,6 +71,7 @@ export function Dialog({
   primaryAction,
   secondaryAction,
   showClose = true,
+  closeLabel = dsStrings.dialog.closeLabel,
   size = 'm',
   open,
   defaultOpen,
@@ -102,7 +106,7 @@ export function Dialog({
             </div>
             {showClose && (
               <BaseDialog.Close
-                aria-label="Close"
+                aria-label={closeLabel}
                 className="inline-flex items-center justify-center w-32 h-32 -mr-4 -mt-4 shrink-0 bg-transparent border-0 rounded-8 cursor-pointer text-icon-secondary transition-colors duration-150 hover:bg-surface-neutral hover:text-icon-primary focus-visible:outline-none focus-visible:shadow-focus-primary [&>svg]:w-20 [&>svg]:h-20"
               >
                 <XIcon />

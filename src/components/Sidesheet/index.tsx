@@ -3,6 +3,8 @@ import { Dialog } from '@base-ui/react/dialog'
 import { Button } from '../Button'
 import { Pill } from '../Pill'
 import { ArrowLeftIcon, XIcon } from '../icons'
+import { overlayBackdropClassName } from '../../lib/overlay'
+import { dsStrings } from '../../lib/strings'
 import { cn } from '../../lib/cn'
 
 export type SidesheetAction = {
@@ -18,6 +20,8 @@ export type SidesheetProps = Omit<
   title: ReactNode
   trigger?: ReactElement
   navLabel?: string
+  /** Accessible label for the close button. */
+  closeLabel?: string
   status?: string
   onBack?: () => void
   primaryAction?: SidesheetAction
@@ -35,6 +39,7 @@ export function Sidesheet({
   title,
   trigger,
   navLabel,
+  closeLabel = dsStrings.sidesheet.closeLabel,
   status,
   onBack,
   primaryAction,
@@ -58,17 +63,15 @@ export function Sidesheet({
       <Dialog.Portal>
         <Dialog.Backdrop
           data-slot="sidesheet-backdrop"
-          className={cn(
-            'fixed inset-0 bg-black/40 z-40',
-            'data-[starting-style]:opacity-0 data-[ending-style]:opacity-0',
-            'transition-opacity duration-200',
-          )}
+          // z-40 (deliberately one layer below the overlay token): the sheet scrim sits under
+          // the overlay stacking layer, not on it.
+          className={cn(overlayBackdropClassName, 'z-40')}
         />
         <Dialog.Popup
           {...rest}
           data-slot="sidesheet"
           className={cn(
-            'fixed top-0 right-0 z-50 flex flex-col w-[480px] h-screen max-w-[100vw] bg-surface-light shadow-elevation-l overflow-hidden',
+            'fixed top-0 right-0 z-[var(--ds-z-overlay)] flex flex-col w-[480px] h-screen max-w-[100vw] bg-surface-light shadow-elevation-l overflow-hidden',
             'outline-none',
             'data-[starting-style]:translate-x-full data-[ending-style]:translate-x-full',
             'transition-transform duration-200 ease-out',
@@ -87,7 +90,7 @@ export function Sidesheet({
               <span />
             )}
             <Dialog.Close
-              aria-label="Close"
+              aria-label={closeLabel}
               className="inline-flex items-center justify-center w-40 h-40 bg-surface-light border border-border-medium rounded-12 cursor-pointer text-icon-primary transition-colors duration-150 hover:bg-surface-neutral focus-visible:outline-none focus-visible:shadow-focus-primary [&>svg]:w-24 [&>svg]:h-24"
             >
               <XIcon />

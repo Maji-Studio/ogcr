@@ -1,6 +1,7 @@
 import type { ComponentProps, ReactElement, ReactNode } from 'react'
 import { Menu } from '@base-ui/react/menu'
 import { Pill } from '../Pill'
+import { OVERLAY_SIDE_OFFSET, overlayPopupClassName } from '../../lib/overlay'
 import { cn } from '../../lib/cn'
 
 export type ContextMenuItem = {
@@ -42,7 +43,7 @@ export function ContextMenu({
   onOpenChange,
   side = 'bottom',
   align = 'start',
-  sideOffset = 8,
+  sideOffset = OVERLAY_SIDE_OFFSET,
   ...rest
 }: ContextMenuProps) {
   return (
@@ -57,13 +58,7 @@ export function ContextMenu({
           <Menu.Popup
             {...rest}
             data-slot="context-menu"
-            className={cn(
-              'w-[320px] flex flex-col gap-16 p-16 bg-surface-light border border-border-light rounded-12 shadow-elevation-l',
-              'outline-none origin-[var(--transform-origin)] transition-[transform,opacity] duration-150',
-              'data-[starting-style]:opacity-0 data-[ending-style]:opacity-0',
-              'data-[starting-style]:scale-95 data-[ending-style]:scale-95',
-              className,
-            )}
+            className={cn('w-[320px] flex flex-col gap-16 p-16', overlayPopupClassName, className)}
           >
             {(header || status) && (
               // role="presentation" keeps this title/status chrome out of the
