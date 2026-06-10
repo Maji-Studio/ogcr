@@ -8,6 +8,7 @@ import {
   WarningOctagonIcon,
   XIcon,
 } from '../icons'
+import { dsStrings } from '../../lib/strings'
 import { cn } from '../../lib/cn'
 
 const wrapper = cva(
@@ -54,6 +55,8 @@ export type MessageProps = ComponentPropsWithoutRef<'div'> & {
   actionLabel?: string
   onAction?: () => void
   onDismiss?: () => void
+  /** Accessible label for the dismiss button (floating type only). */
+  dismissLabel?: string
 }
 
 export function Message({
@@ -64,6 +67,7 @@ export function Message({
   actionLabel,
   onAction,
   onDismiss,
+  dismissLabel = dsStrings.message.dismissLabel,
   className,
   ...rest
 }: MessageProps) {
@@ -103,7 +107,7 @@ export function Message({
         <button
           data-slot="message-close"
           type="button"
-          aria-label="Dismiss"
+          aria-label={dismissLabel}
           onClick={onDismiss}
           className="inline-flex items-center justify-center w-40 h-40 shrink-0 bg-transparent border border-current rounded-12 cursor-pointer transition-colors duration-150 hover:bg-white/40 focus-visible:outline-none focus-visible:shadow-focus-primary [&>svg]:w-24 [&>svg]:h-24"
         >

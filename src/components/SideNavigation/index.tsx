@@ -306,7 +306,7 @@ export function SideNavigation({
             <Dialog.Popup
               data-slot="sidebar-mobile-drawer"
               className={cn(
-                'fixed top-0 left-0 z-50 flex flex-col w-[88vw] max-w-[360px] h-svh bg-surface-light shadow-elevation-l outline-none',
+                'fixed top-0 left-0 z-[var(--ds-z-overlay)] flex flex-col w-[88vw] max-w-[360px] h-svh bg-surface-light shadow-elevation-l outline-none',
                 'data-[starting-style]:-translate-x-full data-[ending-style]:-translate-x-full',
                 'transition-transform duration-200 ease-out',
                 className,

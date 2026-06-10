@@ -3,6 +3,7 @@ import type { Matcher } from 'react-day-picker'
 import { Popover } from '../Popover'
 import { Calendar } from '../Calendar'
 import { CalendarIcon, XIcon } from '../icons'
+import { dsStrings } from '../../lib/strings'
 import { cn } from '../../lib/cn'
 
 /* OGCR DatePicker — a single-date field that opens a Calendar in a Popover.
@@ -39,6 +40,8 @@ export type DatePickerProps = {
   disabledDates?: Matcher | Matcher[]
   /** Show a clear (✕) affordance when a date is selected. */
   clearable?: boolean
+  /** Accessible label for the clear (✕) button. */
+  clearLabel?: string
   /** Intl options for the trigger label. */
   formatOptions?: Intl.DateTimeFormatOptions
   /** Validation state — renders the field in negative tone (standalone form). */
@@ -58,12 +61,13 @@ export function DatePicker({
   value,
   defaultValue,
   onChange,
-  placeholder = 'Select date',
+  placeholder = dsStrings.datePicker.placeholder,
   disabled,
   minDate,
   maxDate,
   disabledDates,
   clearable = false,
+  clearLabel = dsStrings.datePicker.clearLabel,
   formatOptions = defaultFormat,
   error = false,
   required,
@@ -166,7 +170,7 @@ export function DatePicker({
         <button
           type="button"
           onClick={handleClear}
-          aria-label="Clear date"
+          aria-label={clearLabel}
           data-slot="date-picker-clear"
           className={cn(
             'absolute right-16 top-1/2 -translate-y-1/2 z-10 inline-flex items-center justify-center',

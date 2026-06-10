@@ -1,0 +1,98 @@
+/* ============================================================
+ * OGCR Design System — runtime palette (the theming seam)
+ * Source of truth: Figma file 2P6XrQJhT8I39IR5LGK7RT
+ *   (OGCR – Design System) — variable collections.
+ *
+ * Every brand color value lives here as a real `:root` custom
+ * property (`--ds-*`). theme.css's `@theme inline` color tokens
+ * are `var(--ds-*)` references, so Tailwind inlines the *reference*
+ * (not a literal hex) into every color utility — which makes the
+ * utilities runtime-themeable. Override any `--ds-*` on a scoping
+ * element (`:root`, a wrapper `div`, `.dark`) and every utility and
+ * focus-shadow that derives from it follows. See theme.css header
+ * for the full token contract.
+ *
+ * This file is the ONLY place the 49 brand hex literals appear.
+ * scripts/check-token-seam.mjs parses these `--ds-*` definitions as
+ * the authoritative palette and fails the build if any color
+ * utility re-bakes one of these hexes instead of referencing the
+ * seam.
+ *
+ * Names mirror the semantic tokens in theme.css 1:1 (drop `--color-`,
+ * add `--ds-`): `--color-surface-page` ⇄ `--ds-surface-page`.
+ *
+ * Last reconciled with Figma variables: 2026-05-24.
+ * ============================================================ */
+
+:root {
+  /* --- Primitive colors -------------------------------------- */
+  --ds-brand-blue-300: #3f88c6;
+  --ds-brand-blue-800: #1c3d59;
+  --ds-brand-green-500: #6db087;
+
+  --ds-red-500: #ef4444;
+  --ds-red-600: #dc2626;
+  --ds-orange-400: #fb923c;
+  --ds-orange-500: #f97316;
+  --ds-amber-300: #fcd34d;
+  --ds-yellow-300: #fde047;
+  --ds-white: #ffffff;
+
+  /* --- Semantic: text ---------------------------------------- */
+  --ds-text-primary: #0f3655;
+  --ds-text-secondary: #6a8196;
+  --ds-text-neutral: #334155;
+  --ds-text-positive: #4f8263;
+  --ds-text-negative: #b91c1c;
+  --ds-text-warning: #c2410c;
+  --ds-text-progress: #265277;
+
+  /* --- Semantic: icon ---------------------------------------- */
+  --ds-icon-primary: #0f3655;
+  --ds-icon-secondary: #6a8196;
+  --ds-icon-neutral: #334155;
+  --ds-icon-positive: #4f8263;
+  --ds-icon-negative: #b91c1c;
+  --ds-icon-warning: #c2410c;
+  --ds-icon-progress: #265277;
+
+  /* --- Semantic: surface ------------------------------------- */
+  --ds-surface-page: #f8f3ef;
+  --ds-surface-light: #ffffff;
+  --ds-surface-neutral: #f5f5f4;
+  --ds-surface-strong: #0f3655;
+  --ds-surface-inverted: #443321;
+  --ds-surface-positive: #e2efe6;
+  --ds-surface-warning: #ffedd5;
+  --ds-surface-negative: #fee2e2;
+  --ds-surface-progress: #e2edf6;
+
+  /* --- Semantic: border -------------------------------------- */
+  --ds-border-light: #e7e5e4;
+  --ds-border-medium: #d6d3d1;
+  --ds-border-strong: #a8a29e;
+  --ds-border-default: #01012e14;
+  --ds-border-high-contrast: #443321;
+  --ds-border-positive-light: #c5dfce;
+  --ds-border-warning-light: #fed7aa;
+  --ds-border-negative-light: #fecaca;
+  --ds-border-negative-strong: #dc2626;
+
+  /* --- Semantic: interaction --------------------------------- */
+  --ds-interaction-primary-default: #4f8263;
+  --ds-interaction-primary-hover: #335641;
+  --ds-interaction-primary-active: #335641;
+  --ds-interaction-primary-focus: #e2efe6;
+  --ds-interaction-secondary-focus: #c3daed;
+  --ds-interaction-tertiary-active: #e2efe6;
+  --ds-focus-ring-error: #fecaca;
+
+  /* --- Stacking: overlay z-index (runtime-overridable) -------- *
+   * Not colors — but they belong on the same runtime seam so a host
+   * can raise/lower the overlay and toast layers without rebuilding.
+   * Consumed via arbitrary values: `z-[var(--ds-z-overlay)]`,
+   * `z-[var(--ds-z-toast)]`. Toast sits above overlays. (check-token-seam
+   * only parses the `#hex` --ds-* tokens, so these are ignored by it.) */
+  --ds-z-overlay: 50;
+  --ds-z-toast: 100;
+}

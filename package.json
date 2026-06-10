@@ -1,16 +1,19 @@
 {
   "name": "@ogcr/design-system",
   "description": "OGCR design system — React 19 components, design tokens, and Tailwind v4 theme bridge.",
-  "private": true,
+  "private": false,
   "version": "0.1.0",
   "type": "module",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "sideEffects": [
     "*.css"
   ],
   "files": [
     "dist"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -19,6 +22,10 @@
     "./styles.css": "./dist/styles.css",
     "./manifest.json": "./dist/manifest.json",
     "./llms.txt": "./dist/llms.txt",
+    "./cn": {
+      "types": "./dist/lib/cn.d.ts",
+      "import": "./dist/lib/cn.js"
+    },
     "./Accordion": {
       "types": "./dist/components/Accordion/index.d.ts",
       "import": "./dist/components/Accordion/index.js"
@@ -191,7 +198,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "build:lib": "vite build --config vite.lib.config.ts && rm -f dist/styles.js dist/styles.js.map && node scripts/generate-lib-meta.mjs",
+    "build:lib": "vite build --config vite.lib.config.ts && rm -f dist/styles.js dist/styles.js.map && node scripts/generate-lib-meta.mjs && node scripts/inject-use-client.mjs && npm run check:tokens && npm run check:dist",
+    "check:tokens": "node scripts/check-token-seam.mjs",
+    "check:dist": "node scripts/check-dist.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
     "storybook": "storybook dev -p 6006",
@@ -208,6 +217,11 @@
     "@tanstack/react-table": "^8",
     "react": "^19",
     "react-dom": "^19"
+  },
+  "peerDependenciesMeta": {
+    "@tanstack/react-table": {
+      "optional": true
+    }
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",

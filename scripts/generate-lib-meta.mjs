@@ -74,6 +74,13 @@ const exportsMap = {
   './styles.css': './dist/styles.css',
   './manifest.json': './dist/manifest.json',
   './llms.txt': './dist/llms.txt',
+  // Dependency-free deep import of the cn() class-merge helper. Built as its own entry
+  // (lib/cn in vite.lib.config.ts); kept in this base map because pkg.exports is rebuilt
+  // from scratch on every run and would otherwise drop it.
+  './cn': {
+    types: './dist/lib/cn.d.ts',
+    import: './dist/lib/cn.js',
+  },
 };
 for (const component of components) {
   exportsMap[component.subpath] = {

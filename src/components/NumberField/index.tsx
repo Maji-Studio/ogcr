@@ -1,5 +1,7 @@
-import { useId, type ComponentProps } from 'react'
+import { type ComponentProps } from 'react'
 import { NumberField as BaseNumberField } from '@base-ui/react/number-field'
+import { useField, type FieldAriaInvalid } from '../../lib/field'
+import { dsStrings } from '../../lib/strings'
 import { cn } from '../../lib/cn'
 
 export type NumberFieldProps = Omit<
@@ -16,6 +18,10 @@ export type NumberFieldProps = Omit<
   errorText?: string
   error?: boolean
   placeholder?: string
+  /** Accessible label for the decrement stepper button. */
+  decrementLabel?: string
+  /** Accessible label for the increment stepper button. */
+  incrementLabel?: string
 }
 
 function MinusGlyph() {
@@ -53,11 +59,13 @@ export function NumberField({
   label,
   helperText,
   errorText,
-  error: errorProp = false,
+  error = false,
   disabled = false,
   required,
   readOnly,
   placeholder,
+  decrementLabel = dsStrings.numberField.decrementLabel,
+  incrementLabel = dsStrings.numberField.incrementLabel,
   name,
   id,
   format,
@@ -66,18 +74,21 @@ export function NumberField({
   'aria-invalid': ariaInvalid,
   ...rest
 }: NumberFieldProps) {
-  const generatedId = useId()
-  const inputId = id ?? generatedId
-  const error = errorProp || Boolean(errorText)
-  const description = errorText ?? helperText
-  const helperId = description ? `${inputId}-helper` : undefined
-  const describedBy = [ariaDescribedby, helperId].filter(Boolean).join(' ') || undefined
+  const field = useField({
+    id,
+    label,
+    helperText,
+    errorText,
+    error,
+    'aria-describedby': ariaDescribedby,
+    'aria-invalid': ariaInvalid as FieldAriaInvalid | undefined,
+  })
 
   return (
     <div data-slot="number-field" className={cn('flex flex-col gap-4 w-full', className)}>
-      {label && (
+      {field.renderChrome && label && (
         <label
-          htmlFor={inputId}
+          htmlFor={field.fieldId}
           data-slot="number-field-label"
           className="font-standard font-normal text-s leading-[1.4] text-text-secondary"
         >
@@ -86,7 +97,7 @@ export function NumberField({
       )}
       <BaseNumberField.Root
         {...rest}
-        id={inputId}
+        id={field.fieldId}
         value={value}
         defaultValue={value === undefined ? defaultValue : undefined}
         onValueChange={onValueChange}
@@ -108,12 +119,12 @@ export function NumberField({
             'transition-[border-color,box-shadow] duration-150 ease-out',
             'hover:border-border-strong',
             'focus-within:border-interaction-primary-default focus-within:shadow-focus-primary',
-            error && 'border-border-negative-strong focus-within:shadow-focus-error',
+            field.isError && 'border-border-negative-strong focus-within:shadow-focus-error',
             disabled && 'opacity-60',
           )}
         >
           <BaseNumberField.Decrement
-            aria-label="Decrease"
+            aria-label={decrementLabel}
             data-slot="number-field-decrement"
             className={cn(stepper, 'border-r border-border-light')}
           >
@@ -122,8 +133,8 @@ export function NumberField({
           <BaseNumberField.Input
             data-slot="number-field-input"
             placeholder={placeholder}
-            aria-invalid={ariaInvalid ?? (error || undefined)}
-            aria-describedby={describedBy}
+            aria-invalid={field.controlProps['aria-invalid']}
+            aria-describedby={field.controlProps['aria-describedby']}
             className={cn(
               'flex-1 min-w-0 h-full px-12 bg-transparent border-0 outline-none text-center tabular-nums',
               'font-standard font-medium text-m leading-[1.4] text-text-primary',
@@ -132,7 +143,7 @@ export function NumberField({
             )}
           />
           <BaseNumberField.Increment
-            aria-label="Increase"
+            aria-label={incrementLabel}
             data-slot="number-field-increment"
             className={cn(stepper, 'border-l border-border-light')}
           >
@@ -140,16 +151,16 @@ export function NumberField({
           </BaseNumberField.Increment>
         </BaseNumberField.Group>
       </BaseNumberField.Root>
-      {description && (
+      {field.renderChrome && field.descriptionText && (
         <p
-          id={helperId}
+          id={field.descriptionId}
           data-slot="number-field-helper"
           className={cn(
             'm-0 font-standard font-normal text-s leading-[1.4]',
-            error ? 'text-text-negative' : 'text-text-secondary',
+            field.isError ? 'text-text-negative' : 'text-text-secondary',
           )}
         >
-          {description}
+          {field.descriptionText}
         </p>
       )}
     </div>

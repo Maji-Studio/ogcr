@@ -2,6 +2,7 @@ import type { ComponentProps, ReactElement, ReactNode } from 'react'
 import { AlertDialog as BaseAlertDialog } from '@base-ui/react/alert-dialog'
 import { Button } from '../Button'
 import { dialogBackdropClassName, dialogPopupClassName } from '../Dialog'
+import { dsStrings } from '../../lib/strings'
 import { cn } from '../../lib/cn'
 
 export type AlertDialogTone = 'default' | 'danger'
@@ -38,8 +39,8 @@ export function AlertDialog({
   description,
   trigger,
   children,
-  confirmLabel = 'Confirm',
-  cancelLabel = 'Cancel',
+  confirmLabel = dsStrings.alertDialog.confirmLabel,
+  cancelLabel = dsStrings.alertDialog.cancelLabel,
   onConfirm,
   onCancel,
   tone = 'default',

@@ -1,4 +1,5 @@
-import { useId, type InputHTMLAttributes, type ReactNode } from 'react'
+import { type InputHTMLAttributes, type ReactNode } from 'react'
+import { useField, type FieldAriaInvalid } from '../../lib/field'
 import { cn } from '../../lib/cn'
 
 export type InputProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> & {
@@ -17,22 +18,28 @@ export function Input({
   errorText,
   iconLeft,
   iconRight,
-  error: errorProp = false,
+  error = false,
   id,
   className,
+  'aria-describedby': ariaDescribedby,
+  'aria-invalid': ariaInvalid,
   ...rest
 }: InputProps) {
-  const generatedId = useId()
-  const inputId = id ?? generatedId
-  const error = errorProp || Boolean(errorText)
-  const description = errorText ?? helperText
-  const helperId = description ? `${inputId}-helper` : undefined
+  const field = useField({
+    id,
+    label,
+    helperText,
+    errorText,
+    error,
+    'aria-describedby': ariaDescribedby,
+    'aria-invalid': ariaInvalid as FieldAriaInvalid | undefined,
+  })
 
   return (
     <div data-slot="input" className={cn('flex flex-col gap-4 w-full', className)}>
-      {label && (
+      {field.renderChrome && label && (
         <label
-          htmlFor={inputId}
+          htmlFor={field.fieldId}
           data-slot="input-label"
           className="font-standard font-normal text-s leading-[1.4] text-text-secondary"
         >
@@ -46,7 +53,7 @@ export function Input({
           'transition-[border-color,box-shadow] duration-150 ease-out',
           'hover:border-border-strong',
           'focus-within:border-interaction-primary-default focus-within:shadow-focus-primary',
-          error && 'border-border-negative-strong focus-within:shadow-focus-error',
+          field.isError && 'border-border-negative-strong focus-within:shadow-focus-error',
         )}
       >
         {iconLeft && (
@@ -55,7 +62,6 @@ export function Input({
           </span>
         )}
         <input
-          id={inputId}
           data-slot="input-control"
           className={cn(
             'flex-1 min-w-0 h-full bg-transparent border-0 outline-none',
@@ -63,9 +69,8 @@ export function Input({
             'placeholder:text-text-secondary placeholder:font-medium',
             'disabled:cursor-not-allowed disabled:text-text-secondary',
           )}
-          aria-invalid={error || undefined}
-          aria-describedby={helperId}
           {...rest}
+          {...field.controlProps}
         />
         {iconRight && (
           <span data-slot="input-icon" aria-hidden="true" className="inline-flex items-center justify-center w-20 h-20 shrink-0 text-icon-secondary [&>svg]:w-full [&>svg]:h-full">
@@ -73,16 +78,16 @@ export function Input({
           </span>
         )}
       </div>
-      {description && (
+      {field.renderChrome && field.descriptionText && (
         <p
-          id={helperId}
+          id={field.descriptionId}
           data-slot="input-helper"
           className={cn(
             'm-0 font-standard font-normal text-s leading-[1.4]',
-            error ? 'text-text-negative' : 'text-text-secondary',
+            field.isError ? 'text-text-negative' : 'text-text-secondary',
           )}
         >
-          {description}
+          {field.descriptionText}
         </p>
       )}
     </div>

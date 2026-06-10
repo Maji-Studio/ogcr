@@ -41,4 +41,15 @@ describe('Select', () => {
     render(<Select options={options} aria-describedby="hint-1" />)
     expect(getTrigger()).toHaveAttribute('aria-describedby', 'hint-1')
   })
+
+  it('associates a label and links errorText via aria-describedby', () => {
+    render(<Select options={options} label="Status" errorText="Pick a status" />)
+    const trigger = getTrigger()
+    // Label is associated with the trigger button.
+    expect(screen.getByText('Status').closest('label')).toHaveAttribute('for', trigger.id)
+    expect(trigger).toHaveAttribute('aria-invalid', 'true')
+    const describedBy = trigger.getAttribute('aria-describedby')
+    expect(describedBy).toBeTruthy()
+    expect(document.getElementById(describedBy!)).toHaveTextContent('Pick a status')
+  })
 })

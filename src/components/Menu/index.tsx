@@ -1,7 +1,12 @@
 import type { CSSProperties, ReactElement, ReactNode } from 'react'
 import { Menu as BaseMenu } from '@base-ui/react/menu'
 import { CaretRightIcon, CheckIcon, CircleIcon } from '../icons'
-import { PopoverArrowSvg } from '../Popover'
+import {
+  OVERLAY_SIDE_OFFSET,
+  OverlayArrowSvg,
+  overlayArrowClassName,
+  overlayPopupClassName,
+} from '../../lib/overlay'
 import { cn } from '../../lib/cn'
 
 /* OGCR Menu — a click-triggered dropdown menu on Base UI `menu`.
@@ -108,10 +113,8 @@ export type MenuProps = {
 }
 
 const popupClassName = cn(
-  'min-w-[220px] max-w-[320px] flex flex-col gap-2 p-8 bg-surface-light border border-border-light rounded-12 shadow-elevation-l',
-  'outline-none origin-[var(--transform-origin)] transition-[transform,opacity] duration-150',
-  'data-[starting-style]:opacity-0 data-[ending-style]:opacity-0',
-  'data-[starting-style]:scale-95 data-[ending-style]:scale-95',
+  'min-w-[220px] max-w-[320px] flex flex-col gap-2 p-8',
+  overlayPopupClassName,
 )
 
 /** Thin, tokenised scrollbar applied when `maxHeight` makes the popup scroll. */
@@ -120,12 +123,6 @@ const scrollableClassName = cn(
   '[scrollbar-width:thin] [scrollbar-color:var(--color-border-medium)_transparent]',
   '[&::-webkit-scrollbar]:w-8 [&::-webkit-scrollbar-thumb]:rounded-full',
   '[&::-webkit-scrollbar-thumb]:bg-border-medium [&::-webkit-scrollbar-track]:bg-transparent',
-)
-
-const arrowClassName = cn(
-  'data-[side=bottom]:top-[-8px] data-[side=top]:bottom-[-8px] data-[side=top]:rotate-180',
-  'data-[side=left]:right-[-13px] data-[side=left]:rotate-90',
-  'data-[side=right]:left-[-13px] data-[side=right]:-rotate-90',
 )
 
 const itemBase = cn(
@@ -311,7 +308,7 @@ export function Menu({
   onOpenChange,
   side = 'bottom',
   align = 'start',
-  sideOffset = 8,
+  sideOffset = OVERLAY_SIDE_OFFSET,
   showArrow = false,
   maxHeight,
 }: MenuProps) {
@@ -326,15 +323,20 @@ export function Menu({
     >
       <BaseMenu.Trigger render={trigger} />
       <BaseMenu.Portal>
-        <BaseMenu.Positioner side={side} align={align} sideOffset={sideOffset} className="z-50">
+        <BaseMenu.Positioner
+          side={side}
+          align={align}
+          sideOffset={sideOffset}
+          className="z-[var(--ds-z-overlay)]"
+        >
           <BaseMenu.Popup
             data-slot="menu"
             style={popupStyle}
             className={cn(popupClassName, maxHeight !== undefined && scrollableClassName, className)}
           >
             {showArrow && (
-              <BaseMenu.Arrow data-slot="menu-arrow" className={arrowClassName}>
-                <PopoverArrowSvg />
+              <BaseMenu.Arrow data-slot="menu-arrow" className={overlayArrowClassName}>
+                <OverlayArrowSvg />
               </BaseMenu.Arrow>
             )}
             {items.map(renderItem)}
