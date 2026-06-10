@@ -9,7 +9,7 @@ function FieldHarness(props: UseFieldProps) {
   return (
     <div>
       {field.renderChrome && field.label && <label htmlFor={field.fieldId}>{field.label}</label>}
-      <input data-testid="control" {...field.controlProps} />
+      <input data-testid="control" data-error={field.isError} {...field.controlProps} />
       {field.renderChrome && field.descriptionText && (
         <p id={field.descriptionId}>{field.descriptionText}</p>
       )}
@@ -53,9 +53,12 @@ describe('useField (standalone)', () => {
     expect(screen.getByTestId('control')).not.toHaveAttribute('aria-invalid')
   })
 
-  it('lets a caller aria-invalid win over the derived state', () => {
+  it('lets a caller aria-invalid win over the derived state (aria and error styling agree)', () => {
     render(<FieldHarness label="Email" error aria-invalid="false" />)
-    expect(screen.getByTestId('control')).toHaveAttribute('aria-invalid', 'false')
+    const input = screen.getByTestId('control')
+    expect(input).toHaveAttribute('aria-invalid', 'false')
+    // Error styling follows the resolved aria state, so the two can't diverge.
+    expect(input).toHaveAttribute('data-error', 'false')
   })
 
   it('MERGES a caller aria-describedby with the generated helper id (never drops it)', () => {

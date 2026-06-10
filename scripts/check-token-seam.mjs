@@ -69,6 +69,10 @@ const hexes = [...palette.values()].flatMap((hex) =>
 // --- 2. Split the built CSS into (selector, body) style rules, skipping at-rule wrappers -------
 // Minified Tailwind output nests style rules inside @layer/@media/@supports. Walk brace depth and
 // collect only leaf `prelude{body}` pairs whose body has declarations (no nested `{`).
+// NOTE: this hand-rolled brace walker is coupled to Tailwind v4's current minified output shape
+// (no CSS nesting in declaration bodies, at-rules only as wrappers). A future Tailwind that emits
+// native nesting inside utility bodies would break the "leaf rule" assumption — if the positive
+// checks in section 4 start failing after a Tailwind bump, revisit this parser first.
 const css = fs.readFileSync(cssPath, 'utf8');
 const rules = [];
 {

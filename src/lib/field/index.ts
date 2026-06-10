@@ -119,40 +119,45 @@ export function useField(props: UseFieldProps): UseFieldResult {
   const descriptionText = errorText ?? helperText
 
   if (ctx) {
-    // Inside a FormField: adopt its id/aria, let it own the label + helper chrome.
-    const ctxInvalid = ctx.invalid === true || ctx.invalid === 'true'
+    // Inside a FormField: adopt its id/aria, let it own the label + helper chrome. One resolved
+    // aria-invalid drives BOTH the aria attribute and the error styling so they can't diverge:
+    // caller aria-invalid wins, then the wrapper's invalid, then the control's own error state.
+    const resolvedAriaInvalid = ariaInvalid ?? ctx.invalid ?? (ownError || undefined)
     return {
       controlledByField: true,
       renderChrome: false,
       fieldId: ctx.controlId,
       descriptionId: undefined,
       descriptionText: null,
-      isError: ownError || ctxInvalid,
+      isError: resolvedAriaInvalid === true || resolvedAriaInvalid === 'true',
       label: null,
       required: ctx.required,
       controlProps: {
         id: ctx.controlId,
         'aria-describedby': mergeIds(ariaDescribedby, ctx.describedBy),
-        'aria-invalid': ariaInvalid ?? ctx.invalid ?? (ownError || undefined),
+        'aria-invalid': resolvedAriaInvalid,
       },
     }
   }
 
   const fieldId = id ?? generatedId
   const descriptionId = descriptionText ? `${fieldId}-helper` : undefined
+  // One resolved aria-invalid for both the attribute and the error styling (a caller value wins
+  // over the control's own error state), so aria state and visuals never disagree.
+  const resolvedAriaInvalid = ariaInvalid ?? (ownError || undefined)
   return {
     controlledByField: false,
     renderChrome: true,
     fieldId,
     descriptionId,
     descriptionText,
-    isError: ownError,
+    isError: resolvedAriaInvalid === true || resolvedAriaInvalid === 'true',
     label,
     required,
     controlProps: {
       id: fieldId,
       'aria-describedby': mergeIds(ariaDescribedby, descriptionId),
-      'aria-invalid': ariaInvalid ?? (ownError || undefined),
+      'aria-invalid': resolvedAriaInvalid,
     },
   }
 }

@@ -28,7 +28,7 @@ This produces **crap tests**:
 
 **Correct approach**: Vertical slices via tracer bullets. One test → one implementation → repeat. Each test responds to what you learned from the previous cycle. Because you just wrote the code, you know exactly what behavior matters and how to verify it.
 
-```
+```text
 WRONG (horizontal):
   RED:   test1, test2, test3, test4, test5
   GREEN: impl1, impl2, impl3, impl4, impl5
