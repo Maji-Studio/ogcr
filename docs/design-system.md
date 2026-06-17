@@ -115,6 +115,7 @@ CSS custom properties, scoped to `:root`. All component CSS below assumes these.
 
 Token rules:
 - `interaction-primary-hover` and `interaction-primary-active` resolve to the same color (`#416c51`). Differentiate active from hover via elevation/border/transform, not fill.
+- **Active-control green vs. selection navy is intentional — do not "unify" it.** Controls that toggle a *state* (Switch on, Slider fill) use the brand green `interaction-primary-default` (`#4f8263`); controls that mark a *selection* (Checkbox, Radio checked fill/border) use navy `icon-primary` (`#0f3655`). Error states override both with `icon-negative`. The split signals "active behaviour" vs. "chosen item" and is consistent across the set; a future change should preserve it rather than collapse the two onto one accent.
 - `radius-l` is **12px** here (Figma sometimes labels 16). Code wins.
 - `--text-secondary` on `--surface-light` is borderline WCAG AA (~4.5:1). Audit small text.
 - No motion tokens beyond `--motion-fast` / `--motion-base`. Hover/state ≤150ms; layout/size ≤200ms; never >300ms in-place feedback.
