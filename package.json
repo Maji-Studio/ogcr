@@ -2,7 +2,7 @@
   "name": "@majistudio/ogcr-design-system",
   "description": "OGCR design system — React 19 components, design tokens, and Tailwind v4 theme bridge.",
   "private": false,
-  "version": "0.1.0",
+  "version": "1.0.0",
   "type": "module",
   "license": "MIT",
   "author": "Maji Studio",
