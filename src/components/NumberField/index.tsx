@@ -42,7 +42,7 @@ function PlusGlyph() {
 }
 
 const stepper =
-  'inline-flex items-center justify-center w-44 h-full shrink-0 bg-transparent border-0 cursor-pointer text-icon-secondary ' +
+  'inline-flex items-center justify-center w-48 h-full shrink-0 bg-transparent border-0 cursor-pointer text-icon-secondary ' +
   'transition-colors duration-150 hover:bg-surface-neutral hover:text-icon-primary ' +
   'focus-visible:outline-none focus-visible:relative focus-visible:shadow-focus-primary ' +
   'disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-icon-secondary'

@@ -110,8 +110,10 @@ export function ToolbarSeparator({ className, ...props }: ToolbarSeparatorProps)
       data-slot="toolbar-separator"
       className={cn(
         'bg-border-light shrink-0',
-        'data-[orientation=horizontal]:w-px data-[orientation=horizontal]:h-20 data-[orientation=horizontal]:mx-4',
-        'data-[orientation=vertical]:h-px data-[orientation=vertical]:w-full data-[orientation=vertical]:my-4',
+        // Base UI sets data-orientation to the separator line's own direction:
+        // a horizontal toolbar yields a *vertical* divider, and vice versa.
+        'data-[orientation=vertical]:w-px data-[orientation=vertical]:h-20 data-[orientation=vertical]:mx-4',
+        'data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=horizontal]:my-4',
         className,
       )}
       {...props}
