@@ -1,5 +1,5 @@
 ---
-"@ogcr/design-system": minor
+"@majistudio/ogcr-design-system": minor
 ---
 
 Add a copy seam — every default user-facing string is now an overridable prop (Phase 5).

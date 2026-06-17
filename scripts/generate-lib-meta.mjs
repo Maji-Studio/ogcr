@@ -1,4 +1,4 @@
-// Generates the per-component publishing surface for @ogcr/design-system, run as the last step
+// Generates the per-component publishing surface for @majistudio/ogcr-design-system, run as the last step
 // of `npm run build:lib` (after vite has emitted dist/). It is the single source that keeps three
 // artifacts in lockstep with the contents of src/components/*:
 //

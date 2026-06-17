@@ -1,5 +1,5 @@
 ---
-"@ogcr/design-system": minor
+"@majistudio/ogcr-design-system": minor
 ---
 
 Extract shared overlay chrome and add a runtime stacking seam (Phase 3). Zero visual change.

@@ -10,11 +10,11 @@ Guidance for non-Claude coding agents (Codex, Cursor, others) working in this re
 - `npm run preview` — serve the production build locally
 - `npm run test` / `npm run test:watch` — Vitest (jsdom, React Testing Library)
 - `npm run storybook` / `npm run build-storybook` — Storybook 10 (with addon-a11y, addon-vitest)
-- `npm run changeset` / `npm run version` / `npm run release` — Changesets-driven publish to npm as `@ogcr/design-system`
+- `npm run changeset` / `npm run version` / `npm run release` — Changesets-driven publish to npm as `@majistudio/ogcr-design-system`
 
 ## Stack & architecture
 
-This is the OGCR design system, packaged as `@ogcr/design-system` (pre-1.0).
+This is the OGCR design system, packaged as `@majistudio/ogcr-design-system` (pre-1.0).
 
 - **Vite + React 19 + TypeScript**. `tsconfig.json` is composite — `tsconfig.app.json` covers `src/`, `tsconfig.node.json` covers Vite/Vitest config. `tsc -b` runs both projects.
 - **React Compiler is on.** `vite.config.ts` wires `@rolldown/plugin-babel` with `reactCompilerPreset()` alongside `@vitejs/plugin-react`. Avoid hand-written `useMemo` / `useCallback` / `React.memo` unless the compiler explicitly opts out (TanStack Table's `useReactTable` is one such case).

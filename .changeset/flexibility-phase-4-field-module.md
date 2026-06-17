@@ -1,5 +1,5 @@
 ---
-"@ogcr/design-system": minor
+"@majistudio/ogcr-design-system": minor
 ---
 
 Centralize form-field a11y wiring behind a shared Field module (Phase 4).

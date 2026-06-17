@@ -1,13 +1,41 @@
 {
-  "name": "@ogcr/design-system",
+  "name": "@majistudio/ogcr-design-system",
   "description": "OGCR design system — React 19 components, design tokens, and Tailwind v4 theme bridge.",
   "private": false,
   "version": "0.1.0",
   "type": "module",
   "license": "MIT",
+  "author": "Maji Studio",
+  "homepage": "https://github.com/Maji-Studio/ogcr-design-system#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Maji-Studio/ogcr-design-system.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Maji-Studio/ogcr-design-system/issues"
+  },
+  "keywords": [
+    "ogcr",
+    "design-system",
+    "react",
+    "react19",
+    "components",
+    "component-library",
+    "ui",
+    "tailwind",
+    "tailwindcss",
+    "base-ui",
+    "design-tokens"
+  ],
+  "engines": {
+    "node": ">=20.19"
+  },
   "sideEffects": [
     "*.css"
   ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "files": [
     "dist"
   ],
@@ -199,6 +227,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "build:lib": "vite build --config vite.lib.config.ts && rm -f dist/styles.js dist/styles.js.map && node scripts/generate-lib-meta.mjs && node scripts/inject-use-client.mjs && npm run check:tokens && npm run check:dist",
+    "prepublishOnly": "npm run build:lib",
     "check:tokens": "node scripts/check-token-seam.mjs",
     "check:dist": "node scripts/check-dist.mjs",
     "lint": "eslint .",

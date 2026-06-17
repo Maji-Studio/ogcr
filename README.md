@@ -1,6 +1,8 @@
 # OGCR Design System
 
-`@ogcr/design-system` — the React component library, design tokens, and Tailwind v4 theme bridge for OGCR frontends. This repo is the single source other OGCR projects build on; import from the package rather than reinventing components or re-deriving tokens.
+`@majistudio/ogcr-design-system` — the React component library, design tokens, and Tailwind v4 theme bridge for OGCR frontends. This repo is the single source other OGCR projects build on; import from the package rather than reinventing components or re-deriving tokens.
+
+**Live preview:** [demo app](https://ogcr-design-system.vercel.app/) · [component workbench (Storybook)](https://ogcr-design-system.vercel.app/storybook/)
 
 > Status: `0.1.0`, public — published to npm under public access (`publishConfig.access: public`). The publishable artifact is produced by `npm run build:lib`. `docs/design-system.md` is the authoritative written spec; when spec and code disagree, the spec wins.
 
@@ -13,25 +15,29 @@
 ## Install & use (in an OGCR app)
 
 ```bash
-# Once published; today, consume via the local build:lib output / workspace link.
-npm install @ogcr/design-system
+npm install @majistudio/ogcr-design-system
+
+# peer dependencies the consumer provides:
+npm install react react-dom @base-ui/react
+# optional — only if you import the Table component:
+npm install @tanstack/react-table
 ```
 
 ```tsx
-import { Button, Dialog, useToast } from '@ogcr/design-system' // barrel (tree-shaken by your bundler)
-import { Button } from '@ogcr/design-system/Button'            // or deep-import a single component
-import '@ogcr/design-system/styles.css'                        // tokens + Tailwind utilities + reset (import once)
+import { Button, Dialog, useToast } from '@majistudio/ogcr-design-system' // barrel (tree-shaken by your bundler)
+import { Button } from '@majistudio/ogcr-design-system/Button'            // or deep-import a single component
+import '@majistudio/ogcr-design-system/styles.css'                        // tokens + Tailwind utilities + reset (import once)
 ```
 
-The barrel is ESM with `"sideEffects": ["*.css"]`, so a bundler (Vite/webpack/Rollup/esbuild) tree-shakes the components you don't import. Every component also has a `./<Name>` subpath (`@ogcr/design-system/Button`) for explicit deep imports and non-bundler setups — the `exports` map and subpaths are generated from `src/components/*` by `scripts/generate-lib-meta.mjs` during `build:lib`. **The stylesheet does not split** — `styles.css` is one file (~53 KB) regardless of how many components you use; import it once.
+The barrel is ESM with `"sideEffects": ["*.css"]`, so a bundler (Vite/webpack/Rollup/esbuild) tree-shakes the components you don't import. Every component also has a `./<Name>` subpath (`@majistudio/ogcr-design-system/Button`) for explicit deep imports and non-bundler setups — the `exports` map and subpaths are generated from `src/components/*` by `scripts/generate-lib-meta.mjs` during `build:lib`. **The stylesheet does not split** — `styles.css` is one file (~53 KB) regardless of how many components you use; import it once.
 
-Machine-readable indexes ship in the package for tooling and LLM exploration: **`@ogcr/design-system/manifest.json`** (structured: every component's import path, exported symbols, and types path) and **`@ogcr/design-system/llms.txt`** (llms.txt format — one line per component with its import). Both are regenerated on every `build:lib`.
+Machine-readable indexes ship in the package for tooling and LLM exploration: **`@majistudio/ogcr-design-system/manifest.json`** (structured: every component's import path, exported symbols, and types path) and **`@majistudio/ogcr-design-system/llms.txt`** (llms.txt format — one line per component with its import). Both are regenerated on every `build:lib`.
 
 ### Imports, SSR boundaries & peers — the consumption contract
 
-- **`Table` is deep-import only.** It is intentionally **not** re-exported from the barrel; import it as `import { Table } from '@ogcr/design-system/Table'`. It is the one component that pulls in `@tanstack/react-table`, so keeping it off the barrel means consumers who never render a table don't drag that peer into their dependency graph. `@tanstack/react-table` is declared an **optional** peer (`peerDependenciesMeta`) — install it only if you use `Table`; the install won't warn otherwise.
-- **`'use client'` boundary.** Every component entry — the barrel (`@ogcr/design-system`) and each deep import (`@ogcr/design-system/Button`) — ships with a `'use client'` directive as its first line. In a React Server Components app (Next.js App Router, etc.) importing from either draws the server/client boundary at the package edge, so the components Just Work from a Server Component. For the **smallest** client boundary in an RSC/perf-sensitive app, deep-import the specific components you render rather than pulling the whole barrel across the boundary.
-- **`cn()` is exported, and dependency-free.** The same `clsx` + `tailwind-merge` class-merge helper the components use is available as `import { cn } from '@ogcr/design-system'` (barrel) or, with **no** `'use client'` directive and no React in its graph, as `import { cn } from '@ogcr/design-system/cn'` — use the `/cn` deep import when you need to compose class names in a Server Component or other pure context.
+- **`Table` is deep-import only.** It is intentionally **not** re-exported from the barrel; import it as `import { Table } from '@majistudio/ogcr-design-system/Table'`. It is the one component that pulls in `@tanstack/react-table`, so keeping it off the barrel means consumers who never render a table don't drag that peer into their dependency graph. `@tanstack/react-table` is declared an **optional** peer (`peerDependenciesMeta`) — install it only if you use `Table`; the install won't warn otherwise.
+- **`'use client'` boundary.** Every component entry — the barrel (`@majistudio/ogcr-design-system`) and each deep import (`@majistudio/ogcr-design-system/Button`) — ships with a `'use client'` directive as its first line. In a React Server Components app (Next.js App Router, etc.) importing from either draws the server/client boundary at the package edge, so the components Just Work from a Server Component. For the **smallest** client boundary in an RSC/perf-sensitive app, deep-import the specific components you render rather than pulling the whole barrel across the boundary.
+- **`cn()` is exported, and dependency-free.** The same `clsx` + `tailwind-merge` class-merge helper the components use is available as `import { cn } from '@majistudio/ogcr-design-system'` (barrel) or, with **no** `'use client'` directive and no React in its graph, as `import { cn } from '@majistudio/ogcr-design-system/cn'` — use the `/cn` deep import when you need to compose class names in a Server Component or other pure context.
 
 Peer dependencies the consumer provides: `react`/`react-dom` (^19), `@base-ui/react` (^1), and `@tanstack/react-table` (^8, **optional** — only if you use `Table`). Icons (`@phosphor-icons/react`), `react-day-picker` (used by `Calendar`/`DatePicker`), and `cva`/`clsx`/`tailwind-merge` ship as regular dependencies and are externalized from the bundle so a single copy is deduped.
 
@@ -45,6 +51,30 @@ Peer dependencies the consumer provides: `react`/`react-dom` (^19), `@base-ui/re
 - `npm run build` — type-check + Vite app build (fails on type errors)
 - `npm run build:lib` — produce the publishable `dist/` (`index.js` ESM, bundled `index.d.ts`, `styles.css`)
 - `npm run changeset` / `release` — Changesets versioning/publish flow
+
+## Publishing (maintainers)
+
+`@majistudio/ogcr-design-system` publishes to the **public npm registry**, scoped under the [`@majistudio`](https://www.npmjs.com/org/majistudio) org. Scoped packages are private by default, so `publishConfig.access: public` (already set in `package.json`) is what makes each release public. Releases are driven by [Changesets](https://github.com/changesets/changesets). The only artifact shipped is `dist/` — it is rebuilt and contract-checked automatically on publish by the `prepublishOnly` hook, so you never publish a stale or hand-built `dist/`.
+
+**One-time setup:** `npm login` as a member of the `@majistudio` npm org with publish rights. (To publish to a different registry instead — GitHub Packages or a private registry — add a `publishConfig.registry` pointing at it; nothing else changes.)
+
+**Cut a release:**
+
+```bash
+npm run changeset                 # describe the change, pick the semver bump; commit the generated .changeset/*.md
+npm run version                   # apply pending changesets: bumps package.json + writes the changelog
+git commit -am "Version packages" # the changeset config sets commit:false, so commit the bump yourself
+npm run release                   # prepublishOnly builds dist/, then `changeset publish` publishes + tags
+git push --follow-tags            # push the version commit + the release tag changeset created
+```
+
+Under the hood, `prepublishOnly` runs `npm run build:lib`, which emits `dist/` (ESM `index.js`, bundled `index.d.ts`, `styles.css`, `manifest.json`, `llms.txt`) and runs `check:tokens` + `check:dist`. `check:dist` asserts the publish contract — every entry starts with `'use client'`, `cn.js` stays pure (server-importable), `Table` is deep-import-only, and `npm pack --dry-run` actually ships `dist/index.js`. A failed contract fails the publish. The tarball is governed by the `files: ["dist"]` allowlist (npm also includes `package.json`, `README.md`, and `LICENSE` automatically).
+
+**Preview the exact tarball without publishing:**
+
+```bash
+npm run build:lib && npm pack --dry-run
+```
 
 ## Stack notes
 

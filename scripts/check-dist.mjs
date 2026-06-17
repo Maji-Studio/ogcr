@@ -63,7 +63,7 @@ check(fs.existsSync(barrelDts), 'dist/index.d.ts missing — run build:lib.');
 if (fs.existsSync(barrelDts)) {
   const dts = fs.readFileSync(barrelDts, 'utf8');
   // The barrel must not re-export the Table module. Catch a `from './components/Table'` re-export
-  // or a Table-typed re-export; deep import `@ogcr/design-system/Table` stays available separately.
+  // or a Table-typed re-export; deep import `@majistudio/ogcr-design-system/Table` stays available separately.
   check(
     !/from\s+['"][^'"]*components\/Table['"]/.test(dts),
     'dist/index.d.ts re-exports ./components/Table — Table must be deep-import-only.',

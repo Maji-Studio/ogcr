@@ -13,7 +13,7 @@ const dirname =
     : path.dirname(fileURLToPath(import.meta.url));
 
 // One build entry per component directory (src/components/<Name>/index.tsx) so consumers can
-// deep-import a single component — `@ogcr/design-system/Button` — and not just the barrel. The
+// deep-import a single component — `@majistudio/ogcr-design-system/Button` — and not just the barrel. The
 // output key `components/<Name>/index` lands at dist/components/<Name>/index.js (matched by the
 // generated `exports` map subpath `./<Name>`). Coupled code (Popover, Calendar, cn) hoists into
 // shared chunks/ automatically, so each component file stays thin. scripts/generate-lib-meta.mjs
@@ -29,7 +29,7 @@ const componentEntries = Object.fromEntries(
     ]),
 );
 
-// Library build for @ogcr/design-system.
+// Library build for @majistudio/ogcr-design-system.
 //
 // Produces three published artifacts in dist/:
 //   - index.js     ESM bundle of every component exported from src/index.ts
@@ -77,7 +77,7 @@ export default defineConfig({
       input: {
         index: path.resolve(dirname, 'src/index.ts'),
         styles: path.resolve(dirname, 'src/styles/global.css'),
-        // The cn() class-merge helper as a dependency-free deep import (`@ogcr/design-system/cn`).
+        // The cn() class-merge helper as a dependency-free deep import (`@majistudio/ogcr-design-system/cn`).
         // Key `lib/cn` keeps the JS (dist/lib/cn.js) and dts (dist/lib/cn.d.ts) aligned under the
         // src-mirroring entryRoot, so the `./cn` export subpath resolves both.
         'lib/cn': path.resolve(dirname, 'src/lib/cn.ts'),
