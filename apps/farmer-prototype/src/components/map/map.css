@@ -1,0 +1,55 @@
+/*
+ * MapLibre chrome restyled onto OGCR design-system tokens. Imported AFTER
+ * maplibre-gl.css (in base-map.tsx) so these rules win. Every colour comes from
+ * the --ds-* brand seam that the design system ships in styles.css, so the map
+ * chrome retints automatically if the brand palette is overridden.
+ */
+
+/* Attribution pill (compact). */
+.maplibregl-ctrl-attrib.maplibregl-compact {
+  background: color-mix(in srgb, var(--ds-surface-light) 90%, transparent);
+  border-radius: 12px;
+  color: var(--ds-text-secondary);
+}
+.maplibregl-ctrl-attrib {
+  font-family: var(--font-standard);
+  font-size: 11px;
+}
+.maplibregl-ctrl-attrib a {
+  color: var(--ds-text-secondary);
+}
+.maplibregl-ctrl-attrib-button {
+  background-color: var(--ds-surface-light);
+}
+
+/* Popups — strip MapLibre's default chrome and use a DS card surface.
+   In place for future data layers (markers / polygons). */
+.maplibregl-popup-content {
+  padding: 12px 14px;
+  border: 1px solid var(--ds-border-medium);
+  border-radius: 12px;
+  background: var(--ds-surface-light);
+  color: var(--ds-text-primary);
+  box-shadow:
+    0 0 2px 0 rgba(68, 51, 33, 0.08),
+    0 8px 16px 0 rgba(68, 51, 33, 0.16);
+  font-family: var(--font-standard);
+}
+.maplibregl-popup-tip {
+  display: none;
+}
+.maplibregl-popup-close-button {
+  padding: 2px 8px;
+  color: var(--ds-text-secondary);
+  font-size: 16px;
+}
+.maplibregl-popup-close-button:hover {
+  background: transparent;
+  color: var(--ds-text-primary);
+}
+
+/* Brand focus ring on the keyboard-focused canvas. */
+.maplibregl-canvas:focus-visible {
+  outline: 2px solid var(--ds-interaction-primary-default);
+  outline-offset: -2px;
+}
