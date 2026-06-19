@@ -4,7 +4,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { Item } from "@/db/schema";
 import { itemFormSchema, type ItemFormData } from "@/schemas/items";
-import { FormField, FormInput, FormTextarea } from "@/components/forms";
+import { Button } from "@majistudio/ogcr-design-system/Button";
+import { Input } from "@majistudio/ogcr-design-system/Input";
+import { Textarea } from "@majistudio/ogcr-design-system/Textarea";
 
 interface ItemFormProps {
   item?: Item;
@@ -32,48 +34,37 @@ export function ItemForm({
   });
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-m">
-      <FormField id="title" label="Title" error={errors.title?.message}>
-        <FormInput
-          id="title"
-          type="text"
-          placeholder="Enter item title"
-          disabled={isSubmitting}
-          error={!!errors.title}
-          {...register("title")}
-        />
-      </FormField>
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-24">
+      <Input
+        label="Title"
+        type="text"
+        placeholder="Enter item title"
+        disabled={isSubmitting}
+        errorText={errors.title?.message}
+        {...register("title")}
+      />
 
-      <FormField
-        id="description"
+      <Textarea
         label="Description (optional)"
-        error={errors.description?.message}
-      >
-        <FormTextarea
-          id="description"
-          placeholder="Enter item description"
-          disabled={isSubmitting}
-          error={!!errors.description}
-          {...register("description")}
-        />
-      </FormField>
+        placeholder="Enter item description"
+        rows={4}
+        disabled={isSubmitting}
+        errorText={errors.description?.message}
+        {...register("description")}
+      />
 
-      <div className="flex items-center gap-s justify-end">
-        <button
+      <div className="flex items-center justify-end gap-12">
+        <Button
           type="button"
+          variant="outlined"
           onClick={onCancel}
-          className="px-l py-s border border-[var(--color-border-primary)] rounded-lg hover:bg-[var(--color-bg-secondary)] transition-colors"
           disabled={isSubmitting}
         >
           Cancel
-        </button>
-        <button
-          type="submit"
-          className="px-l py-s bg-[var(--clr-dark-purple)] text-white rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
-          disabled={isSubmitting}
-        >
+        </Button>
+        <Button type="submit" variant="filled" disabled={isSubmitting}>
           {isSubmitting ? "Saving..." : item ? "Update" : "Create"}
-        </button>
+        </Button>
       </div>
     </form>
   );

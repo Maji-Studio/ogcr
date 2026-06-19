@@ -6,9 +6,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "@/lib/auth/client";
 import Link from "next/link";
-import { Button } from "@/components/ui";
+import { Button } from "@majistudio/ogcr-design-system/Button";
+import { Input } from "@majistudio/ogcr-design-system/Input";
+import { Message } from "@majistudio/ogcr-design-system/Message";
 import { loginSchema, type LoginFormData } from "@/schemas/auth";
-import { FormField, FormInput, ServerError } from "@/components/forms";
 
 export function LoginForm() {
   const [serverError, setServerError] = useState("");
@@ -72,63 +73,51 @@ export function LoginForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-24">
-      <FormField id="email" label="Email" error={errors.email?.message}>
-        <FormInput
-          id="email"
-          type="email"
-          placeholder="your@email.com"
-          disabled={isSubmitting}
-          error={!!errors.email}
-          aria-label="Email address"
-          {...register("email")}
-        />
-      </FormField>
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-24">
+      <Input
+        label="Email"
+        type="email"
+        placeholder="your@email.com"
+        autoComplete="email"
+        disabled={isSubmitting}
+        errorText={errors.email?.message}
+        aria-label="Email address"
+        {...register("email")}
+      />
 
-      <FormField id="password" label="Password" error={errors.password?.message}>
-        <FormInput
-          id="password"
-          type="password"
-          placeholder="Enter your password"
-          disabled={isSubmitting}
-          error={!!errors.password}
-          aria-label="Password"
-          {...register("password")}
-        />
-      </FormField>
+      <Input
+        label="Password"
+        type="password"
+        placeholder="Enter your password"
+        autoComplete="current-password"
+        disabled={isSubmitting}
+        errorText={errors.password?.message}
+        aria-label="Password"
+        {...register("password")}
+      />
 
-      <ServerError message={serverError} />
+      {serverError && <Message state="error" title={serverError} />}
 
       {showResendVerification && !resendSuccess && (
-        <div className="p-s bg-[var(--color-background-interaction-light)] border border-[var(--color-border-secondary)] rounded-none">
-          <p className="body-small text-[var(--color-text-secondary)] mb-xs">
-            Your email address needs to be verified.
-          </p>
-          <button
-            type="button"
-            onClick={handleResendVerification}
-            disabled={resendLoading}
-            className="body-small text-[var(--clr-dark-purple)] hover:underline disabled:opacity-50"
-          >
-            {resendLoading ? "Sending..." : "Resend verification email"}
-          </button>
-        </div>
+        <Message
+          state="warning"
+          title="Your email address needs to be verified."
+          actionLabel={resendLoading ? "Sending..." : "Resend verification email"}
+          onAction={handleResendVerification}
+        />
       )}
 
       {resendSuccess && (
-        <div
-          className="p-s bg-green-50 border border-green-500 rounded-none text-green-700 body-small"
-          role="status"
-          aria-live="polite"
-        >
-          Verification email sent! Please check your inbox.
-        </div>
+        <Message
+          state="success"
+          title="Verification email sent! Please check your inbox."
+        />
       )}
 
       <div className="flex items-center justify-between">
         <Link
           href="/forgot-password"
-          className="body-small text-[var(--clr-dark-purple)] hover:underline"
+          className="text-body-s text-interaction-primary-default hover:underline"
         >
           Forgot password?
         </Link>
@@ -136,8 +125,8 @@ export function LoginForm() {
 
       <Button
         type="submit"
-        variant="primary"
-        width="full"
+        variant="filled"
+        className="w-full"
         disabled={isSubmitting}
       >
         {isSubmitting ? "Signing in..." : "Sign In"}
