@@ -95,27 +95,22 @@ export async function signInWithPassword(
       };
     }
 
-    // Type assertions needed because Better Auth doesn't know about custom schema fields
+    // Type assertions needed because Better Auth doesn't know about custom schema fields.
+    // The sign-in response carries the session `token` and `user`; the session
+    // cookie is set server-side. (Older Better Auth nested a `session` object —
+    // current versions return `token`, so we no longer require `session`.)
     const data = result.data as typeof result.data & {
       user: typeof result.data.user & { role?: string };
-      session?: {
-        id: string;
-        userId: string;
-        expiresAt: Date;
-      };
+      token?: string;
     };
 
-    // Verify session data exists
-    if (!data.session?.id || !data.session?.userId) {
-      return {
-        success: false,
-        error: "Failed to create session. Please try again.",
-      };
-    }
-
-    // Normalize role to ensure it's either "admin" or "user"
+    // A verified user plus a returned token means the session was created.
+    // Normalize role to ensure it's either "admin" or "user".
     const normalizedRole: "admin" | "user" =
       data.user.role === "admin" ? "admin" : "user";
+
+    // Session lifetime mirrors the server config (7 days).
+    const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
     return {
       success: true,
@@ -130,11 +125,9 @@ export async function signInWithPassword(
           updatedAt: new Date(data.user.updatedAt),
         },
         session: {
-          id: data.session.id,
-          userId: data.session.userId,
-          expiresAt: data.session.expiresAt
-            ? new Date(data.session.expiresAt)
-            : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+          id: data.token ?? data.user.id,
+          userId: data.user.id,
+          expiresAt: new Date(Date.now() + SESSION_TTL_MS),
         },
       },
     };

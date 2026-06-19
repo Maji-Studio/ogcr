@@ -2,7 +2,9 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FormField, FormInput, FormTextarea } from "@/components/forms";
+import { Button } from "@majistudio/ogcr-design-system/Button";
+import { Input } from "@majistudio/ogcr-design-system/Input";
+import { Textarea } from "@majistudio/ogcr-design-system/Textarea";
 import { projectFormSchema, type ProjectFormData } from "@/schemas/projects";
 
 interface ProjectFormProps {
@@ -33,50 +35,39 @@ export function ProjectForm({
   });
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-m">
-      <FormField id="name" label="Project Name" error={errors.name?.message}>
-        <FormInput
-          id="name"
-          type="text"
-          placeholder="e.g. Marketing Site"
-          disabled={isSubmitting}
-          error={!!errors.name}
-          {...register("name")}
-        />
-      </FormField>
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-24">
+      <Input
+        label="Project name"
+        type="text"
+        placeholder="e.g. Marketing Site"
+        disabled={isSubmitting}
+        errorText={errors.name?.message}
+        {...register("name")}
+      />
 
-      <FormField
-        id="description"
+      <Textarea
         label="Description (optional)"
-        error={errors.description?.message}
-      >
-        <FormTextarea
-          id="description"
-          placeholder="Describe the purpose of this project"
-          disabled={isSubmitting}
-          error={!!errors.description}
-          {...register("description")}
-        />
-      </FormField>
+        placeholder="Describe the purpose of this project"
+        rows={4}
+        disabled={isSubmitting}
+        errorText={errors.description?.message}
+        {...register("description")}
+      />
 
-      <div className="flex items-center justify-end gap-s">
+      <div className="flex items-center justify-end gap-12">
         {onCancel ? (
-          <button
+          <Button
             type="button"
+            variant="outlined"
             onClick={onCancel}
-            className="px-l py-s border border-[var(--color-border-primary)] rounded-lg hover:bg-[var(--color-bg-secondary)] transition-colors"
             disabled={isSubmitting}
           >
             Cancel
-          </button>
+          </Button>
         ) : null}
-        <button
-          type="submit"
-          className="px-l py-s bg-[var(--clr-dark-purple)] text-white rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? "Saving..." : submitLabel}
-        </button>
+        <Button type="submit" variant="filled" disabled={isSubmitting}>
+          {isSubmitting ? "Saving…" : submitLabel}
+        </Button>
       </div>
     </form>
   );
