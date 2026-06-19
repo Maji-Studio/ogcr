@@ -1,0 +1,21 @@
+{
+  "name": "ogcr-monorepo",
+  "private": true,
+  "version": "0.0.0",
+  "description": "OGCR monorepo — the OGCR design system and the apps that consume it.",
+  "packageManager": "pnpm@11.3.0",
+  "engines": {
+    "node": ">=20.19"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "ds:build": "pnpm --filter @majistudio/ogcr-design-system build:lib",
+    "ds:storybook": "pnpm --filter @majistudio/ogcr-design-system storybook"
+  },
+  "devDependencies": {
+    "turbo": "^2"
+  }
+}

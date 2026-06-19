@@ -1,0 +1,9 @@
+packages:
+  - "packages/*"
+  - "apps/*"
+
+# Native-binary deps allowed to run postinstall build scripts (pnpm blocks these by default).
+allowBuilds:
+  esbuild: true
+  sharp: true
+  unrs-resolver: true

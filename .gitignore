@@ -1,0 +1,25 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# builds / artifacts
+dist/
+.next/
+out/
+storybook-static/
+.turbo/
+*.tsbuildinfo
+
+# test output
+coverage/
+playwright-report/
+test-results/
+
+# env / secrets
+.env
+.env.local
+.env*.local
+
+# os / editor
+.DS_Store
+*.log
