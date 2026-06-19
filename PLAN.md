@@ -4,13 +4,18 @@
 > **`ogcr-design-system`** coexist, so farmer reuses *all* of the design system with the least
 > possible friction.
 
+> **▶ RESUME HERE (paused 2026-06-19):** the raw template is copied into `apps/farmer-prototype` but
+> **not yet wired** to the design system (it still carries the template's purple brand). Pick up at
+> **Phase 2 → remaining steps** below — start by renaming the package (`next-app-template` →
+> `farmer-prototype`). Everything needed is spelled out there.
+
 ## Status at a glance
 
 | Phase | What | Status |
 | --- | --- | --- |
 | 0 | Monorepo skeleton (`git init`, root config) | ✅ done |
 | 1 | Move `design-system` in (history-preserving), verify it builds | ✅ done |
-| 2 | Scaffold `apps/farmer-prototype` from `nextjs-template`, strip its design layer | ⬜ todo |
+| 2 | Scaffold `apps/farmer-prototype` from `nextjs-template`, strip its design layer | 🟡 in progress — raw copy done, wiring pending |
 | 3 | Proof: port login + one CRUD screen to DS components | ⬜ todo |
 | 4 | Turbo `dev`/`build` orchestration + reconcile DS build script | ⬜ todo |
 
@@ -48,12 +53,17 @@ DS. So "reuse all of the OGCR design system" means:
     TSX HMR — deferred until co-editing friction is real (it risks CSS drift, since a DS edit using
     a new utility isn't styled until `styles.css` rebuilds).
 
-## Open decisions (need a call before/within Phase 2)
+## Decisions resolved (2026-06-19)
 
-- [ ] **Fonts:** OGCR DS type everywhere, or keep GT-Flexa for farmer? (Drop `src/styles/fonts.css`
-      if DS type wins.)
-- [ ] **DS repo future:** keep the standalone GitHub repo synced via `git subtree pull`, or make the
-      monorepo its sole home and archive the old repo?
+- ✅ **Fonts:** use the **OGCR design-system type** everywhere. → In Phase 2, delete
+  `apps/farmer-prototype/src/styles/fonts.css` + `src/styles/fonts/*.woff2` and drop the GT-Flexa
+  `@import`/`--font-*` from `globals.css`. (If the DS expects a specific web font loaded, load it via
+  `next/font` — check `packages/design-system/src/styles/theme.css` font tokens when wiring.)
+- ✅ **DS repo future:** keep the standalone repo as the synced **upstream**. Wired:
+  remote `ds-upstream` → `/Users/kenji/Dropbox/Maji/20 OGCR/ogcr-design-system`; pull updates with
+  **`pnpm ds:sync`** (`scripts/sync-design-system.sh`, uses `git merge -X subtree=packages/design-system`).
+  DS development continues in the standalone repo; the monorepo pulls. (The remote is a local path —
+  machine-specific, not stored in commits; re-add on another machine, or repoint to the GitHub URL.)
 
 ---
 
@@ -111,15 +121,45 @@ DS entry, so they work from Server Components. `Table` is **deep-import only**.
   contract. Pinned back via `overrides: { vite-plugin-dts: "5.0.1" }` in `pnpm-workspace.yaml`.
   (Other build deps also floated — esbuild 0.27.7→0.28.1, etc. — but the build is green, so left as-is.)
 
-### Phase 2 — farmer scaffold ⬜
-- [ ] copy `nextjs-template` → `apps/farmer-prototype`; drop its `node_modules`, lockfile,
-      per-repo `.git`, per-app `pnpm-workspace.yaml`
-- [ ] add `@majistudio/ogcr-design-system: workspace:*` + DS peers
-- [ ] rewrite `globals.css` to import DS `styles.css`; remove the purple token block
-- [ ] delete `src/components/ui/{button,card,input}`; point usages at DS components
-- [ ] rebind `src/components/forms/*` to DS `Input`/`Form` field primitives
-- [ ] fonts decision (see open decisions)
-- [ ] `pnpm --filter farmer-prototype dev` boots, styled with OGCR brand
+### Phase 2 — farmer scaffold 🟡 (raw copy done, wiring pending)
+
+**Done:**
+- [x] copied `nextjs-template` → `apps/farmer-prototype` (excluded `.git`, `node_modules`, `.next`,
+      lockfile, per-app `pnpm-workspace.yaml`, `*.tsbuildinfo`, `.env.local`, `.github`)
+
+**Remaining (resume here, in order):**
+- [ ] **Rename the package.** `apps/farmer-prototype/package.json` `name` is still
+      `next-app-template` → set to `farmer-prototype`. Also change `dev` (currently `pnpm dev:docker`,
+      which spins up Postgres) — add a plain `"dev": "next dev -p 3200"` (port 3200 to avoid clashing
+      with operator's 3100), keep the docker variant as `dev:docker` if wanted.
+- [ ] **Add DS dependency.** In `apps/farmer-prototype/package.json` dependencies:
+      `"@majistudio/ogcr-design-system": "workspace:*"`. Peers `@base-ui/react`, `react`, `react-dom`
+      are already present (template ships them). Then `pnpm install` at the root to link.
+- [ ] **Swap the design layer (the core of Phase 2).** `src/app/layout.tsx:2` currently does
+      `import "./globals.css";`. Rewrite `src/app/globals.css` to make the DS the brand:
+      ```css
+      @import "tailwindcss";                                /* farmer's own utility generation */
+      @import "@majistudio/ogcr-design-system/styles.css";  /* DS tokens + reset + utilities = brand; loads last so it wins */
+      /* farmer-only app CSS below */
+      ```
+      Delete the template's ~1200-line purple `:root`/`@theme`/typography/utility block, the GT-Flexa
+      `@import "../styles/fonts.css"`, and `src/styles/fonts.css` + `src/styles/fonts/`.
+      > If Tailwind v4's bundler can't resolve the package `@import`, fall back to a JS import in
+      > `layout.tsx`: `import "./globals.css"; import "@majistudio/ogcr-design-system/styles.css";`
+      > (globals first so the DS layer still loads last).
+- [ ] **Boot env.** `src/config/env.ts:64` does `envSchema.parse(process.env)` at import → it
+      **throws on boot** without valid env. Create `apps/farmer-prototype/.env.local` with
+      format-valid placeholders (real DB only needed for DB routes):
+      `DATABASE_URL=postgresql://localhost:5432/farmer`, `NEXT_PUBLIC_APP_URL=http://localhost:3200`,
+      `BETTER_AUTH_SECRET=<32+ chars>`. (`RESEND_*`, `ADMIN_EMAIL` are optional.)
+- [ ] **Verify it boots, OGCR-branded.** `pnpm --filter farmer-prototype dev`, load `:3200`. The
+      template's bespoke classes (`.body-large`, `ui/button|card|input`) go unstyled until Phase 3 —
+      expected. Add a tiny smoke: render a DS `<Button>` on the home page to prove the wiring
+      end-to-end (import resolves, `'use client'` works in RSC, green brand + focus ring show).
+
+> **Known intermediate state after Phase 2:** template pages (login, items, projects) still reference
+> the deleted purple tokens and the template's `ui/*` components, so they'll look unstyled/broken.
+> That's fine — **Phase 3** ports real screens to DS components. Phase 2 only proves the wiring.
 
 ### Phase 3 — proof ⬜
 - [ ] port login screen to DS `Input`/`Button`/`Form`
