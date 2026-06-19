@@ -1,0 +1,22 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+# CodeRabbit reviews pull requests on this repo. The GitHub App is installed
+# org-wide; this file tunes its behavior for the OGCR pnpm/turbo monorepo.
+language: en-US
+reviews:
+  profile: chill
+  high_level_summary: true
+  review_status: true
+  poem: false
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches:
+      - main
+  # Skip generated, vendored, and build output so reviews focus on source.
+  path_filters:
+    - "!**/dist/**"
+    - "!**/.next/**"
+    - "!**/node_modules/**"
+    - "!pnpm-lock.yaml"
+chat:
+  auto_reply: true
