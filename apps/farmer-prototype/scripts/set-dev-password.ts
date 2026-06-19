@@ -23,7 +23,7 @@ async function main() {
     .select()
     .from(schema.users)
     .where(eq(schema.users.email, email));
-  if (!user) throw new Error(`No user found for ${email}`);
+  if (!user) throw new Error("User not found");
 
   // Better Auth's own hasher keeps the credential compatible with sign-in.
   const ctx = await auth.$context;
