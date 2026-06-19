@@ -2,8 +2,11 @@
   "$schema": "https://turbo.build/schema.json",
   "tasks": {
     "build": {
-      "dependsOn": ["^build"],
-      "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
+      "dependsOn": ["^build:lib"],
+      "outputs": [".next/**", "!.next/cache/**"]
+    },
+    "build:lib": {
+      "outputs": ["dist/**"]
     },
     "dev": {
       "cache": false,
@@ -11,7 +14,7 @@
     },
     "lint": {},
     "test": {
-      "dependsOn": ["^build"]
+      "dependsOn": ["^build:lib"]
     }
   }
 }

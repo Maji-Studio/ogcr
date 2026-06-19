@@ -8,11 +8,12 @@
     "node": ">=20.19"
   },
   "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run dev",
+    "build": "turbo run build --filter=./apps/*",
+    "dev": "bash scripts/dev.sh",
     "lint": "turbo run lint",
     "test": "turbo run test",
     "ds:build": "pnpm --filter @majistudio/ogcr-design-system build:lib",
+    "ds:watch": "turbo watch build:lib --filter=@majistudio/ogcr-design-system",
     "ds:storybook": "pnpm --filter @majistudio/ogcr-design-system storybook",
     "ds:sync": "bash scripts/sync-design-system.sh"
   },
