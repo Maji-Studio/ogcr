@@ -9,7 +9,7 @@
 | Phase | What | Status |
 | --- | --- | --- |
 | 0 | Monorepo skeleton (`git init`, root config) | ✅ done |
-| 1 | Move `design-system` in (history-preserving), verify it builds | 🟡 in progress |
+| 1 | Move `design-system` in (history-preserving), verify it builds | ✅ done |
 | 2 | Scaffold `apps/farmer-prototype` from `nextjs-template`, strip its design layer | ⬜ todo |
 | 3 | Proof: port login + one CRUD screen to DS components | ⬜ todo |
 | 4 | Turbo `dev`/`build` orchestration + reconcile DS build script | ⬜ todo |
@@ -93,12 +93,23 @@ DS entry, so they work from Server Components. `Table` is **deep-import only**.
 - [x] `turbo.json`, `.gitignore`, `README.md`, `PLAN.md`
 - [x] initial commit
 
-### Phase 1 — design-system in 🟡
-- [ ] `git subtree add --prefix=packages/design-system "<local ogcr-design-system>" main`
-- [ ] remove nested `pnpm-lock.yaml` + `pnpm-workspace.yaml` (root workspace governs)
-- [ ] `pnpm install` at root (links workspace)
-- [ ] `pnpm ds:build` green (emits `dist/index.js`, `dist/styles.css`, `dist/index.d.ts`)
-- [ ] commit
+### Phase 1 — design-system in ✅
+- [x] history-preserving merge into `packages/design-system` (Apple Git has no `git subtree`, so used
+      the manual equivalent: `git merge -s ours --allow-unrelated-histories` + `git read-tree --prefix`;
+      all 28 DS commits are reachable ancestors)
+- [x] removed nested `pnpm-lock.yaml` + `pnpm-workspace.yaml` (root workspace governs)
+- [x] `pnpm install` at root (links workspace; both packages resolve)
+- [x] `pnpm ds:build` green — `dist/{index.js,index.d.ts,styles.css}` at root; all guards pass
+      (check:merge / check:spacing / check:tokens / check:dist)
+
+**Two gotchas hit & resolved (read before touching install/build config):**
+- **pnpm 11 ignores the `pnpm` field in `package.json`.** Settings (`overrides`,
+  `onlyBuiltDependencies`, `allowBuilds`) live in `pnpm-workspace.yaml` now. That's why the DS kept
+  `allowBuilds` there.
+- **DS build is version-sensitive.** Dropping the DS's pinned lockfile floated `vite-plugin-dts`
+  `^5.0.1 → 5.0.2`, which nests declarations under `dist/src/` and fails the DS `check:dist`
+  contract. Pinned back via `overrides: { vite-plugin-dts: "5.0.1" }` in `pnpm-workspace.yaml`.
+  (Other build deps also floated — esbuild 0.27.7→0.28.1, etc. — but the build is green, so left as-is.)
 
 ### Phase 2 — farmer scaffold ⬜
 - [ ] copy `nextjs-template` → `apps/farmer-prototype`; drop its `node_modules`, lockfile,

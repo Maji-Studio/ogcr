@@ -7,3 +7,9 @@ allowBuilds:
   esbuild: true
   sharp: true
   unrs-resolver: true
+
+# Pin vite-plugin-dts to the version the design-system's published 1.0.0 built with.
+# 5.0.2 changed entryRoot handling and nests declarations under dist/src/, breaking the
+# package's check:dist contract (expects dist/index.d.ts at the root).
+overrides:
+  vite-plugin-dts: "5.0.1"
