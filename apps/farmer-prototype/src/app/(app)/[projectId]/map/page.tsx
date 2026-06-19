@@ -1,5 +1,8 @@
 import { MapView } from "@/components/map";
 
+// Map viewport sizing: most of the fold, but never cramped on short screens.
+const MAP_CONTAINER_CLASS = "h-[70vh] min-h-[420px]";
+
 interface MapPageProps {
   params: Promise<{ projectId: string }>;
 }
@@ -18,7 +21,7 @@ export default async function MapPage({ params }: MapPageProps) {
           the map to switch to street view.
         </p>
       </div>
-      <div className="h-[70vh] min-h-[420px]">
+      <div className={MAP_CONTAINER_CLASS}>
         <MapView className="h-full w-full" />
       </div>
     </div>

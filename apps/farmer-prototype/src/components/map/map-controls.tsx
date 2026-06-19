@@ -66,17 +66,19 @@ export function MapControls({
   );
 }
 
+interface ControlButtonProps {
+  label: string;
+  onClick: () => void;
+  divided?: boolean;
+  children: ReactNode;
+}
+
 function ControlButton({
   label,
   onClick,
   divided,
   children,
-}: {
-  label: string;
-  onClick: () => void;
-  divided?: boolean;
-  children: ReactNode;
-}) {
+}: ControlButtonProps) {
   return (
     <button
       type="button"
