@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, List, Gear } from "@phosphor-icons/react/dist/ssr";
+import { ArrowRight, List, MapTrifold, Gear } from "@phosphor-icons/react/dist/ssr";
 
 interface DashboardPageProps {
   params: Promise<{ projectId: string }>;
@@ -11,6 +11,12 @@ const SECTIONS = [
     title: "Items",
     description: "Manage your project items",
     icon: List,
+  },
+  {
+    slug: "map",
+    title: "Map",
+    description: "View locations on a themed map",
+    icon: MapTrifold,
   },
   {
     slug: "settings",
