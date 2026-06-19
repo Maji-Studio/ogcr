@@ -362,7 +362,7 @@ To remove the example `items` feature:
 
 1. Review the existing `items` feature as a reference
 2. Read `docs/architecture.md` for detailed architecture patterns
-3. Check `.claude/CLAUDE.md` for AI-assisted development guidelines
+3. Check the monorepo root `CLAUDE.md` for AI-assisted development guidelines (the farmer app section)
 4. Explore `docs/design-system.md` for UI customization
 
 ## Getting Help

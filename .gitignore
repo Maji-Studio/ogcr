@@ -23,3 +23,7 @@ test-results/
 # os / editor
 .DS_Store
 *.log
+
+# claude code (runtime / machine-local state)
+.claude/scheduled_tasks.lock
+**/.claude/settings.local.json
