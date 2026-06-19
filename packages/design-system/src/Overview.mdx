@@ -1,0 +1,84 @@
+import { Meta } from '@storybook/addon-docs/blocks'
+
+<Meta title="Overview" />
+
+# OGCR Design System
+
+The React component library, design tokens, and Tailwind v4 theme bridge for OGCR
+frontends — published to npm as **`@majistudio/ogcr-design-system`**. This Storybook is
+the component workbench: every component is rendered in isolation with its variants,
+states, and accessibility checks. This repo is the single source other OGCR projects
+build on — import from the package rather than reinventing components or re-deriving
+tokens.
+
+- **42 components** on [Base UI](https://base-ui.com) primitives (plus
+  [react-day-picker](https://daypicker.dev) for `Calendar`/`DatePicker`).
+- **Design tokens** as Tailwind v4 `@theme` custom properties, reconciled from the OGCR
+  Figma file, with a runtime theming seam (`--ds-*`).
+- **Accessible by construction** — Base UI handles focus, keyboard, and ARIA wiring;
+  every story runs through axe.
+
+---
+
+## How this Storybook is organized
+
+| Group | What's in it |
+| --- | --- |
+| **Foundations** | Cross-cutting design decisions — the `Theming` seam and the Phosphor `Icons` set. |
+| **Components** | The 35 building blocks: overlays (`Dialog`, `Popover`, `Select`, `Combobox`, `Tooltip`, `Menu`), inputs (`Input`, `Textarea`, `NumberField`, `Checkbox`, `Radio`, `Switch`, `Slider`, `Calendar`, `DatePicker`, `Form`), structure (`Accordion`, `Tabs`, `Card`, `Breadcrumb`, `Pagination`), and feedback/display (`Toast`, `Message`, `Skeleton`, `ProgressBar`, `Pill`, `Kpi`, `Avatar`). |
+| **Modules** | Composed, opinionated surfaces: `Navigation`, `SideNavigation`, `Sidesheet`, `ContextMenu`, and the TanStack-powered `Table`. |
+
+Use the **Docs** tab on any story for the auto-generated props table, and the **Controls**
+panel to drive props live.
+
+---
+
+## Install & use (in an OGCR app)
+
+```bash
+npm install @majistudio/ogcr-design-system
+# peer dependencies the consumer provides:
+npm install react react-dom @base-ui/react
+# optional — only if you import the Table component:
+npm install @tanstack/react-table
+```
+
+```tsx
+import { Button, Dialog, useToast } from '@majistudio/ogcr-design-system' // barrel (tree-shaken)
+import { Button } from '@majistudio/ogcr-design-system/Button'            // or deep-import one component
+import { Table } from '@majistudio/ogcr-design-system/Table'             // Table is deep-import only
+import '@majistudio/ogcr-design-system/styles.css'                        // import the stylesheet once
+```
+
+The barrel is ESM and tree-shakeable; the stylesheet does **not** split (one file, import
+it once). Every component entry ships a `'use client'` directive, so the components work
+from a React Server Component without you drawing the boundary. `Table` is intentionally
+not on the barrel — it is the only component that pulls in `@tanstack/react-table` (an
+optional peer), so deep-import it.
+
+---
+
+## Good to know
+
+- **Styling is tokens only.** Components compose Tailwind v4 utilities generated from the
+  token layer (`bg-surface-*`, `text-text-*`, `rounded-12`, `shadow-focus-*`) — never
+  hardcoded hex or px. See **Foundations → Theming**.
+- **Colors are runtime-themeable.** Every brand color resolves through a `--ds-*` custom
+  property; override one on any scoping element and the utilities and focus shadows that
+  derive from it retint with no rebuild. There is **no dark mode shipped yet** — the color
+  layer is in place, so a dark theme is a `.dark` palette override rather than a
+  rearchitecture.
+- **Accessibility gate.** Structural a11y (names, roles, ARIA) is clean and checked by the
+  a11y addon on every story. Color-contrast on a few Figma-sourced brand tokens is a known
+  open item pending a palette decision.
+
+---
+
+## Reference
+
+- **`docs/design-system.md`** — the authoritative written spec (tokens, component anatomy,
+  conventions). When spec and code disagree, the spec wins.
+- **`README.md`** — install, the consumption contract (imports / SSR boundary / peers), and
+  the maintainer release flow.
+- **[GitHub](https://github.com/Maji-Studio/ogcr-design-system)** ·
+  **[npm](https://www.npmjs.com/package/@majistudio/ogcr-design-system)**

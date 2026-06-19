@@ -1,0 +1,299 @@
+/* ============================================================
+ * OGCR Design System — theme tokens
+ * Source of truth: Figma file 2P6XrQJhT8I39IR5LGK7RT
+ *   (OGCR – Design System) — variable collections.
+ *
+ * Convention mirrors `/14 Manukai/.../assets/styles` — a single
+ * `@theme inline` block holds primitives + semantics + scales +
+ * typography in one place. Tailwind v4 surfaces every token as a
+ * utility (`bg-surface-positive`, `p-16`, `rounded-12`, `text-h1`).
+ *
+ * THE `@theme inline` CONTRACT (what actually ships — verified
+ * against built styles.css, not the old folklore):
+ *   - `inline` controls how UTILITIES reference a token: the token's
+ *     *value* is baked directly into the utility body. A token whose
+ *     value is a LITERAL (`--radius-12: 12px`) bakes that literal
+ *     (`.rounded-12{border-radius:12px}`) — NOT runtime-themeable.
+ *     A token whose value is a `var()` REFERENCE
+ *     (`--color-surface-page: var(--ds-surface-page)`) bakes the
+ *     reference (`.bg-surface-page{background-color:var(--ds-…)}`) —
+ *     runtime-themeable via that var.
+ *   - Tailwind STILL emits each referenced token to `:root,:host`
+ *     (e.g. `--color-surface-page:var(--ds-surface-page)`), so plain
+ *     `var(--color-*)` refs elsewhere (global.css `body`, the
+ *     `--shadow-focus-*` tokens below) resolve correctly. It does
+ *     NOT recursively inline a `--shadow-*` token's nested
+ *     `var(--color-*)`, so the focus shadows ride the seam through
+ *     that emitted `:root` property.
+ *
+ * THE SEAM: all 49 COLOR tokens here are `var(--ds-*)` references
+ * into src/styles/palette.css, which holds the brand hex literals as
+ * runtime `:root` custom properties. That is what makes colors
+ * themeable; palette.css is the only place a brand hex appears, and
+ * scripts/check-token-seam.mjs (npm run check:tokens) fails the build
+ * if any color utility re-bakes a literal here. Radius / spacing /
+ * font / elevation tokens stay literal by design (no brand-variance
+ * need yet — moving them onto the seam later is the same mechanical
+ * step).
+ *
+ * Layers (top-to-bottom in this file):
+ *   1. Primitive colors   — raw palette
+ *   2. Semantic colors    — text / icon / surface / border /
+ *                           interaction / focus (what components
+ *                           consume)
+ *   3. Spacing scale      — --spacing-0 .. --spacing-320 (px)
+ *   4. Radius scale       — --radius-2 .. --radius-48 + full
+ *   5. Elevation
+ *   6. Typography         — families, weights, size primitives,
+ *                           multi-prop semantic tokens (--text-h1
+ *                           with sibling --text-h1--font-weight etc.)
+ *   7. Motion
+ *
+ * Components should consume the semantic layer, never the
+ * primitive layer directly.
+ *
+ * Last reconciled with Figma variables: 2026-05-24.
+ * ============================================================ */
+
+@theme inline {
+  /* --- 1. Primitive colors (→ palette.css seam) -------------- */
+  --color-brand-blue-300: var(--ds-brand-blue-300);
+  --color-brand-blue-800: var(--ds-brand-blue-800);
+  --color-brand-green-500: var(--ds-brand-green-500);
+
+  --color-red-500: var(--ds-red-500);
+  --color-red-600: var(--ds-red-600);
+  --color-orange-400: var(--ds-orange-400);
+  --color-orange-500: var(--ds-orange-500);
+  --color-amber-300: var(--ds-amber-300);
+  --color-yellow-300: var(--ds-yellow-300);     /* Figma: yellow/300 */
+  --color-white: var(--ds-white);
+
+  /* --- 2. Semantic colors (→ palette.css seam) --------------- */
+  /* Text */
+  --color-text-primary: var(--ds-text-primary);
+  --color-text-secondary: var(--ds-text-secondary);
+  --color-text-neutral: var(--ds-text-neutral);
+  --color-text-positive: var(--ds-text-positive);      /* Figma: text/positive */
+  --color-text-negative: var(--ds-text-negative);
+  --color-text-warning: var(--ds-text-warning);
+  --color-text-progress: var(--ds-text-progress);      /* Figma: text/progress */
+
+  /* Icon */
+  --color-icon-primary: var(--ds-icon-primary);
+  --color-icon-secondary: var(--ds-icon-secondary);
+  --color-icon-neutral: var(--ds-icon-neutral);
+  --color-icon-positive: var(--ds-icon-positive);      /* Figma: icon/positive */
+  --color-icon-negative: var(--ds-icon-negative);
+  --color-icon-warning: var(--ds-icon-warning);
+  --color-icon-progress: var(--ds-icon-progress);      /* Figma: icon/progress */
+
+  /* Surface */
+  --color-surface-page: var(--ds-surface-page);
+  --color-surface-light: var(--ds-surface-light);
+  --color-surface-neutral: var(--ds-surface-neutral);
+  --color-surface-strong: var(--ds-surface-strong);
+  --color-surface-inverted: var(--ds-surface-inverted);
+  --color-surface-positive: var(--ds-surface-positive);
+  --color-surface-warning: var(--ds-surface-warning);
+  --color-surface-negative: var(--ds-surface-negative);
+  --color-surface-progress: var(--ds-surface-progress); /* Figma: surface/progress */
+
+  /* Border */
+  --color-border-light: var(--ds-border-light);
+  --color-border-medium: var(--ds-border-medium);
+  --color-border-strong: var(--ds-border-strong);
+  --color-border-default: var(--ds-border-default);
+  --color-border-high-contrast: var(--ds-border-high-contrast);
+  --color-border-positive-light: var(--ds-border-positive-light);
+  --color-border-warning-light: var(--ds-border-warning-light);
+  --color-border-negative-light: var(--ds-border-negative-light);
+  --color-border-negative-strong: var(--ds-border-negative-strong);
+
+  /* Interaction */
+  --color-interaction-primary-default: var(--ds-interaction-primary-default);
+  --color-interaction-primary-hover: var(--ds-interaction-primary-hover);     /* Figma: interaction/primary-hover */
+  --color-interaction-primary-active: var(--ds-interaction-primary-active);   /* Figma: interaction/primary-active */
+  --color-interaction-primary-focus: var(--ds-interaction-primary-focus);
+  --color-interaction-secondary-focus: var(--ds-interaction-secondary-focus); /* Figma: interaction/secondary-focus */
+  --color-interaction-tertiary-active: var(--ds-interaction-tertiary-active); /* Figma: interaction/tertiary-active */
+  --color-focus-ring-error: var(--ds-focus-ring-error);
+
+  /* Focus rings (Figma effects: focus-primary / focus-secondary)
+     Two-stop pattern: an inner 2px surface-light halo creates breathing
+     room between the focused element and the visible 4px ring, which
+     uses a contrast-AA-compliant token (≥3:1 against neutral surfaces,
+     per WCAG SC 2.4.11). The pale interaction-*-focus tints remain
+     available as background washes (e.g. SideNavigation active item)
+     but are no longer the ring color — they read as 1.0–1.2:1 against
+     surface-page and would be invisible.
+     Used on focused inputs, buttons, checkboxes, radios, segmented
+     controls, and any custom button that needs a visible ring. */
+  --shadow-focus-primary:
+    0 0 0 2px var(--color-surface-light),
+    0 0 0 4px var(--color-interaction-primary-default);
+  --shadow-focus-secondary:
+    0 0 0 2px var(--color-surface-light),
+    0 0 0 4px var(--color-interaction-primary-default);
+  --shadow-focus-error:
+    0 0 0 2px var(--color-surface-light),
+    0 0 0 4px var(--color-icon-negative);
+
+  /* --- 3. Spacing scale (px) --------------------------------- */
+  --spacing-0: 0px;
+  --spacing-1: 1px;
+  --spacing-2: 2px;
+  --spacing-4: 4px;
+  --spacing-6: 6px;
+  --spacing-8: 8px;
+  --spacing-10: 10px;
+  --spacing-12: 12px;
+  --spacing-16: 16px;
+  --spacing-20: 20px;
+  --spacing-24: 24px;
+  --spacing-28: 28px;
+  --spacing-32: 32px;
+  --spacing-36: 36px;
+  --spacing-40: 40px;
+  --spacing-48: 48px;
+  --spacing-56: 56px;
+  --spacing-64: 64px;
+  --spacing-72: 72px;
+  --spacing-80: 80px;
+  --spacing-96: 96px;
+  --spacing-128: 128px;
+  --spacing-160: 160px;
+  --spacing-192: 192px;
+  --spacing-256: 256px;
+  --spacing-320: 320px;
+
+  /* --- 4. Radius scale (px) ---------------------------------- */
+  --radius-2: 2px;
+  --radius-4: 4px;
+  --radius-8: 8px;
+  --radius-12: 12px;
+  --radius-16: 16px;
+  --radius-20: 20px;
+  --radius-24: 24px;
+  --radius-32: 32px;
+  --radius-48: 48px;
+  --radius-full: 9999px;
+
+  /* --- 5. Elevation ------------------------------------------ */
+  --shadow-elevation-l:
+    0 0 2px 0 rgba(68, 51, 33, 0.08),
+    0 8px 16px 0 rgba(68, 51, 33, 0.16);
+
+  /* --- 6. Typography ----------------------------------------- */
+  /* Families */
+  --font-standard: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Helvetica Now Display', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* Weights — values match Figma typography/font/style.
+     "bold" = 700 (Inter Bold). If you need 600 (Inter Semi Bold),
+     introduce a separate --font-weight-semibold token. */
+  --font-weight-default: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 700;
+
+  /* Size primitives (rem). xs–5xl mirror Figma typography/font/size.
+     --text-xxs (12px) is code-only — kept because App.css consumes it;
+     not present in Figma. */
+  --text-xxs: 0.75rem;     /* 12px — code-only */
+  --text-xs: 0.625rem;     /* 10px */
+  --text-s: 0.875rem;      /* 14px */
+  --text-m: 1rem;          /* 16px */
+  --text-l: 1.25rem;       /* 20px */
+  --text-xl: 1.5rem;       /* 24px */
+  --text-2xl: 2rem;        /* 32px */
+  --text-3xl: 2.5rem;      /* 40px */
+  --text-4xl: 3rem;        /* 48px */
+  --text-5xl: 4rem;        /* 64px */
+
+  /* Semantic typography (multi-prop pattern).
+     Tailwind v4 generates `.text-h1 { font-size, font-weight,
+     line-height, letter-spacing }` from these sibling props.
+     Responsive bumps are applied by redefining these tokens
+     inside a media query in global.css. */
+  --text-h1: var(--text-2xl);
+  --text-h1--font-weight: var(--font-weight-medium);
+  --text-h1--line-height: 1.2;
+  --text-h1--letter-spacing: 0%;
+
+  --text-h2: var(--text-xl);
+  --text-h2--font-weight: var(--font-weight-medium);
+  --text-h2--line-height: 1.2;
+  --text-h2--letter-spacing: 0%;
+
+  --text-h3: var(--text-l);
+  --text-h3--font-weight: var(--font-weight-medium);
+  --text-h3--line-height: 1.2;
+  --text-h3--letter-spacing: 0%;
+
+  --text-h4: var(--text-m);
+  --text-h4--font-weight: var(--font-weight-medium);
+  --text-h4--line-height: 1.2;
+  --text-h4--letter-spacing: 0%;
+
+  /* body-m — Figma typography-styles/body/body-m. */
+  --text-body: var(--text-m);
+  --text-body--font-weight: var(--font-weight-default);
+  --text-body--line-height: 1.5;
+  --text-body--letter-spacing: 0%;
+
+  /* body-s — Figma typography-styles/body/body-s. */
+  --text-body-s: var(--text-s);
+  --text-body-s--font-weight: var(--font-weight-default);
+  --text-body-s--line-height: 1.4;
+  --text-body-s--letter-spacing: 0%;
+
+  /* body-l — Figma typography-styles/body/body-l. */
+  --text-body-l: var(--text-l);
+  --text-body-l--font-weight: var(--font-weight-default);
+  --text-body-l--line-height: 1.5;
+  --text-body-l--letter-spacing: 0%;
+
+  /* lead — Figma typography-styles/body/lead.
+     Same resolved sizes as body-l; kept separate for semantic intent. */
+  --text-lead: var(--text-l);
+  --text-lead--font-weight: var(--font-weight-default);
+  --text-lead--line-height: 1.5;
+  --text-lead--letter-spacing: 0%;
+
+  /* quote — Figma typography-styles/body/quote.
+     Italic is not part of Tailwind v4's --text-* multi-prop API,
+     so the italic style is applied in global.css via .text-quote. */
+  --text-quote: var(--text-xl);
+  --text-quote--font-weight: var(--font-weight-default);
+  --text-quote--line-height: 1.4;
+  --text-quote--letter-spacing: 0%;
+
+  /* label/button — Figma typography-styles/labels/button. */
+  --text-label-button: var(--text-s);
+  --text-label-button--font-weight: var(--font-weight-medium);
+  --text-label-button--line-height: 1;
+  --text-label-button--letter-spacing: 0.02em;
+
+  /* label/navigation — Figma typography-styles/labels/navigation. */
+  --text-label-navigation: var(--text-s);
+  --text-label-navigation--font-weight: var(--font-weight-medium);
+  --text-label-navigation--line-height: 1;
+  --text-label-navigation--letter-spacing: 0.02em;
+
+  /* label/input-field — Figma typography-styles/labels/input-field.
+     14px at every breakpoint per Figma; no responsive bump. */
+  --text-label-input: var(--text-s);
+  --text-label-input--font-weight: var(--font-weight-medium);
+  --text-label-input--line-height: 1.4;
+  --text-label-input--letter-spacing: 0%;
+
+  /* --- 7. Motion --------------------------------------------- */
+  --motion-fast: 150ms ease-out;
+  --motion-base: 200ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* Responsive typography lives in global.css. Tailwind v4 derefs the
+   --text-h1 → var(--text-2xl) chain at compile time, so re-routing
+   the responsive bump via a :root override here would be inert. The
+   responsive bumps target the generated utility classes directly. */
