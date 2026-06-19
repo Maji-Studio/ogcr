@@ -13,7 +13,8 @@
     "lint": "turbo run lint",
     "test": "turbo run test",
     "ds:build": "pnpm --filter @majistudio/ogcr-design-system build:lib",
-    "ds:storybook": "pnpm --filter @majistudio/ogcr-design-system storybook"
+    "ds:storybook": "pnpm --filter @majistudio/ogcr-design-system storybook",
+    "ds:sync": "bash scripts/sync-design-system.sh"
   },
   "devDependencies": {
     "turbo": "^2"
