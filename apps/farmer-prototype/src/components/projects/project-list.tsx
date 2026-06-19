@@ -2,6 +2,11 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { Plus, Pencil, Trash, ArrowRight } from "@phosphor-icons/react/dist/ssr";
+import { Button } from "@majistudio/ogcr-design-system/Button";
+import { Card } from "@majistudio/ogcr-design-system/Card";
+import { Message } from "@majistudio/ogcr-design-system/Message";
+import { AlertDialog } from "@majistudio/ogcr-design-system/AlertDialog";
 import type { Project } from "@/db/schema";
 import {
   useCreateProject,
@@ -9,14 +14,12 @@ import {
   useProjects,
   useUpdateProject,
 } from "@/hooks/use-projects";
-import { ServerError } from "@/components/forms";
-import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
 import { ProjectForm } from "./project-form";
 
 export function ProjectList() {
   const [isCreating, setIsCreating] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
-  const [deletingProjectId, setDeletingProjectId] = useState<string | null>(null);
+  const [deletingProject, setDeletingProject] = useState<Project | null>(null);
   const [createError, setCreateError] = useState<string | null>(null);
   const [updateError, setUpdateError] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -55,16 +58,12 @@ export function ProjectList() {
     }
   };
 
-  const handleDelete = (projectId: string) => {
-    setDeletingProjectId(projectId);
-  };
-
   const handleDeleteConfirm = async () => {
-    if (!deletingProjectId) return;
+    if (!deletingProject) return;
     setDeleteError(null);
     try {
-      await deleteProject.mutateAsync(deletingProjectId);
-      setDeletingProjectId(null);
+      await deleteProject.mutateAsync(deletingProject.id);
+      setDeletingProject(null);
     } catch (error) {
       setDeleteError(
         error instanceof Error ? error.message : "Failed to delete project"
@@ -72,48 +71,26 @@ export function ProjectList() {
     }
   };
 
-  if (isLoading) {
-    return <div className="body-large">Loading projects...</div>;
-  }
-
-  if (isError) {
-    return (
-      <div className="container-max py-l">
-        <div className="p-xl border border-[var(--color-signal-red)] rounded-[var(--radius-8)] flex flex-col items-center gap-m text-center">
-          <p className="body-large text-[var(--color-signal-red)]">
-            {error instanceof Error ? error.message : "Failed to load projects."}
-          </p>
-          <button
-            type="button"
-            onClick={() => refetch()}
-            className="px-l py-s border border-[var(--color-border-primary)] rounded-lg hover:bg-[var(--color-background-medium)]"
-          >
-            Try Again
-          </button>
-        </div>
-      </div>
-    );
-  }
+  const isEditingAny = isCreating || !!editingProject;
 
   return (
-    <div className="container-max py-l flex flex-col gap-l">
-      <div className="flex items-center justify-between gap-m">
-        <h1 className="title-heading-2">Projects</h1>
-        {!isCreating && !editingProject ? (
-          <button
-            type="button"
+    <div className="mx-auto flex w-full max-w-[880px] flex-col gap-24 px-24 py-32">
+      <div className="flex items-center justify-between gap-16">
+        <h1 className="text-h1 text-text-primary">Projects</h1>
+        {!isEditingAny ? (
+          <Button
+            variant="filled"
+            iconLeft={<Plus size={18} weight="bold" />}
             onClick={() => setIsCreating(true)}
-            className="px-l py-s bg-[var(--clr-dark-purple)] text-white rounded-lg hover:opacity-90 transition-opacity"
           >
-            New Project
-          </button>
+            New project
+          </Button>
         ) : null}
       </div>
 
       {isCreating ? (
-        <div className="p-l border border-[var(--color-border-primary)] rounded-[var(--radius-8)] bg-[var(--color-background-white)]">
-          <h2 className="title-heading-3 mb-m">Create Project</h2>
-          {createError ? <ServerError message={createError} /> : null}
+        <Card title="Create project" className="p-24">
+          {createError ? <Message state="error" title={createError} /> : null}
           <ProjectForm
             onSubmit={handleCreate}
             onCancel={() => {
@@ -121,15 +98,14 @@ export function ProjectList() {
               setCreateError(null);
             }}
             isSubmitting={createProject.isPending}
-            submitLabel="Create Project"
+            submitLabel="Create project"
           />
-        </div>
+        </Card>
       ) : null}
 
       {editingProject ? (
-        <div className="p-l border border-[var(--color-border-primary)] rounded-[var(--radius-8)] bg-[var(--color-background-white)]">
-          <h2 className="title-heading-3 mb-m">Edit Project</h2>
-          {updateError ? <ServerError message={updateError} /> : null}
+        <Card title="Edit project" className="p-24">
+          {updateError ? <Message state="error" title={updateError} /> : null}
           <ProjectForm
             defaultValues={{
               name: editingProject.name,
@@ -141,75 +117,91 @@ export function ProjectList() {
               setUpdateError(null);
             }}
             isSubmitting={updateProject.isPending}
-            submitLabel="Save Changes"
+            submitLabel="Save changes"
           />
-        </div>
+        </Card>
       ) : null}
 
-      {!projects || projects.length === 0 ? (
-        <div className="p-xl border border-[var(--color-border-tertiary)] bg-[var(--color-surface-light)] rounded-[var(--radius-8)] flex flex-col items-center justify-center gap-m text-center">
-          <div className="flex flex-col gap-s">
-            <h2 className="title-heading-3">No projects yet</h2>
-            <p className="body-large text-[var(--color-text-secondary)]">
-              Create your first project to get started.
-            </p>
-          </div>
+      {deleteError ? <Message state="error" title={deleteError} /> : null}
+
+      {isLoading ? (
+        <p className="text-body text-text-secondary">Loading projects…</p>
+      ) : isError ? (
+        <Message
+          state="error"
+          title="Failed to load projects."
+          description={error instanceof Error ? error.message : undefined}
+          actionLabel="Try again"
+          onAction={() => refetch()}
+        />
+      ) : !projects || projects.length === 0 ? (
+        <div className="flex flex-col items-center gap-8 rounded-16 border border-dashed border-border-medium bg-surface-light px-24 py-32 text-center">
+          <h2 className="text-h4 text-text-primary">No projects yet</h2>
+          <p className="text-body-s text-text-secondary">
+            Create your first project to get started.
+          </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-m">
+        <div className="flex flex-col gap-12">
           {projects.map((project) => (
             <div
               key={project.id}
-              className="p-l border border-[var(--color-border-primary)] rounded-[var(--radius-8)] bg-[var(--color-background-white)]"
+              className="group flex items-center justify-between gap-16 rounded-16 border border-border-medium bg-surface-light p-24 transition-colors hover:border-border-strong"
             >
-              <div className="flex items-start justify-between gap-m">
-                <div className="flex flex-col gap-s min-w-0">
-                  <Link
-                    href={`/${project.id}/dashboard`}
-                    className="title-heading-3 hover:underline"
-                  >
-                    {project.name}
-                  </Link>
-                  {project.description ? (
-                    <p className="body-medium text-[var(--color-text-secondary)]">
-                      {project.description}
-                    </p>
-                  ) : null}
-                </div>
-                <div className="flex items-center gap-s">
-                  <button
-                    type="button"
-                    onClick={() => setEditingProject(project)}
-                    className="px-m py-xs border border-[var(--color-border-primary)] rounded-lg hover:bg-[var(--color-background-medium)]"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(project.id)}
-                    className="px-m py-xs border border-[var(--color-signal-red)] text-[var(--color-signal-red)] rounded-lg hover:bg-[var(--color-signal-red)]/10"
-                  >
-                    Delete
-                  </button>
-                </div>
+              <Link
+                href={`/${project.id}/dashboard`}
+                className="flex min-w-0 flex-1 flex-col gap-2"
+              >
+                <span className="flex items-center gap-8 text-h4 text-text-primary">
+                  {project.name}
+                  <ArrowRight
+                    size={16}
+                    className="text-icon-secondary opacity-0 transition-opacity group-hover:opacity-100"
+                  />
+                </span>
+                {project.description ? (
+                  <span className="line-clamp-1 text-body-s text-text-secondary">
+                    {project.description}
+                  </span>
+                ) : null}
+              </Link>
+              <div className="flex shrink-0 items-center gap-8">
+                <Button
+                  variant="text"
+                  aria-label={`Edit ${project.name}`}
+                  iconLeft={<Pencil size={18} />}
+                  onClick={() => setEditingProject(project)}
+                />
+                <Button
+                  variant="text"
+                  aria-label={`Delete ${project.name}`}
+                  iconLeft={<Trash size={18} />}
+                  onClick={() => setDeletingProject(project)}
+                />
               </div>
             </div>
           ))}
         </div>
       )}
 
-      {deleteError ? <ServerError message={deleteError} /> : null}
-
-      <DeleteConfirmDialog
-        isOpen={!!deletingProjectId}
-        title="Delete Project"
-        message="Are you sure you want to delete this project? This action cannot be undone."
-        onConfirm={handleDeleteConfirm}
-        onCancel={() => {
-          setDeletingProjectId(null);
-          setDeleteError(null);
+      <AlertDialog
+        tone="danger"
+        title="Delete project?"
+        description={
+          deletingProject
+            ? `"${deletingProject.name}" and its items will be permanently deleted. This can't be undone.`
+            : undefined
+        }
+        confirmLabel={deleteProject.isPending ? "Deleting…" : "Delete"}
+        cancelLabel="Cancel"
+        open={!!deletingProject}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDeletingProject(null);
+            setDeleteError(null);
+          }
         }}
-        isPending={deleteProject.isPending}
+        onConfirm={handleDeleteConfirm}
       />
     </div>
   );

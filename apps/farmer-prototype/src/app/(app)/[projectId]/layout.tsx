@@ -28,9 +28,11 @@ export default async function ProjectLayout({
   }
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-surface-page">
       <Sidebar projectId={projectId} />
-      <main className="flex-1 p-8">{children}</main>
+      <main className="mx-auto w-full max-w-[1080px] flex-1 px-24 py-32">
+        {children}
+      </main>
     </div>
   );
 }

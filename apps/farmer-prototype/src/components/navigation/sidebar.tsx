@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { House, List, Gear } from "@phosphor-icons/react/dist/ssr";
+import { House, List, Gear, Plant } from "@phosphor-icons/react/dist/ssr";
 import { cn } from "@/lib/utils";
 
 interface SidebarProps {
@@ -13,26 +13,24 @@ export function Sidebar({ projectId }: SidebarProps) {
   const pathname = usePathname();
 
   const links = [
-    {
-      href: `/${projectId}/dashboard`,
-      label: "Dashboard",
-      icon: House,
-    },
-    {
-      href: `/${projectId}/items`,
-      label: "Items",
-      icon: List,
-    },
-    {
-      href: `/${projectId}/settings`,
-      label: "Settings",
-      icon: Gear,
-    },
+    { href: `/${projectId}/dashboard`, label: "Dashboard", icon: House },
+    { href: `/${projectId}/items`, label: "Items", icon: List },
+    { href: `/${projectId}/settings`, label: "Settings", icon: Gear },
   ];
 
   return (
-    <aside className="w-64 border-r border-[var(--color-border-primary)] min-h-screen p-l bg-[var(--color-background-light)]">
-      <nav className="flex flex-col gap-xs">
+    <aside className="flex min-h-screen w-64 shrink-0 flex-col gap-32 border-r border-border-medium bg-surface-light p-16">
+      <Link
+        href="/projects"
+        className="flex items-center gap-12 rounded-12 px-8 py-4 transition-colors hover:bg-surface-neutral"
+      >
+        <span className="flex h-32 w-32 items-center justify-center rounded-8 bg-interaction-primary-default text-surface-page">
+          <Plant size={20} weight="fill" />
+        </span>
+        <span className="text-h4 leading-none text-text-primary">OGCR</span>
+      </Link>
+
+      <nav className="flex flex-col gap-4">
         {links.map((link) => {
           const Icon = link.icon;
           const isActive = pathname === link.href;
@@ -41,15 +39,16 @@ export function Sidebar({ projectId }: SidebarProps) {
             <Link
               key={link.href}
               href={link.href}
+              aria-current={isActive ? "page" : undefined}
               className={cn(
-                "flex items-center gap-s px-m py-s rounded-[var(--radius-8)] transition-colors duration-300",
+                "flex items-center gap-12 rounded-12 px-12 py-8 text-label-navigation transition-colors",
                 isActive
-                  ? "bg-[var(--clr-dark-purple)] text-[var(--color-text-white-primary)]"
-                  : "text-[var(--color-text-primary)] hover:bg-[var(--color-surface-medium)]"
+                  ? "bg-interaction-primary-default text-surface-page"
+                  : "text-text-secondary hover:bg-surface-neutral hover:text-text-primary"
               )}
             >
               <Icon size={20} weight={isActive ? "fill" : "regular"} />
-              <span className="body-medium">{link.label}</span>
+              <span>{link.label}</span>
             </Link>
           );
         })}
