@@ -59,7 +59,7 @@ export function ProjectList() {
   };
 
   const handleDeleteConfirm = async () => {
-    if (!deletingProject) return;
+    if (!deletingProject || deleteProject.isPending) return;
     setDeleteError(null);
     try {
       await deleteProject.mutateAsync(deletingProject.id);
