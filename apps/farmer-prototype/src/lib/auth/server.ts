@@ -3,6 +3,10 @@
  * For use in Server Components and Server Actions
  */
 import { redirect } from "next/navigation";
+import { eq } from "drizzle-orm";
+import { env } from "@/config/env";
+import { db } from "@/db";
+import { users } from "@/db/schema";
 import {
   getBetterAuthSession,
   mapBetterAuthUser,
@@ -15,6 +19,29 @@ import type { AuthUser } from "./providers/better-auth-client";
  * Returns null if not authenticated
  */
 export async function getUser(): Promise<AuthUser | null> {
+  if (env.DISABLE_AUTH) {
+    const bypassEmail = env.ADMIN_EMAIL ?? "admin@example.com";
+    const user = await db.query.users.findFirst({
+      where: eq(users.email, bypassEmail),
+    });
+
+    if (!user) {
+      throw new Error(
+        "DISABLE_AUTH requires a seeded admin user. Run `pnpm --filter farmer-prototype db:seed`."
+      );
+    }
+
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role === "admin" ? "admin" : "user",
+      emailVerified: user.emailVerified,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
+  }
+
   const session = await getBetterAuthSession();
 
   if (!session?.user) {

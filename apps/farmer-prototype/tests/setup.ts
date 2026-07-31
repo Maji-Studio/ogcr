@@ -14,6 +14,7 @@ const testEnvDefaults: Record<string, string> = {
   RESEND_API_KEY: "",
   RESEND_FROM_EMAIL: "",
   ALLOW_SELF_SIGNUP: "false",
+  DISABLE_AUTH: "false",
   ADMIN_EMAIL: "admin@example.com",
 };
 

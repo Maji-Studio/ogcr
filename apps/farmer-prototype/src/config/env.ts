@@ -30,6 +30,11 @@ const envSchema = z.object({
     .optional()
     .default("false")
     .transform((val) => val === "true"),
+  DISABLE_AUTH: z
+    .string()
+    .optional()
+    .default("false")
+    .transform((val) => val === "true"),
   ADMIN_EMAIL: z.string().email().optional(),
   LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).optional(),
   DB_POOL_MAX: z.preprocess(

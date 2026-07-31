@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { House, List, MapTrifold, Gear, Plant } from "@phosphor-icons/react/dist/ssr";
+import { House, Leaf, List, MapTrifold, Gear, Plant } from "@phosphor-icons/react/dist/ssr";
 import { cn } from "@/lib/utils";
 
 interface SidebarProps {
@@ -14,6 +14,7 @@ export function Sidebar({ projectId }: SidebarProps) {
 
   const links = [
     { href: `/${projectId}/dashboard`, label: "Dashboard", icon: House },
+    { href: `/${projectId}/programs`, label: "Programs", icon: Leaf },
     { href: `/${projectId}/items`, label: "Items", icon: List },
     { href: `/${projectId}/map`, label: "Map", icon: MapTrifold },
     { href: `/${projectId}/settings`, label: "Settings", icon: Gear },
@@ -34,7 +35,9 @@ export function Sidebar({ projectId }: SidebarProps) {
       <nav className="flex flex-col gap-4">
         {links.map((link) => {
           const Icon = link.icon;
-          const isActive = pathname === link.href;
+          // Prefix match keeps the item lit on subpages (e.g. /programs/<slug>).
+          const isActive =
+            pathname === link.href || pathname.startsWith(`${link.href}/`);
 
           return (
             <Link

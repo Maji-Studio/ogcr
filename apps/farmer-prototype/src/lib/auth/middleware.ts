@@ -3,6 +3,7 @@
  * Handles session validation and route protection
  */
 import { NextRequest, NextResponse } from "next/server";
+import { env } from "@/config/env";
 import { auth } from "@/lib/auth/better-auth";
 
 /**
@@ -15,6 +16,7 @@ const PUBLIC_ROUTES = [
   "/set-password",
   "/verify-email",
   "/unauthorized",
+  "/scope-3-prototype",
   "/api/auth",
 ];
 
@@ -38,6 +40,14 @@ function matchesRoute(pathname: string, routes: string[]): boolean {
  */
 export async function updateSession(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
+
+  if (env.DISABLE_AUTH) {
+    if (matchesRoute(pathname, AUTH_ROUTES)) {
+      return NextResponse.redirect(new URL("/projects", request.url));
+    }
+
+    return NextResponse.next();
+  }
 
   // Allow API auth routes to pass through
   if (pathname.startsWith("/api/auth")) {
