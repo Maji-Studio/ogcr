@@ -1,5 +1,5 @@
 // Generates the per-component publishing surface for @majistudio/ogcr-design-system, run as the last step
-// of `npm run build:lib` (after vite has emitted dist/). It is the single source that keeps three
+// of `pnpm run build:lib` (after vite has emitted dist/). It is the single source that keeps three
 // artifacts in lockstep with the contents of src/components/*:
 //
 //   1. package.json  `exports`  — adds a `./<Name>` subpath per component (deep imports), plus the
@@ -72,6 +72,13 @@ const exportsMap = {
     import: './dist/index.js',
   },
   './styles.css': './dist/styles.css',
+  // The token layer as importable Tailwind source (scripts/build-theme-export.mjs). A consumer
+  // `@import`s this into their OWN Tailwind build so their compiler generates any DS utility with
+  // any variant, instead of being limited to the surface precompiled into styles.css. Both
+  // spellings resolve to the same file: `/theme` reads well in an @import, `/theme.css` matches
+  // the `/styles.css` sibling.
+  './theme': './dist/theme.css',
+  './theme.css': './dist/theme.css',
   './manifest.json': './dist/manifest.json',
   './llms.txt': './dist/llms.txt',
   // Dependency-free deep import of the cn() class-merge helper. Built as its own entry
@@ -97,6 +104,7 @@ const manifest = {
   version: pkg.version,
   description: pkg.description,
   styles: `${pkg.name}/styles.css`,
+  theme: `${pkg.name}/theme`,
   barrel: pkg.name,
   componentCount: components.length,
   components: components.map(({ name, import: importPath, types, exports }) => ({

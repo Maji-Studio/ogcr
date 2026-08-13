@@ -54,6 +54,9 @@ export default defineConfig({
         'src/**/*.test.ts',
         'src/**/*.test.tsx',
         'src/App.tsx',
+        // The demo page was split out of App.tsx into src/demo/*; it is a Storybook/preview
+        // surface, never part of the published API, so it must not emit .d.ts into dist/.
+        'src/demo/**',
         'src/main.tsx',
         'src/vite-env.d.ts',
       ],

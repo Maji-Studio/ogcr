@@ -1,5 +1,5 @@
 // Guards against off-scale spacing / sizing / border-radius utilities in src/.
-// Run as `npm run check:spacing`, chained into build:lib.
+// Run as `pnpm run check:spacing`, chained into build:lib.
 //
 // THE FOOTGUN: theme.css defines a discrete spacing scale (--spacing-0 … --spacing-320) and
 // radius scale (--radius-2 … --radius-48), but Tailwind v4 keeps a dynamic `--spacing` multiplier

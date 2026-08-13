@@ -12,16 +12,23 @@
  * focus-shadow that derives from it follows. See theme.css header
  * for the full token contract.
  *
- * This file is the ONLY place the 49 brand hex literals appear.
+ * This file is the ONLY place a brand hex literal appears.
  * scripts/check-token-seam.mjs parses these `--ds-*` definitions as
  * the authoritative palette and fails the build if any color
  * utility re-bakes one of these hexes instead of referencing the
- * seam.
+ * seam. scripts/check-no-literal-colors.mjs additionally fails the
+ * build if a hex / rgb() / hsl() literal shows up anywhere else in
+ * src/ outside this file.
  *
  * Names mirror the semantic tokens in theme.css 1:1 (drop `--color-`,
  * add `--ds-`): `--color-surface-page` ⇄ `--ds-surface-page`.
  *
- * Last reconciled with Figma variables: 2026-05-24.
+ * Loaded into `@layer theme` (see global.css) so a consumer's own
+ * unlayered `:root { --ds-… }` override always wins, regardless of
+ * stylesheet order. Before that it was unlayered and — because the DS
+ * sheet loads last — silently beat every app-side override.
+ *
+ * Last reconciled with Figma variables: 2026-08-13.
  * ============================================================ */
 
 :root {
@@ -55,6 +62,13 @@
   --ds-icon-negative: #b91c1c;
   --ds-icon-warning: #c2410c;
   --ds-icon-progress: #265277;
+  /* `-light` tier — Figma icon/{positive,negative,warning,progress}-light.
+     Components previously faked these with the raw primitives
+     (--ds-brand-green-500 / --ds-red-500 / --ds-orange-500). */
+  --ds-icon-positive-light: #6db087;  /* brand-green/500 */
+  --ds-icon-negative-light: #ef4444;  /* red/500 */
+  --ds-icon-warning-light: #f97316;   /* orange/500 */
+  --ds-icon-progress-light: #326d9e;  /* brand-blue/500 */
 
   /* --- Semantic: surface ------------------------------------- */
   --ds-surface-page: #f8f3ef;
@@ -71,21 +85,40 @@
   --ds-border-light: #e7e5e4;
   --ds-border-medium: #d6d3d1;
   --ds-border-strong: #a8a29e;
+  /* Code-only: no Figma provenance (imported from another system).
+     Kept because App.css consumes it; do not use in new components. */
   --ds-border-default: #01012e14;
   --ds-border-high-contrast: #443321;
   --ds-border-positive-light: #c5dfce;
   --ds-border-warning-light: #fed7aa;
   --ds-border-negative-light: #fecaca;
   --ds-border-negative-strong: #dc2626;
+  /* `-strong` tier — Figma border/{neutral,positive,warning}-strong.
+     Figma's border/neutral-light is deliberately NOT imported: it is a
+     byte-for-byte duplicate of border/light (a Figma-side defect). */
+  --ds-border-neutral-strong: #57534e;   /* stone/600 */
+  --ds-border-positive-strong: #5e9975;  /* brand-green/600 */
+  --ds-border-warning-strong: #ea580c;   /* orange/600 */
 
   /* --- Semantic: interaction --------------------------------- */
   --ds-interaction-primary-default: #4f8263;
   --ds-interaction-primary-hover: #335641;
   --ds-interaction-primary-active: #335641;
   --ds-interaction-primary-focus: #e2efe6;
+  /* Secondary tier — Figma interaction/secondary-*. `default` is white
+     (a secondary button is an outlined white surface); `hover`/`active`
+     are the solid brand-blue that fills it. */
+  --ds-interaction-secondary-default: #ffffff;
+  --ds-interaction-secondary-hover: #1c3d59;   /* brand-blue/800 */
+  --ds-interaction-secondary-active: #1c3d59;  /* brand-blue/800 */
   --ds-interaction-secondary-focus: #c3daed;
+  /* Code-only: Figma has no `tertiary` interaction tier. */
   --ds-interaction-tertiary-active: #e2efe6;
-  --ds-focus-ring-error: #fecaca;
+
+  /* --- Chrome: scrollbars (reset.css) ------------------------- *
+   * Non-hex aliases so the reset never hard-codes a color. */
+  --ds-scrollbar-track: transparent;
+  --ds-scrollbar-thumb: var(--ds-border-medium);
 
   /* --- Stacking: overlay z-index (runtime-overridable) -------- *
    * Not colors — but they belong on the same runtime seam so a host

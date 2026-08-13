@@ -1,0 +1,140 @@
+/* ============================================================
+ * OGCR Design System — shipped utility surface (safelist)
+ *
+ * WHY THIS FILE EXISTS
+ * Tailwind is a JIT compiler: it emits a utility only when some
+ * scanned source mentions the class name. dist/styles.css is compiled
+ * once, at publish time, from the DS's own sources — so it used to
+ * contain only the utilities DS components happen to use. A consumer
+ * app writing `bg-surface-progress`, `text-text-progress`,
+ * `bg-interaction-tertiary-active` or `border-border-strong` got
+ * NOTHING: the token was declared, documented, visible in the token
+ * gallery, and produced no CSS. Worse, spacing classes the DS never
+ * used (`gap-6`, `p-10`) fell through to the consumer's own Tailwind
+ * and resolved on the stock 0.25rem scale — 4× the DS value.
+ *
+ * MECHANISM
+ * `@source inline(…)` (Tailwind ≥4.1) registers class-name candidates
+ * directly from CSS, with brace expansion. It is fully deterministic:
+ * the list is source, not a filesystem scan, so `build:lib` emits the
+ * same stylesheet on every machine. The alternative — a generated
+ * .txt/.html safelist referenced by `@source` — needs a codegen step
+ * inside the build and puts a build artifact in src/; this keeps the
+ * contract reviewable in a diff instead.
+ *
+ * INVARIANT (enforced, not aspirational)
+ * scripts/check-dist.mjs fails `build:lib` if any `--color-*` token in
+ * theme.css has no utility in dist/styles.css, or if any declared
+ * `--spacing-*` / `--radius-*` / `--text-*` / `--border-width-*` /
+ * `--shadow-*` variable is missing from the shipped `:root` block. So
+ * a token added to theme.css and forgotten here is a build failure,
+ * not a silent hole.
+ *
+ * COVERAGE POLICY (deliberate, not exhaustive-by-accident)
+ *   colors     → bg-* / text-* / border-* for EVERY color token,
+ *                plus fill-* / stroke-* for the icon-* family (icons
+ *                are SVG and are colored through fill/stroke).
+ *                ring-, outline-, divide- and shadow-<color> are NOT
+ *                shipped: the DS expresses focus rings through the
+ *                --shadow-focus-* tokens, and blanket-shipping four
+ *                more prefixes would triple this file for no known
+ *                consumer. Add on demand.
+ *   spacing    → the padding/margin/gap/space/size/inset families over
+ *                all 27 steps. Numbers only; keyword values (w-full,
+ *                h-px) and fractions come from stock Tailwind and are
+ *                unaffected by the DS scale.
+ *   radius     → every corner/side variant over all 12 steps.
+ *   typography → text-* (10 primitives + 12 semantic), font families,
+ *                font weights.
+ *   effects    → every --shadow-* token (elevation, control, focus).
+ *   borders    → border-w-{s,m,l} (see the @utility in theme.css).
+ *   variants   → the interaction states the DS's own components use;
+ *                see the State variants block at the bottom for the
+ *                rule of thumb, and for the escape hatch that covers
+ *                every OTHER variant (the /theme export).
+ * ============================================================ */
+
+/* --- Colors: bg / text / border over every --color-* token --------- */
+@source inline("{bg,text,border}-{brand-blue-300,brand-blue-800,brand-green-500}");
+@source inline("{bg,text,border}-{red-500,red-600,orange-400,orange-500,amber-300,yellow-300,white}");
+@source inline("{bg,text,border}-text-{primary,secondary,neutral,positive,negative,warning,progress}");
+@source inline("{bg,text,border}-icon-{primary,secondary,neutral,positive,negative,warning,progress}");
+@source inline("{bg,text,border}-icon-{positive,negative,warning,progress}-light");
+@source inline("{bg,text,border}-surface-{page,light,neutral,strong,inverted,positive,warning,negative,progress}");
+@source inline("{bg,text,border}-border-{light,medium,strong,default,high-contrast}");
+@source inline("{bg,text,border}-border-{positive,warning,negative}-light");
+@source inline("{bg,text,border}-border-{neutral,positive,warning,negative}-strong");
+@source inline("{bg,text,border}-interaction-primary-{default,hover,active,focus}");
+@source inline("{bg,text,border}-interaction-secondary-{default,hover,active,focus}");
+@source inline("{bg,text,border}-interaction-tertiary-active");
+
+/* --- Colors: SVG fill / stroke -------------------------------------
+ * The icon-* tier (icons are SVG) plus the brand primitives, which the
+ * Logo's inlined artwork paints with (fill-brand-blue-800 /
+ * fill-brand-green-500) instead of hard-coded path fills. */
+@source inline("{fill,stroke}-icon-{primary,secondary,neutral,positive,negative,warning,progress}");
+@source inline("{fill,stroke}-icon-{positive,negative,warning,progress}-light");
+@source inline("{fill,stroke}-{brand-blue-300,brand-blue-800,brand-green-500,white}");
+
+/* --- Spacing / sizing over the 27-step scale ----------------------- */
+@source inline("{p,px,py,pt,pr,pb,pl}-{0,1,2,4,6,8,10,12,16,20,24,28,32,36,40,48,56,64,72,80,96,120,128,160,192,256,320}");
+@source inline("{m,mx,my,mt,mr,mb,ml}-{0,1,2,4,6,8,10,12,16,20,24,28,32,36,40,48,56,64,72,80,96,120,128,160,192,256,320}");
+@source inline("{gap,gap-x,gap-y,space-x,space-y}-{0,1,2,4,6,8,10,12,16,20,24,28,32,36,40,48,56,64,72,80,96,120,128,160,192,256,320}");
+@source inline("{w,h,size,min-w,max-w,min-h,max-h}-{0,1,2,4,6,8,10,12,16,20,24,28,32,36,40,48,56,64,72,80,96,120,128,160,192,256,320}");
+@source inline("{inset,inset-x,inset-y,top,right,bottom,left}-{0,1,2,4,6,8,10,12,16,20,24,28,32,36,40,48,56,64,72,80,96,120,128,160,192,256,320}");
+
+/* --- Radius over the 12-step scale --------------------------------- */
+@source inline("{rounded,rounded-t,rounded-r,rounded-b,rounded-l,rounded-s,rounded-e}-{0,2,4,8,12,16,20,24,32,48,full}");
+@source inline("{rounded-tl,rounded-tr,rounded-br,rounded-bl,rounded-ss,rounded-se,rounded-ee,rounded-es}-{0,2,4,8,12,16,20,24,32,48,full}");
+
+/* --- Border widths (see @utility border-w-* in theme.css) ---------- */
+@source inline("border-w-{s,m,l}");
+
+/* --- Typography ---------------------------------------------------- */
+@source inline("text-{xxs,xs,s,m,l,xl,2xl,3xl,4xl,5xl}");
+@source inline("text-{h1,h2,h3,h4,body,body-s,body-l,lead,quote,label-button,label-navigation,label-input}");
+@source inline("font-{standard,display,mono}");
+@source inline("font-{default,medium,bold}");
+
+/* --- Effects ------------------------------------------------------- */
+@source inline("shadow-{elevation-l,control,control-pressed}");
+@source inline("shadow-{focus-primary,focus-secondary,focus-error}");
+
+/* --- State variants ------------------------------------------------
+ * A precompiled stylesheet has the same hole for VARIANTS as it has for
+ * base utilities: a consumer's Tailwind cannot generate
+ * `hover:bg-surface-progress` either, because it has never seen the
+ * token. An unprefixed-only safelist therefore still leaves a
+ * source-dependent hole — just one class-name shape further in.
+ *
+ * This pins the states the design system's own interaction model
+ * implies. It is deliberately NOT the full variant × token matrix
+ * (~7 useful variants × 58 tokens × 3 prefixes ≈ 1200 rules): that
+ * would roughly double the stylesheet to buy combinations nobody has
+ * asked for. The rule of thumb encoded below —
+ *   interaction-*  → all four interaction states (it IS the state tier)
+ *   surface-*      → hover / active / disabled backgrounds
+ *   text-* icon-*  → hover / disabled foregrounds
+ *   border-*       → hover / focus-visible / disabled
+ *   focus shadows  → focus-visible
+ * — is what every DS component actually uses.
+ *
+ * THE REAL FIX IS NOT A LONGER LIST. For arbitrary variants
+ * (`group-hover:`, `md:`, `data-[state=open]:`, `peer-checked:`, alpha
+ * modifiers like `/60`), import the token layer into your own Tailwind
+ * build instead and let your compiler do it:
+ *     @import "@majistudio/ogcr-design-system/theme";
+ * See scripts/build-theme-export.mjs. This block is the zero-config
+ * fallback for apps that only consume the precompiled styles.css.
+ */
+@source inline("{hover:,focus-visible:,active:,disabled:}{bg,text,border}-interaction-primary-{default,hover,active,focus}");
+@source inline("{hover:,focus-visible:,active:,disabled:}{bg,text,border}-interaction-secondary-{default,hover,active,focus}");
+@source inline("{hover:,focus-visible:,active:,disabled:}{bg,text,border}-interaction-tertiary-active");
+@source inline("{hover:,active:,disabled:}bg-surface-{page,light,neutral,strong,inverted,positive,warning,negative,progress}");
+@source inline("{hover:,disabled:}text-text-{primary,secondary,neutral,positive,negative,warning,progress}");
+@source inline("{hover:,disabled:}text-icon-{primary,secondary,neutral,positive,negative,warning,progress}");
+@source inline("hover:{fill,stroke}-icon-{primary,secondary,neutral,positive,negative,warning,progress}");
+@source inline("{hover:,focus-visible:,disabled:}border-border-{light,medium,strong,default,high-contrast}");
+@source inline("{hover:,focus-visible:,disabled:}border-border-{positive,warning,negative}-light");
+@source inline("{hover:,focus-visible:,disabled:}border-border-{neutral,positive,warning,negative}-strong");
+@source inline("focus-visible:shadow-{focus-primary,focus-secondary,focus-error}");

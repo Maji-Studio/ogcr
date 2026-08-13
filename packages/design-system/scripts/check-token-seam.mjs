@@ -1,4 +1,4 @@
-// Guards the color theming seam (Phase 1a). Run as `npm run check:tokens`, chained into build:lib
+// Guards the color theming seam (Phase 1a). Run as `pnpm run check:tokens`, chained into build:lib
 // after vite emits dist/styles.css.
 //
 // THE CONTRACT IT ENFORCES: every brand hex lives in src/styles/palette.css as a `--ds-*` runtime
@@ -33,7 +33,7 @@ function fail(msg) {
 }
 
 if (!fs.existsSync(cssPath)) {
-  fail(`dist/styles.css not found. Run \`npm run build:lib\` first (check:tokens runs after it).`);
+  fail(`dist/styles.css not found. Run \`pnpm run build:lib\` first (check:tokens runs after it).`);
 }
 
 // --- 1. Parse palette.css for the authoritative {name → hex} set ------------------------------
