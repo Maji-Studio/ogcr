@@ -2,7 +2,12 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Plus, Pencil, Trash, ArrowRight } from "@phosphor-icons/react/dist/ssr";
+import {
+  ArrowRightIcon,
+  PencilIcon,
+  PlusIcon,
+  TrashIcon,
+} from "@majistudio/ogcr-design-system";
 import { Button } from "@majistudio/ogcr-design-system/Button";
 import { Card } from "@majistudio/ogcr-design-system/Card";
 import { Message } from "@majistudio/ogcr-design-system/Message";
@@ -80,7 +85,7 @@ export function ProjectList() {
         {!isEditingAny ? (
           <Button
             variant="filled"
-            iconLeft={<Plus size={18} weight="bold" />}
+            iconLeft={<PlusIcon size={18} weight="bold" />}
             onClick={() => setIsCreating(true)}
           >
             New project
@@ -154,7 +159,7 @@ export function ProjectList() {
               >
                 <span className="flex items-center gap-8 text-h4 text-text-primary">
                   {project.name}
-                  <ArrowRight
+                  <ArrowRightIcon
                     size={16}
                     className="text-icon-secondary opacity-0 transition-opacity group-hover:opacity-100"
                   />
@@ -168,14 +173,16 @@ export function ProjectList() {
               <div className="flex shrink-0 items-center gap-8">
                 <Button
                   variant="text"
+                  size="s"
                   aria-label={`Edit ${project.name}`}
-                  iconLeft={<Pencil size={18} />}
+                  iconLeft={<PencilIcon size={18} />}
                   onClick={() => setEditingProject(project)}
                 />
                 <Button
                   variant="text"
+                  size="s"
                   aria-label={`Delete ${project.name}`}
-                  iconLeft={<Trash size={18} />}
+                  iconLeft={<TrashIcon size={18} />}
                   onClick={() => setDeletingProject(project)}
                 />
               </div>

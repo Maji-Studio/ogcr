@@ -45,9 +45,9 @@ export function ForgotPasswordForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-24">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-96">
       {success ? (
-        <div className="space-y-24">
+        <div className="space-y-96">
           <div
             className="p-m bg-green-50 border border-green-500 rounded-none text-green-700"
             role="status"

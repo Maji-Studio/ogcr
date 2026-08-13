@@ -2,12 +2,12 @@
 
 import type { ReactNode } from "react";
 import {
-  CornersOut,
-  GlobeHemisphereWest,
-  MapTrifold,
-  Minus,
-  Plus,
-} from "@phosphor-icons/react/dist/ssr";
+  CornersOutIcon,
+  GlobeIcon,
+  MapIcon,
+  MinusIcon,
+  PlusIcon,
+} from "@majistudio/ogcr-design-system";
 import { cn } from "@/lib/utils";
 import type { BasemapId } from "@/config/geo";
 
@@ -39,13 +39,13 @@ export function MapControls({
     <div className="pointer-events-none absolute inset-0">
       <div className="pointer-events-auto absolute right-[12px] top-[12px] flex flex-col overflow-hidden rounded-12 border border-border-medium bg-surface-light shadow-elevation-l">
         <ControlButton label="Zoom in" onClick={onZoomIn}>
-          <Plus size={ICON_SIZE} weight="bold" />
+          <PlusIcon size={ICON_SIZE} weight="bold" />
         </ControlButton>
         <ControlButton label="Zoom out" onClick={onZoomOut} divided>
-          <Minus size={ICON_SIZE} weight="bold" />
+          <MinusIcon size={ICON_SIZE} weight="bold" />
         </ControlButton>
         <ControlButton label="Reset view" onClick={onReset} divided>
-          <CornersOut size={ICON_SIZE} />
+          <CornersOutIcon size={ICON_SIZE} />
         </ControlButton>
       </div>
 
@@ -56,9 +56,9 @@ export function MapControls({
         className="pointer-events-auto absolute bottom-[12px] left-[12px] flex items-center gap-8 rounded-12 border border-border-medium bg-surface-light px-12 py-8 text-body-s text-text-primary shadow-elevation-l transition-colors hover:bg-surface-neutral"
       >
         {toStreet ? (
-          <MapTrifold size={ICON_SIZE} />
+          <MapIcon size={ICON_SIZE} />
         ) : (
-          <GlobeHemisphereWest size={ICON_SIZE} />
+          <GlobeIcon size={ICON_SIZE} />
         )}
         <span>{toStreet ? "Street" : "Satellite"}</span>
       </button>

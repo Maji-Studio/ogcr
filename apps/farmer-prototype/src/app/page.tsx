@@ -9,7 +9,7 @@ import { Button } from "@majistudio/ogcr-design-system/Button";
 export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-8 p-8 text-center">
-      <div className="flex flex-col items-center gap-3">
+      <div className="flex flex-col items-center gap-12">
         <span className="text-label-button text-text-secondary">
           OGCR Farmer
         </span>
@@ -21,7 +21,7 @@ export default function Home() {
         </p>
       </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row">
+      <div className="flex flex-col gap-12 sm:flex-row">
         <Button variant="filled">Get started</Button>
         <Button variant="outlined">Documentation</Button>
       </div>

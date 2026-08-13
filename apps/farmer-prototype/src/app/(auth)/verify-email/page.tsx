@@ -43,7 +43,7 @@ export default function VerifyEmailPage() {
 
   return (
     <div className="w-full max-w-[400px] mx-auto">
-      <div className="mb-32 text-center">
+      <div className="mb-128 text-center">
         <div className="w-16 h-16 mx-auto mb-m bg-[var(--clr-dark-purple-10)] rounded-full flex items-center justify-center">
           <svg
             className="w-8 h-8 text-[var(--clr-dark-purple)]"
@@ -61,7 +61,7 @@ export default function VerifyEmailPage() {
           </svg>
         </div>
 
-        <h1 className="title-heading-2 mb-32">Check your email</h1>
+        <h1 className="title-heading-2 mb-128">Check your email</h1>
         <p className="body-medium text-[var(--color-text-secondary)]">
           We&apos;ve sent a verification link to{" "}
           {email ? (
@@ -72,8 +72,8 @@ export default function VerifyEmailPage() {
         </p>
       </div>
 
-      <div className="bg-[var(--color-background-white)] rounded-[var(--radius-8)] border border-[var(--color-border-primary)] p-32 space-y-24 shadow-sm">
-        <div className="space-y-16">
+      <div className="bg-[var(--color-background-white)] rounded-[var(--radius-8)] border border-[var(--color-border-primary)] p-128 space-y-96 shadow-sm">
+        <div className="space-y-64">
           <p className="body-small text-[var(--color-text-secondary)]">
             Please check your inbox and click the verification link to activate
             your account.
