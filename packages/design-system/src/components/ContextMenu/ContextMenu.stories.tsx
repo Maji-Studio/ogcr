@@ -17,12 +17,18 @@ const meta = {
       { id: 'remove', label: 'Remove from list', destructive: true },
     ],
   },
+  argTypes: {
+    width: { control: 'inline-radio', options: ['s', 'm', 'l', 'auto'] },
+  },
 } satisfies Meta<typeof ContextMenu>
 
 export default meta
 type Story = StoryObj<typeof meta>
 
 export const Basic: Story = {}
+
+/** Shares Popover's width scale: `s` 256 · `m` 280 · `l` 320 (default) · `auto`. */
+export const Narrow: Story = { args: { width: 's' } }
 
 export const WithHeaderAndIcons: Story = {
   args: {

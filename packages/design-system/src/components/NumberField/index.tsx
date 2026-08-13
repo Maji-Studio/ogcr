@@ -41,8 +41,11 @@ function PlusGlyph() {
   )
 }
 
+// Spec §4.19: steppers are 44px wide. 44 is deliberately NOT on the spacing scale, so this
+// has to be an arbitrary value — the bare-integer utility would silently resolve to 176px
+// (see scripts/check-spacing-scale.mjs).
 const stepper =
-  'inline-flex items-center justify-center w-48 h-full shrink-0 bg-transparent border-0 cursor-pointer text-icon-secondary ' +
+  'inline-flex items-center justify-center w-[44px] h-full shrink-0 bg-transparent border-0 cursor-pointer text-icon-secondary ' +
   'transition-colors duration-150 hover:bg-surface-neutral hover:text-icon-primary ' +
   'focus-visible:outline-none focus-visible:relative focus-visible:shadow-focus-primary ' +
   'disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-icon-secondary'

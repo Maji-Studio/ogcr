@@ -3,11 +3,23 @@ import { cn } from '../../lib/cn'
 
 type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6
 
+export type CardPadding = 'none' | 's' | 'm' | 'l'
+
+/** Padding steps come straight off the spacing scale (spec §1): 0 / 12 / 16 / 24. */
+const PADDING: Record<CardPadding, string> = {
+  none: 'p-0',
+  s: 'p-12',
+  m: 'p-16',
+  l: 'p-24',
+}
+
 export type CardProps = Omit<ComponentPropsWithoutRef<'section'>, 'title'> & {
   title?: ReactNode
   subtitle?: ReactNode
   trailing?: ReactNode
   floating?: boolean
+  /** Inner padding. `m` (16px) is the spec default; `l` (24px) suits page-level panels. */
+  padding?: CardPadding
   /** Heading level rendered for the title. Defaults to 3 to slot inside a page section. */
   headingLevel?: HeadingLevel
   children?: ReactNode
@@ -18,6 +30,7 @@ export function Card({
   subtitle,
   trailing,
   floating = false,
+  padding = 'm',
   headingLevel = 3,
   className,
   children,
@@ -30,7 +43,8 @@ export function Card({
       {...rest}
       data-slot="card"
       className={cn(
-        'flex flex-col gap-16 p-16 bg-surface-light border border-border-medium rounded-16',
+        'flex flex-col gap-16 bg-surface-light border border-border-medium rounded-16',
+        PADDING[padding],
         floating && 'shadow-elevation-l',
         className,
       )}

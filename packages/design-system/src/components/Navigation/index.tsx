@@ -1,11 +1,30 @@
 import type { ComponentPropsWithoutRef, ReactNode } from 'react'
 import { LogoMark } from '../Logo'
+import { NavElement, type NavRender } from '../../lib/nav-element'
 import { cn } from '../../lib/cn'
+
+/**
+ * Base UI's `render` contract, shared by `Navigation` and `SideNavigation` items:
+ * a `ReactElement` to clone, or a function `(props, state) => ReactElement`.
+ * Exported here (not from both modules) so the barrel has a single owner for the name.
+ */
+export type { NavRender }
 
 export type NavItem = {
   id: string
   label: string
   icon: ReactNode
+  /**
+   * Renders this item as an `<a href>` instead of a `<button>`, so it gets real link
+   * affordances (middle-click, ⌘-click, "copy link address"). `onSelect` still fires.
+   */
+  href?: string
+  /**
+   * Base UI `render` escape hatch — hand back your framework's link component
+   * (`render={<Link href="/overview" />}`) and the item's className, `aria-current`,
+   * icon/label children and click handler are merged into it.
+   */
+  render?: NavRender
 }
 
 export type NavigationLayout = 'desktop' | 'mobile'
@@ -21,7 +40,7 @@ export type NavigationProps = Omit<ComponentPropsWithoutRef<'nav'>, 'children' |
 
 const desktopButton = (active: boolean) =>
   cn(
-    'inline-flex items-center gap-12 h-32 px-8 bg-transparent border-0 rounded-8 cursor-pointer',
+    'inline-flex items-center gap-12 h-32 px-8 bg-transparent border-0 rounded-8 cursor-pointer no-underline',
     'font-standard font-medium text-s tracking-[0.28px]',
     'transition-[background-color,color] duration-150',
     'hover:bg-surface-neutral hover:text-text-primary',
@@ -31,7 +50,7 @@ const desktopButton = (active: boolean) =>
 
 const mobileButton = (active: boolean) =>
   cn(
-    'flex flex-col items-center justify-center gap-8 w-full p-4 bg-transparent border-0 rounded-8 cursor-pointer',
+    'flex flex-col items-center justify-center gap-8 w-full p-4 bg-transparent border-0 rounded-8 cursor-pointer no-underline',
     'font-standard font-medium text-s tracking-[0.28px]',
     'transition-[background-color,color] duration-150',
     'focus-visible:outline-none focus-visible:shadow-focus-primary',
@@ -62,22 +81,28 @@ export function Navigation({
             const active = item.id === activeId
             return (
               <li key={item.id} className="flex-1">
-                <button
-                  type="button"
-                  onClick={() => onSelect?.(item.id)}
-                  aria-current={active ? 'page' : undefined}
-                  className={mobileButton(active)}
-                >
-                  <span
-                    className={cn(
-                      'inline-flex w-48 h-48 items-center justify-center rounded-8 transition-colors duration-150 [&>svg]:w-24 [&>svg]:h-24',
-                      active && 'bg-interaction-primary-focus',
-                    )}
-                  >
-                    {item.icon}
-                  </span>
-                  <span>{item.label}</span>
-                </button>
+                <NavElement
+                  href={item.href}
+                  render={item.render}
+                  props={{
+                    onClick: () => onSelect?.(item.id),
+                    'aria-current': active ? 'page' : undefined,
+                    className: mobileButton(active),
+                    children: (
+                      <>
+                        <span
+                          className={cn(
+                            'inline-flex w-48 h-48 items-center justify-center rounded-8 transition-colors duration-150 [&>svg]:w-24 [&>svg]:h-24',
+                            active && 'bg-interaction-primary-focus',
+                          )}
+                        >
+                          {item.icon}
+                        </span>
+                        <span>{item.label}</span>
+                      </>
+                    ),
+                  }}
+                />
               </li>
             )
           })}
@@ -112,15 +137,23 @@ export function Navigation({
             const active = item.id === activeId
             return (
               <li key={item.id}>
-                <button
-                  type="button"
-                  onClick={() => onSelect?.(item.id)}
-                  aria-current={active ? 'page' : undefined}
-                  className={desktopButton(active)}
-                >
-                  <span className="inline-flex w-24 h-24 [&>svg]:w-full [&>svg]:h-full">{item.icon}</span>
-                  <span className="whitespace-nowrap">{item.label}</span>
-                </button>
+                <NavElement
+                  href={item.href}
+                  render={item.render}
+                  props={{
+                    onClick: () => onSelect?.(item.id),
+                    'aria-current': active ? 'page' : undefined,
+                    className: desktopButton(active),
+                    children: (
+                      <>
+                        <span className="inline-flex w-24 h-24 [&>svg]:w-full [&>svg]:h-full">
+                          {item.icon}
+                        </span>
+                        <span className="whitespace-nowrap">{item.label}</span>
+                      </>
+                    ),
+                  }}
+                />
               </li>
             )
           })}

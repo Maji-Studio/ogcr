@@ -62,6 +62,7 @@ export function Switch({
       <BaseSwitch.Thumb
         data-slot="switch-thumb"
         className={cn(
+          /* allow-literal-color: TODO replace with the `shadow-control` token (theme.css). */
           'block w-20 h-20 rounded-full bg-surface-light shadow-[0_1px_2px_rgba(68,51,33,0.16)]',
           'transition-transform duration-150 data-[checked]:translate-x-[16px]',
         )}

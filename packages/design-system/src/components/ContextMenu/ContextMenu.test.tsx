@@ -38,6 +38,29 @@ describe('ContextMenu', () => {
     expect(item).toHaveAttribute('data-disabled')
   })
 
+  it('keeps its 320px width by default and honours the width scale', async () => {
+    const { unmount } = render(
+      <ContextMenu trigger={<button>Open</button>} items={[{ id: '1', label: 'Open file' }]} />,
+    )
+    await openMenu()
+    const popup = await screen.findByRole('menu')
+    expect(popup).toHaveAttribute('data-width', 'l')
+    expect(popup.className).toContain('w-320')
+    unmount()
+
+    render(
+      <ContextMenu
+        trigger={<button>Open</button>}
+        width="s"
+        items={[{ id: '1', label: 'Open file' }]}
+      />,
+    )
+    await openMenu()
+    const narrow = await screen.findByRole('menu')
+    expect(narrow.className).toContain('w-256')
+    expect(narrow.className).not.toContain('w-320')
+  })
+
   it('renders header and status pill when provided', async () => {
     render(
       <ContextMenu trigger={<button>Open</button>} header="Actions" status="3 selected" items={[]} />,

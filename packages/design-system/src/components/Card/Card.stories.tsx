@@ -8,6 +8,9 @@ const meta = {
   component: Card,
   parameters: { layout: 'padded' },
   args: { title: 'Card title', subtitle: 'A short subtitle' },
+  argTypes: {
+    padding: { control: 'inline-radio', options: ['none', 's', 'm', 'l'] },
+  },
 } satisfies Meta<typeof Card>
 
 export default meta
@@ -34,6 +37,18 @@ export const WithTrailing: Story = {
       </p>
     ),
   },
+}
+
+/** `m` (16px) is the spec default; `l` (24px) suits page-level panels, `none` a flush media card. */
+export const Padding: Story = {
+  render: () => (
+    <div className="flex flex-col gap-16 max-w-[480px]">
+      <Card padding="none" title="none · 0" />
+      <Card padding="s" title="s · 12px" />
+      <Card padding="m" title="m · 16px (default)" />
+      <Card padding="l" title="l · 24px" />
+    </div>
+  ),
 }
 
 export const Floating: Story = {

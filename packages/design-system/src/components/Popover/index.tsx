@@ -5,13 +5,20 @@ import {
   OverlayArrowSvg,
   overlayArrowClassName,
   overlayPopupClassName,
+  overlayWidths,
+  type OverlayWidth,
 } from '../../lib/overlay'
 import { cn } from '../../lib/cn'
 
 export type PopoverSide = 'top' | 'right' | 'bottom' | 'left'
 export type PopoverAlign = 'start' | 'center' | 'end'
+/** `s` 256px · `m` 280px (spec default) · `l` 320px · `auto` shrink-to-content. */
+export type PopoverWidth = OverlayWidth
 
-export type PopoverProps = Omit<ComponentProps<typeof BasePopover.Popup>, 'children' | 'title'> & {
+export type PopoverProps = Omit<
+  ComponentProps<typeof BasePopover.Popup>,
+  'children' | 'title' | 'width'
+> & {
   /** The element that opens the popover. Cloned via Base UI's `render`. */
   trigger: ReactElement
   children?: ReactNode
@@ -28,6 +35,8 @@ export type PopoverProps = Omit<ComponentProps<typeof BasePopover.Popup>, 'child
   showArrow?: boolean
   /** Traps focus + locks page scroll while open. */
   modal?: boolean
+  /** Popup width. Defaults to `m` (280px, spec §4.29). */
+  width?: PopoverWidth
 }
 
 /**
@@ -52,6 +61,7 @@ export function Popover({
   sideOffset = OVERLAY_SIDE_OFFSET,
   showArrow = false,
   modal = false,
+  width = 'm',
   className,
   ...rest
 }: PopoverProps) {
@@ -73,8 +83,10 @@ export function Popover({
           <BasePopover.Popup
             {...rest}
             data-slot="popover"
+            data-width={width}
             className={cn(
-              'flex flex-col gap-8 p-16 w-[280px] max-w-[calc(100vw-32px)]',
+              'flex flex-col gap-8 p-16 max-w-[calc(100vw-32px)]',
+              overlayWidths[width],
               overlayPopupClassName,
               className,
             )}

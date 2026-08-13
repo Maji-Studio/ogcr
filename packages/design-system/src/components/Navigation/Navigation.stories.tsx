@@ -57,3 +57,28 @@ export const Mobile: Story = {
     )
   },
 }
+
+/**
+ * Items with an `href` render as real `<a>` elements — ⌘-click, middle-click and
+ * "copy link address" all work. `render` projects a framework link component
+ * (`render={<Link href="/overview" />}`) into the same markup.
+ */
+export const Links: Story = {
+  args: {
+    items: [
+      { id: 'overview', label: 'Overview', icon: <SquaresFourIcon />, href: '#overview' },
+      { id: 'sampling', label: 'Sampling', icon: <FlaskIcon />, href: '#sampling' },
+      { id: 'insights', label: 'Insights', icon: <ChartBarIcon />, href: '#insights' },
+      // Stands in for next/link, react-router NavLink, TanStack Link, …
+      {
+        id: 'projects',
+        label: 'Projects',
+        icon: <FolderIcon />,
+        render: <a href="#projects" data-router-link="" />,
+      },
+      { id: 'profile', label: 'Profile', icon: <UserIcon /> },
+    ],
+    activeId: 'insights',
+    product: 'Operator platform',
+  },
+}

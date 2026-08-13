@@ -1,3 +1,4 @@
+import { createRef } from 'react'
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -58,5 +59,32 @@ describe('ToggleGroup', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Chart' }))
     expect(screen.getByRole('button', { name: 'Chart' })).toHaveAttribute('aria-pressed', 'true')
     expect(screen.getByRole('button', { name: 'Grid' })).toHaveAttribute('aria-pressed', 'false')
+  })
+
+  it('merges a consumer className with the group chrome', () => {
+    render(<ToggleGroup aria-label="View" items={items} className="mt-8" />)
+    const group = screen.getByRole('toolbar', { name: 'View' })
+    expect(group).toHaveClass('mt-8')
+    expect(group).toHaveClass('rounded-12')
+  })
+
+  // Spec §4.39 promises the group can be projected into a Toolbar via
+  // `<ToolbarButton render={<ToggleGroup … />} />`, which only works if the wrapper
+  // forwards the props (and ref) Base UI injects into the rendered element.
+  it('forwards unknown props and a ref to the underlying element', () => {
+    const ref = createRef<HTMLDivElement>()
+    render(
+      <ToggleGroup
+        ref={ref}
+        aria-label="View"
+        items={items}
+        tabIndex={-1}
+        data-projected="toolbar"
+      />,
+    )
+    const group = screen.getByRole('toolbar', { name: 'View' })
+    expect(ref.current).toBe(group)
+    expect(group).toHaveAttribute('tabindex', '-1')
+    expect(group).toHaveAttribute('data-projected', 'toolbar')
   })
 })

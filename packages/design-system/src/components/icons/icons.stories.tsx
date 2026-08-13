@@ -11,7 +11,10 @@ type Story = StoryObj<typeof meta>
 
 export const All: Story = {
   render: () => {
-    const entries = Object.entries(Icons).filter(([, v]) => typeof v === 'function')
+    // Glyphs are the PascalCase `*Icon` exports; `createDecorativeIcon` is a factory, not a glyph.
+    const entries = Object.entries(Icons).filter(
+      ([name, v]) => typeof v === 'function' && name.endsWith('Icon') && /^[A-Z]/.test(name),
+    )
     return (
       <div className="grid grid-cols-[repeat(auto-fill,minmax(120px,1fr))] gap-16 text-text-primary">
         {entries.map(([name, Icon]) => {

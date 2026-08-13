@@ -139,7 +139,10 @@ export function DataTable<T>({
               </tr>
             ) : (
               rows.map((row) => (
-                <tr key={row.id} className="transition-colors duration-150 hover:bg-surface-neutral">
+                // The named `group/row` is what makes the cells' `group-last/row:border-b-0`
+                // resolve — it targets the row (`.group\/row:last-child`), so only the final row
+                // drops its rule, without colliding with consumer-level `group` scopes.
+                <tr key={row.id} className="group/row transition-colors duration-150 hover:bg-surface-neutral">
                   {row.getVisibleCells().map((cell) => {
                     const meta = cell.column.columnDef.meta
                     const align = meta?.align ?? (meta?.numeric ? 'right' : 'left')
@@ -148,7 +151,7 @@ export function DataTable<T>({
                         key={cell.id}
                         className={cn(
                           'py-12 px-16 border-b border-dashed border-border-light text-m font-normal text-text-primary align-middle whitespace-nowrap',
-                          'group-last:border-b-0',
+                          'group-last/row:border-b-0',
                           alignClass(align),
                           meta?.numeric && 'tabular-nums [font-feature-settings:"tnum"_1] tracking-[-0.005em] font-medium',
                         )}
