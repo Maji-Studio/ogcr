@@ -96,11 +96,15 @@ export const issuanceColumns: ColumnDef<Issuance>[] = [
   {
     accessorKey: 'updated',
     header: 'Updated',
-    cell: (info) =>
-      new Date(info.getValue<string>()).toLocaleDateString('en-US', {
+    cell: (info) => {
+      // Parse as a LOCAL date — new Date('2026-04-22') is UTC midnight and
+      // renders as the previous day in negative-offset time zones.
+      const [year, month, day] = info.getValue<string>().split('-').map(Number)
+      return new Date(year, month - 1, day).toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',
         year: 'numeric',
-      }),
+      })
+    },
   },
 ]

@@ -72,7 +72,7 @@ production-complete without it. Per-component detail is in the sections below.
       **Done:** Calendar §4.35, DatePicker §4.36, Menu §4.37, ScrollArea §4.38, Toolbar §4.39.
       `SideNavigation` — which had no section at all — was added as §4.40 in the same pass.
 - [ ] color-contrast palette decision (system-wide; covers Calendar today/selected).
-- [ ] `pnpm changeset` when these land for real. *(A minor-bump changeset for the 2026-08 audit
+- [ ] `pnpm changeset` when these land for real. *(A major-bump changeset for the 2026-08 audit
       remediation exists in `.changeset/`; it covers the audit's API/token work, **not** a release
       of these five — that still needs its own entry when they ship.)*
 

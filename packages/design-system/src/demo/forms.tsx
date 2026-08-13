@@ -226,6 +226,7 @@ export function CheckboxSpecimen() {
   const [terms, setTerms] = useState<CheckboxValue>(false)
   const [marketing, setMarketing] = useState<CheckboxValue>('indeterminate')
   const [card1, setCard1] = useState<CheckboxValue>(true)
+  const [card2, setCard2] = useState<CheckboxValue>(false)
 
   return (
       <section id="checkbox" className="section reveal">
@@ -255,8 +256,8 @@ export function CheckboxSpecimen() {
               layout="border-left"
               label="Self-attested"
               secondaryText="Project owner provides documentation only"
-              checked={card1 === true ? false : true}
-              onChange={(v) => setCard1(v)}
+              checked={card2}
+              onChange={(v) => setCard2(v)}
             />
           </div>
         </div>

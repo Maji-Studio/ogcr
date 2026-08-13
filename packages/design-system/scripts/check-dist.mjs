@@ -168,12 +168,39 @@ if (!fs.existsSync(cssPath)) {
   );
 
   // 5c. Cascade + scale guarantees the consumption contract depends on (see global.css).
+  //     Not just "the layer name appears" — representative generated rules must sit INSIDE the
+  //     sub-layer block, or Tailwind emitted them somewhere that outranks consumer utilities.
+  const layerStart = css.indexOf('@layer utilities.ogcr-ds');
+  let layerEnd = -1;
+  if (layerStart !== -1) {
+    const open = css.indexOf('{', layerStart);
+    let depth = 0;
+    for (let i = open; i < css.length; i++) {
+      if (css[i] === '{') depth++;
+      else if (css[i] === '}' && --depth === 0) {
+        layerEnd = i;
+        break;
+      }
+    }
+  }
   check(
-    css.includes('@layer utilities.ogcr-ds'),
+    layerStart !== -1,
     'dist/styles.css does not wrap its utilities in the `utilities.ogcr-ds` sub-layer — DS ' +
       'utilities would beat the consuming app\'s own responsive variants at equal specificity. ' +
       'See the CASCADE note in src/styles/global.css.',
   );
+  if (layerStart !== -1 && layerEnd !== -1) {
+    // One stock utility, one @utility-defined class (theme.css), one safelist-pinned class.
+    for (const probe of ['.hidden{', '.border-w-m{', '.bg-surface-page{']) {
+      const at = css.indexOf(probe);
+      check(
+        at > layerStart && at < layerEnd,
+        `dist/styles.css emits \`${probe.slice(0, -1)}\` outside the utilities.ogcr-ds sub-layer ` +
+          '— generated utilities are escaping the cascade guarantee. Check the import layering ' +
+          'in src/styles/global.css.',
+      );
+    }
+  }
   // 5d. The `/theme` export: the escape hatch from the precompiled surface. It must exist, be
   //     self-contained (no build-relative @import a consumer cannot resolve), and actually carry
   //     the token block — otherwise a consumer importing it into their Tailwind gets silence.

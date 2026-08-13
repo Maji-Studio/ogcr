@@ -61,7 +61,11 @@ The full sweep checklist lives in `docs/audit-follow-ups-2026-08.md` §4.
 **Build gates** — `build:lib` now runs five checks (`check:merge` → `check:spacing` →
 `check:colors` → `check:tokens` → `check:dist`). The new `check:colors` forbids color literals
 anywhere in `src/` outside the palette; `check:dist` additionally asserts the shipped variable and
-utility surfaces. All scripts run under pnpm.
+utility surfaces. The `check:colors` gate forbids color literals in `src/` outside the palette,
+with two explicit escape hatches: line-scoped `allow-literal-color` DEBT markers (currently
+Switch/Slider/Toggle shadows and the SideNavigation scrim) and the script's exempt-path list.
+All scripts run under pnpm.
 
-`docs/design-system.md` is reconciled with the code throughout; remaining backlog is in
-`docs/audit-follow-ups-2026-08.md`.
+`docs/design-system.md` is reconciled with the code throughout; remaining backlog — including the
+residual code-vs-spec design calls in §3.7 (Menu/ContextMenu focus indication, Message button
+styling) — is in `docs/audit-follow-ups-2026-08.md`.

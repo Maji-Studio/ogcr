@@ -402,9 +402,9 @@ export function SideNavigation({
 
   return (
     <aside
-      {...rest}
       data-slot="sidebar"
       aria-label="Primary"
+      {...rest}
       className={cn(
         'flex flex-col gap-24 min-h-full p-16 bg-surface-light border-r border-border-light rounded-l-12',
         'transition-[width,padding] duration-200',

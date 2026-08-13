@@ -919,7 +919,10 @@ Behavior:
 }
 .ogcr-menu__item:hover:not(:disabled) { background: var(--surface-neutral); }
 /* Keyboard highlight IS the focus indicator here — the roving-highlight model
-   moves a `data-highlighted` state between items rather than focusing each one. */
+   moves a `data-highlighted` state between items rather than focusing each one.
+   KNOWN LIMITATION: `--surface-neutral` on the popup surface is ~1.05:1, below
+   any focus-visibility bar; a stronger indicator is an open design call
+   (audit-follow-ups-2026-08.md §3.7). */
 .ogcr-menu__item[data-highlighted] { outline: none; background: var(--surface-neutral); }
 .ogcr-menu__item:disabled { cursor: not-allowed; opacity: 0.5; }
 .ogcr-menu__item--destructive { color: var(--text-negative); }
@@ -2039,6 +2042,9 @@ import { Tractor } from '@phosphor-icons/react'
 const TractorIcon = createDecorativeIcon(Tractor, 'TractorIcon')
 ```
 
+(The raw Phosphor import above is the one sanctioned exception to the rule: it exists only to
+feed `createDecorativeIcon`, in a small adapter module. Never render a raw glyph directly.)
+
 The types **`PhosphorIcon`** (the glyph component type) and **`PhosphorIconProps`** are re-exported too, so an app can type an icon slot (`icon: PhosphorIcon`) without taking a direct dependency on Phosphor. They are renamed on the way out to keep a bare `Icon` off the barrel.
 
 ---
@@ -2087,7 +2093,7 @@ Reference implementation only. Recommendation in Figma: prefer open-source / Map
 
 - Min hit target: 40×40 for any interactive control, even when visual is smaller (Checkbox box is 16 — wrap the label). **Button now enforces this by default**: the `text` variant is 40px tall, and the 32px `size="s"` is documented as valid only inside a larger padded row.
 - **Icon-only controls must carry an accessible name**, and for `Button` this is enforced at the *type* level — `iconOnly: true` without `aria-label`/`aria-labelledby` does not compile (§4.1).
-- Focus ring: the shared two-stop `--focus-primary` / `--focus-secondary` / `--focus-error` (§1) — a 2px `--surface-light` halo plus a 4px ring in the solid tone of the family. Every focusable control in the library uses one of the three; a few nav rows use a 2px outline at 2px offset instead, where an outline reads better against a tinted row. Do **not** hand-roll a pale 3px ring: the pale `*-focus` tints fail WCAG SC 2.4.11 against `--surface-page`.
+- Focus ring: the shared two-stop `--focus-primary` / `--focus-secondary` / `--focus-error` (§1) — a 2px `--surface-light` halo plus a 4px ring in the solid tone of the family. Every focusable control in the library uses one of the three; a few nav rows use a 2px outline at 2px offset instead, where an outline reads better against a tinted row. **Known exception:** Menu and ContextMenu items rely on the roving `--surface-neutral` highlight (~1.05:1) as their only keyboard indicator — below this policy's bar, tracked as an open design call in `audit-follow-ups-2026-08.md` §3.7. Do **not** hand-roll a pale 3px ring: the pale `*-focus` tints fail WCAG SC 2.4.11 against `--surface-page`.
 - Error focus ring: `--focus-error` everywhere (Input, Checkbox, Radio, NumberField, Slider, Switch). There is no `--focus-ring-error` color token any more.
 - Contrast: every text/icon token must clear WCAG AA against the chosen surface. `--text-secondary` (#6a8196) on `--surface-light` is ~4.5:1 — fine for body, audit for small text.
 - ARIA: dialogs (Sidesheet, Dialog, AlertDialog) get `role="dialog"` + `aria-modal`; menus get `role="menu"` / `role="menuitem"`; messages get `role="alert"` **only** for the error state and `role="status"` otherwise (§4.9 — `alert` interrupts the screen reader); progress bars get `role="progressbar"` + `aria-valuenow`/`min`/`max`.

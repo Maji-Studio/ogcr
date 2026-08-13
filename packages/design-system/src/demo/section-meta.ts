@@ -21,7 +21,7 @@ export const SECTIONS: SectionMeta[] = [
     lede: 'The variables every component is built from. Colors, typography, spacing, radii, elevation, and motion — sourced from the Figma library and exposed as CSS custom properties on `:root`.',
     figmaNode: '8:420',
     spec: [
-      { dt: 'Source', dd: 'src/index.css' },
+      { dt: 'Source', dd: 'src/styles/theme.css' },
       { dt: 'Strategy', dd: 'CSS custom properties' },
       { dt: 'Scope', dd: 'global' },
     ],

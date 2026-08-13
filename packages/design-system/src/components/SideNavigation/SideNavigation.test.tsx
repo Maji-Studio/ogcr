@@ -112,9 +112,12 @@ describe('SideNavigation', () => {
             ],
           },
         ]}
-        activeId="farm-a"
+        activeId="home"
+        defaultExpandedIds={['farm']}
       />,
     )
+    // The child is INACTIVE, so the base classes would carry text-text-secondary —
+    // the projected className must still win the cn() pre-merge.
     const classes = screen.getByTestId('child-link').className.split(/\s+/)
     expect(classes).toContain('text-text-negative')
     expect(classes).not.toContain('text-text-secondary')

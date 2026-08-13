@@ -68,7 +68,7 @@ export const Progress: Story = {
   },
 }
 
-/** The icon slot replaces the accent bar as the tile's identity in dense dashboard rows. */
+/** The icon slot sits in the identity row alongside the default accent bar; pair it with `accentBar={false}` (next story) when the icon should carry the tile alone. */
 export const WithIcon: Story = {
   args: {
     label: 'Expected payment',

@@ -54,13 +54,13 @@ export function NavigationSpecimen() {
               />
               <div className="nav-chrome__viewport">
                 <div className="nav-chrome__viewport-content">
-                  the {activeNav} workspace lives here.
+                  The {activeNav} workspace lives here.
                 </div>
               </div>
             </div>
             <div className="nav-mobile-frame">
               <div className="nav-mobile-frame__viewport">
-                the {activeMobileNav} workspace lives here.
+                The {activeMobileNav} workspace lives here.
               </div>
               <Navigation
                 layout="mobile"
@@ -94,7 +94,7 @@ export function SidebarSpecimen() {
               />
               <div className="sidebar-chrome__viewport">
                 <div className="sidebar-chrome__viewport-content">
-                  the {activeSidebar} workspace lives here.
+                  The {activeSidebar} workspace lives here.
                 </div>
               </div>
             </div>
@@ -108,7 +108,7 @@ export function SidebarSpecimen() {
                 user={{ name: 'Camila Rojas', role: 'Reviewer · OGCR', initials: 'CR' }}
               />
               <div className="nav-mobile-frame__viewport">
-                the {activeMobileSidebar} workspace lives here.
+                The {activeMobileSidebar} workspace lives here.
               </div>
             </div>
           </div>
