@@ -6,22 +6,35 @@
 import { useState, type ReactNode } from "react";
 import {
   ArrowLeftIcon,
+  ArrowClockwiseIcon,
   ArrowRightIcon,
   Breadcrumb,
   Button,
   CaretDownIcon,
+  CheckCircleIcon,
+  FactoryIcon,
   InfoIcon,
+  LockIcon,
   LogoMark,
+  PackageIcon,
+  PlantIcon,
   SideNavigation,
   type SideNavigationItem,
 } from "@majistudio/ogcr-design-system";
-import { ArrowClockwise, CheckCircle, Factory, Lock, Package, Plant } from "@phosphor-icons/react/dist/ssr";
 import { campaign } from "./data/campaign";
 import { PrototypeLabel } from "./shared-ui";
 import { actorLabels, actorRoles, phaseLabels, steps, type Actor, type Phase, type Step } from "./types";
 
-const actorIcons: Record<Actor, typeof Plant> = { farmer: Plant, operator: Factory, buyer: Package };
-const phaseIcons: Record<Phase, typeof Plant> = { before: Plant, during: Factory, after: Package };
+const actorIcons: Record<Actor, typeof PlantIcon> = {
+  farmer: PlantIcon,
+  operator: FactoryIcon,
+  buyer: PackageIcon,
+};
+const phaseIcons: Record<Phase, typeof PlantIcon> = {
+  before: PlantIcon,
+  during: FactoryIcon,
+  after: PackageIcon,
+};
 const phaseOrder: Phase[] = ["before", "during", "after"];
 
 interface FlowShellProps {
@@ -54,9 +67,9 @@ function navItems(maxReached: number): SideNavigationItem[] {
           label: step.nav,
           badge:
             index < maxReached ? (
-              <CheckCircle size={14} weight="fill" className="text-icon-positive" />
+              <CheckCircleIcon size={14} weight="fill" className="text-icon-positive" />
             ) : index > maxReached ? (
-              <Lock size={14} className="text-icon-secondary" />
+              <LockIcon size={14} className="text-icon-secondary" />
             ) : undefined,
         })),
     };
@@ -100,7 +113,13 @@ export function FlowShell({
           initials: actorLabels[step.actor].slice(0, 2).toUpperCase(),
         }}
         trailing={
-          <Button variant="text" iconLeft={<ArrowClockwise size={16} />} onClick={onReset} className="w-full">
+          <Button
+            variant="text"
+            size="s"
+            iconLeft={<ArrowClockwiseIcon size={16} />}
+            onClick={onReset}
+            fullWidth
+          >
             Restart walkthrough
           </Button>
         }
@@ -162,7 +181,7 @@ export function FlowShell({
                 </div>
 
                 <div className="flex items-center gap-8">
-                  <Button variant="text" iconLeft={<ArrowLeftIcon />} onClick={onBack} disabled={!previous}>
+                  <Button variant="text" size="s" iconLeft={<ArrowLeftIcon />} onClick={onBack} disabled={!previous}>
                     Back
                   </Button>
                   {next ? (
@@ -170,7 +189,7 @@ export function FlowShell({
                       {blocked ? "Action needed above" : next.nav}
                     </Button>
                   ) : (
-                    <Button variant="outlined" iconLeft={<ArrowClockwise size={16} />} onClick={onReset}>
+                    <Button variant="outlined" iconLeft={<ArrowClockwiseIcon size={16} />} onClick={onReset}>
                       Restart
                     </Button>
                   )}

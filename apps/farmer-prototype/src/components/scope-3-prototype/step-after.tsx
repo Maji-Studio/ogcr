@@ -1,8 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { AlertDialog, Button, CheckCircleIcon, Message, useToast } from "@majistudio/ogcr-design-system";
-import { FileText, Handshake, ShieldCheck } from "@phosphor-icons/react/dist/ssr";
+import {
+  AlertDialog,
+  Button,
+  CheckCircleIcon,
+  FileTextIcon,
+  HandshakeIcon,
+  Message,
+  ShieldCheckIcon,
+  useToast,
+} from "@majistudio/ogcr-design-system";
 import { REFERENCE_FOOTPRINT } from "./data/campaign";
 import { generalisedParcels, lindenhofFields } from "./data/parcels";
 import { timeline } from "./data/timeline";
@@ -117,7 +125,7 @@ export function ReleaseStep({ approved, released, onRelease }: { approved: boole
       <div className="flex flex-wrap items-center justify-between gap-12">
         <EvidenceSidesheet
           approved={approved}
-          trigger={<Button variant="outlined" iconLeft={<FileText />}>Review evidence package</Button>}
+          trigger={<Button variant="outlined" iconLeft={<FileTextIcon />}>Review evidence package</Button>}
         />
         <AlertDialog
           open={open}
@@ -128,7 +136,7 @@ export function ReleaseStep({ approved, released, onRelease }: { approved: boole
           cancelLabel="Not yet"
           onConfirm={release}
           trigger={
-            <Button disabled={released} iconLeft={released ? <CheckCircleIcon /> : <ShieldCheck />}>
+            <Button disabled={released} iconLeft={released ? <CheckCircleIcon /> : <ShieldCheckIcon />}>
               {released ? "Campaign Results released" : "Release Campaign Results"}
             </Button>
           }
@@ -170,7 +178,7 @@ export function PackageStep({ approved }: { approved: boolean }) {
         <Panel title="Climate Contribution" subtitle="Intervention impact — evaluated separately, never summed">
           <div className="flex items-center justify-between gap-12">
             <Metric label="Program contribution" value={`€${result.contribution.toLocaleString("en-GB")}`} detail="paid to the program" />
-            <Handshake size={32} className="text-icon-primary" />
+            <HandshakeIcon size={32} className="text-icon-primary" />
           </div>
           <div className="mt-[var(--spacing-16)] grid grid-cols-2 gap-12">
             <Metric label="Emissions reduction" value={`${result.contributionReduction} tCO₂e`} detail="volume-capped share" />
@@ -186,7 +194,7 @@ export function PackageStep({ approved }: { approved: boolean }) {
       <Panel
         title="Campaign geography"
         subtitle="Generalised provenance — no farm names, no exact boundaries"
-        trailing={<EvidenceSidesheet approved={approved} trigger={<Button variant="outlined" iconLeft={<FileText />}>Evidence package</Button>} />}
+        trailing={<EvidenceSidesheet approved={approved} trigger={<Button variant="outlined" iconLeft={<FileTextIcon />}>Evidence package</Button>} />}
       >
         <ParcelMap
           features={generalisedParcels()}

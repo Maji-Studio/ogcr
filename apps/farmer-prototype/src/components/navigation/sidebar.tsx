@@ -2,7 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { House, Leaf, List, MapTrifold, Gear, Plant } from "@phosphor-icons/react/dist/ssr";
+import {
+  GearIcon,
+  HouseIcon,
+  LeafIcon,
+  ListIcon,
+  LogoMark,
+  MapIcon,
+} from "@majistudio/ogcr-design-system";
 import { cn } from "@/lib/utils";
 
 interface SidebarProps {
@@ -13,22 +20,20 @@ export function Sidebar({ projectId }: SidebarProps) {
   const pathname = usePathname();
 
   const links = [
-    { href: `/${projectId}/dashboard`, label: "Dashboard", icon: House },
-    { href: `/${projectId}/programs`, label: "Programs", icon: Leaf },
-    { href: `/${projectId}/items`, label: "Items", icon: List },
-    { href: `/${projectId}/map`, label: "Map", icon: MapTrifold },
-    { href: `/${projectId}/settings`, label: "Settings", icon: Gear },
+    { href: `/${projectId}/dashboard`, label: "Dashboard", icon: HouseIcon },
+    { href: `/${projectId}/programs`, label: "Programs", icon: LeafIcon },
+    { href: `/${projectId}/items`, label: "Items", icon: ListIcon },
+    { href: `/${projectId}/map`, label: "Map", icon: MapIcon },
+    { href: `/${projectId}/settings`, label: "Settings", icon: GearIcon },
   ];
 
   return (
-    <aside className="flex min-h-screen w-64 shrink-0 flex-col gap-32 border-r border-border-medium bg-surface-light p-16">
+    <aside className="flex min-h-screen w-256 shrink-0 flex-col gap-32 border-r border-border-medium bg-surface-light p-16">
       <Link
         href="/projects"
         className="flex items-center gap-12 rounded-12 px-8 py-4 transition-colors hover:bg-surface-neutral"
       >
-        <span className="flex h-32 w-32 items-center justify-center rounded-8 bg-interaction-primary-default text-surface-page">
-          <Plant size={20} weight="fill" />
-        </span>
+        <LogoMark width={32} />
         <span className="text-h4 leading-none text-text-primary">OGCR</span>
       </Link>
 

@@ -6,13 +6,16 @@ import {
   CheckCircleIcon,
   CheckIcon,
   Dialog,
+  HandshakeIcon,
+  LockKeyIcon,
   Message,
+  PackageIcon,
   ProgressBar,
+  ShieldCheckIcon,
   useToast,
 } from "@majistudio/ogcr-design-system";
 import { DataTable } from "@majistudio/ogcr-design-system/Table";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Handshake, LockKey, Package, ShieldCheck } from "@phosphor-icons/react/dist/ssr";
 import { campaign, permissions, practices, EUR_PER_HA, EUR_PER_TCO2 } from "./data/campaign";
 import { lindenhofParcels, type Farm } from "./data/farms";
 import { lindenhofFields, supplyShedParcels } from "./data/parcels";
@@ -105,7 +108,7 @@ export function CommitmentStep() {
         >
           <div className="flex items-start justify-between gap-12">
             <Metric label="Forecast purchase volume" value={`${nestle.committed.toLocaleString("en-GB")} t`} detail="eligible white sugar" />
-            <Package size={28} className="text-icon-positive" />
+            <PackageIcon size={28} className="text-icon-positive" />
           </div>
           <p className="mt-[var(--spacing-16)] text-body-s text-text-secondary">
             Sets an estimated cap only. The final allocation depends on what Nestlé actually buys and on
@@ -116,7 +119,7 @@ export function CommitmentStep() {
         <Panel title="Intervention contribution" trailing={<Status>Committed</Status>}>
           <div className="flex items-start justify-between gap-12">
             <Metric label="Program support" value={`€${nestle.contribution.toLocaleString("en-GB")}`} detail="paid to the program" />
-            <Handshake size={28} className="text-icon-primary" />
+            <HandshakeIcon size={28} className="text-icon-primary" />
           </div>
           <p className="mt-[var(--spacing-16)] text-body-s text-text-secondary">
             Separate money for farmer base payments, outcome bonuses, MRV, and administration. It does not
@@ -186,7 +189,7 @@ export function ApprovalStep({ approved, onApprove }: { approved: boolean; onApp
               ))}
             </div>
             <div className="mt-[var(--spacing-16)] flex gap-8 rounded-12 bg-surface-neutral p-12">
-              <LockKey size={18} className="shrink-0 text-icon-secondary" />
+              <LockKeyIcon size={18} className="shrink-0 text-icon-secondary" />
               <p className="text-body-s text-text-secondary">
                 Scoped and revocable. This enrollment covers only the parcels and terms shown.
               </p>
@@ -209,7 +212,7 @@ export function ApprovalStep({ approved, onApprove }: { approved: boolean; onApp
               title="Approve participation"
               description={`You are enrolling ${lindenhofParcels.length} parcels (${lindenhof.area} ha) in ${campaign.name} and granting Südzucker the delegated permissions listed.`}
               trigger={
-                <Button disabled={approved} iconLeft={approved ? <CheckCircleIcon /> : <ShieldCheck />} className="mt-[var(--spacing-16)] w-full">
+                <Button disabled={approved} iconLeft={approved ? <CheckCircleIcon /> : <ShieldCheckIcon />} fullWidth className="mt-[var(--spacing-16)]">
                   {approved ? "Participation approved" : "Review and approve"}
                 </Button>
               }

@@ -297,7 +297,7 @@ const cardIconVariants = cva("flex items-center justify-center text-[var(--color
       false: "",
     },
     size: {
-      medium: "w-12 h-12",
+      medium: "w-48 h-48",
       large: "w-[68px] h-[68px]",
     },
   },

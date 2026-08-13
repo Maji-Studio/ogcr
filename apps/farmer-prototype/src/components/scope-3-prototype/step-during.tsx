@@ -1,7 +1,6 @@
 "use client";
 
-import { Message, ProgressBar } from "@majistudio/ogcr-design-system";
-import { Database } from "@phosphor-icons/react/dist/ssr";
+import { DatabaseIcon, Message, ProgressBar } from "@majistudio/ogcr-design-system";
 import { campaign, REFERENCE_FOOTPRINT } from "./data/campaign";
 import { farms } from "./data/farms";
 import { generalisedParcels, supplyShedParcels } from "./data/parcels";
@@ -66,7 +65,7 @@ export function ProgressStep({ approved }: { approved: boolean }) {
 
         <Panel title="MRV handoff" trailing={<Status>In progress</Status>}>
           <div className="flex items-start gap-8">
-            <Database size={22} className="mt-2 shrink-0 text-icon-secondary" />
+            <DatabaseIcon size={22} className="mt-2 shrink-0 text-icon-secondary" />
             <p className="text-body-s text-text-secondary">
               The external provider received the farmer-authorised parcel work package on 30 June. Its
               calculation engine is outside this prototype — only the handoff and the signed result are.

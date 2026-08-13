@@ -5,12 +5,12 @@ import {
   Button,
   Card,
   CheckCircleIcon,
+  FileTextIcon,
   InfoIcon,
   Kpi,
   Pill,
   Sidesheet,
 } from "@majistudio/ogcr-design-system";
-import { FileText } from "@phosphor-icons/react/dist/ssr";
 import type { FeatureCollection } from "geojson";
 import { MapView } from "@/components/map";
 import { campaign, REFERENCE_FOOTPRINT } from "./data/campaign";
@@ -48,7 +48,14 @@ export function Panel({ children, className = "", title, subtitle, trailing, flo
   floating?: boolean;
 }) {
   return (
-    <Card title={title} subtitle={subtitle} trailing={trailing} floating={floating} className={`p-24 ${className}`}>
+    <Card
+      title={title}
+      subtitle={subtitle}
+      trailing={trailing}
+      floating={floating}
+      padding="l"
+      className={className}
+    >
       {children}
     </Card>
   );
@@ -165,7 +172,7 @@ export function CalculationSidesheet({ area }: { area: number }) {
       onOpenChange={setOpen}
       title="How this was calculated"
       status="Illustrative"
-      trigger={<Button variant="text" iconLeft={<InfoIcon />}>How this was calculated</Button>}
+      trigger={<Button variant="text" size="s" iconLeft={<InfoIcon />}>How this was calculated</Button>}
     >
       <div className="flex flex-col gap-16">
         <p className="text-body-s text-text-secondary">
@@ -226,7 +233,7 @@ export function EvidenceSidesheet({ trigger, approved }: { trigger: ReactElement
         <div className="flex flex-col gap-8">
           {records.map(([title, detail]) => (
             <div key={title} className="flex gap-8 rounded-12 bg-surface-neutral p-12">
-              <FileText size={18} className="shrink-0 text-icon-positive" />
+              <FileTextIcon size={18} className="shrink-0 text-icon-positive" />
               <div>
                 <p className="text-body-s font-bold text-text-primary">{title}</p>
                 <p className="text-body-s text-text-secondary">{detail}</p>
