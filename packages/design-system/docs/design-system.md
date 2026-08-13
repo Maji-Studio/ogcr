@@ -1,6 +1,13 @@
 # OGCR Design System
 
-Self-contained spec. Rebuild in any stack from this file alone. Reference React code in `src/components/` is one valid implementation; CSS below is the source of truth. When in doubt: CSS in this doc wins over Figma.
+Self-contained spec. Rebuild in any stack from this file alone. Reference React code in `src/components/` is one valid implementation; CSS below is the source of truth.
+
+Two qualifications on "this doc wins over Figma", both learned the hard way in the 2026-08 audit:
+
+- **Token *values* come from Figma.** The variable collections in the Figma file are ground truth for hexes, sizes and scales; this doc drifted from them and the code did not. Where the code deliberately departs — the focus rings — it is called out as policy, with the reason.
+- **Component *anatomy and behavior* come from this doc**, and the doc is kept honest against the code. Everything below has been verified against `src/`; where a section describes something the code no longer does, the code is the bug.
+
+Open follow-ups (Figma-side defects, deferred features, known debt, app-side adoption) live in `docs/audit-follow-ups-2026-08.md`.
 
 ---
 
@@ -21,23 +28,31 @@ CSS custom properties, scoped to `:root`. All component CSS below assumes these.
   --orange-400: #fb923c;
   --orange-500: #f97316;
   --amber-300: #fcd34d;
+  --yellow-300: #fde047;
   --white: #ffffff;
 
   /* Text */
   --text-primary: #0f3655;
   --text-secondary: #6a8196;
   --text-neutral: #334155;
-  --text-positive: #416c51;
+  --text-positive: #4f8263;
   --text-negative: #b91c1c;
   --text-warning: #c2410c;
+  --text-progress: #265277;
 
   /* Icon (mirrors text scale) */
   --icon-primary: #0f3655;
   --icon-secondary: #6a8196;
   --icon-neutral: #334155;
-  --icon-positive: #416c51;
+  --icon-positive: #4f8263;
   --icon-negative: #b91c1c;
   --icon-warning: #c2410c;
+  --icon-progress: #265277;
+  /* `-light` tier — use these, not the raw primitives they alias. */
+  --icon-positive-light: #6db087;
+  --icon-negative-light: #ef4444;
+  --icon-warning-light: #f97316;
+  --icon-progress-light: #326d9e;
 
   /* Surface */
   --surface-page: #f8f3ef;
@@ -48,25 +63,43 @@ CSS custom properties, scoped to `:root`. All component CSS below assumes these.
   --surface-positive: #e2efe6;
   --surface-warning: #ffedd5;
   --surface-negative: #fee2e2;
+  --surface-progress: #e2edf6;
 
   /* Border */
   --border-light: #e7e5e4;
   --border-medium: #d6d3d1;
   --border-strong: #a8a29e;
-  --border-default: #01012e14;
   --border-high-contrast: #443321;
   --border-positive-light: #c5dfce;
   --border-warning-light: #fed7aa;
   --border-negative-light: #fecaca;
   --border-negative-strong: #dc2626;
+  --border-neutral-strong: #57534e;
+  --border-positive-strong: #5e9975;
+  --border-warning-strong: #ea580c;
+  --border-default: #01012e14;          /* code-only — see "Code-only tokens" below */
 
   /* Interaction */
   --interaction-primary-default: #4f8263;
-  --interaction-primary-hover: #416c51;
-  --interaction-primary-active: #416c51;
+  --interaction-primary-hover: #335641;
+  --interaction-primary-active: #335641;
   --interaction-primary-focus: #e2efe6;
-  --interaction-secondary-focus: #e2d0bf;
-  --focus-ring-error: #fecaca;
+  --interaction-secondary-default: #ffffff;
+  --interaction-secondary-hover: #1c3d59;
+  --interaction-secondary-active: #1c3d59;
+  --interaction-secondary-focus: #c3daed;
+  --interaction-tertiary-active: #e2efe6; /* code-only — see below */
+
+  /* Focus rings — two-stop by design, see "Focus rings" below */
+  --focus-primary:
+    0 0 0 2px var(--surface-light),
+    0 0 0 4px var(--interaction-primary-default);
+  --focus-secondary:
+    0 0 0 2px var(--surface-light),
+    0 0 0 4px var(--interaction-secondary-active);
+  --focus-error:
+    0 0 0 2px var(--surface-light),
+    0 0 0 4px var(--icon-negative);
 
   /* Spacing */
   --space-none: 0;
@@ -76,7 +109,11 @@ CSS custom properties, scoped to `:root`. All component CSS below assumes these.
   --space-m: 16px;
   --space-l: 24px;
   --space-xl: 32px;
+  --space-2xl: 48px;
   --space-3xl: 64px;
+  --space-4xl: 80px;
+  --space-5xl: 120px;
+  --space-6xl: 160px;
 
   /* Radius */
   --radius-none: 0;
@@ -85,20 +122,29 @@ CSS custom properties, scoped to `:root`. All component CSS below assumes these.
   --radius-m: 8px;
   --radius-l: 12px;
   --radius-xl: 16px;
-  --radius-full: 999px;
+  --radius-full: 9999px;
 
-  /* Elevation */
+  /* Border width */
+  --border-width-s: 1px;
+  --border-width-m: 1.5px;
+  --border-width-l: 2px;
+
+  /* Elevation — exactly one step, by design */
   --elevation-l:
     0 0 2px 0 rgba(68, 51, 33, 0.08),
     0 8px 16px 0 rgba(68, 51, 33, 0.16);
+
+  /* Control shadows — NOT elevation steps (see "Elevation" below) */
+  --shadow-control: 0 1px 2px 0 rgba(68, 51, 33, 0.16);
+  --shadow-control-pressed: 0 1px 2px 0 rgba(68, 51, 33, 0.12);
 
   /* Typography */
   --font-family-default: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-family-display: 'Helvetica Now Display', system-ui, -apple-system, sans-serif;
   --font-family-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
 
-  --font-size-xs: 14px;
-  --font-size-s: 16px;
+  --font-size-xs: 10px;
+  --font-size-s: 14px;
   --font-size-m: 18px;
   --font-size-l: 20px;
   --font-size-xl: 24px;
@@ -106,6 +152,7 @@ CSS custom properties, scoped to `:root`. All component CSS below assumes these.
   --font-size-3xl: 40px;
   --font-size-4xl: 48px;
   --font-size-5xl: 64px;
+  --font-size-xxs: 12px;   /* code-only, no Figma counterpart */
 
   /* Motion */
   --motion-fast: 150ms ease-out;
@@ -114,11 +161,48 @@ CSS custom properties, scoped to `:root`. All component CSS below assumes these.
 ```
 
 Token rules:
-- `interaction-primary-hover` and `interaction-primary-active` resolve to the same color (`#416c51`). Differentiate active from hover via elevation/border/transform, not fill.
+- `interaction-primary-hover` and `interaction-primary-active` resolve to the same color (`#335641`, brand-green/900). Differentiate active from hover via elevation/border/transform, not fill.
 - **Active-control green vs. selection navy is intentional — do not "unify" it.** Controls that toggle a *state* (Switch on, Slider fill) use the brand green `interaction-primary-default` (`#4f8263`); controls that mark a *selection* (Checkbox, Radio checked fill/border) use navy `icon-primary` (`#0f3655`). Error states override both with `icon-negative`. The split signals "active behaviour" vs. "chosen item" and is consistent across the set; a future change should preserve it rather than collapse the two onto one accent.
 - `radius-l` is **12px** here (Figma sometimes labels 16). Code wins.
 - `--text-secondary` on `--surface-light` is borderline WCAG AA (~4.5:1). Audit small text.
 - No motion tokens beyond `--motion-fast` / `--motion-base`. Hover/state ≤150ms; layout/size ≤200ms; never >300ms in-place feedback.
+- The **`progress` family** (`text` / `icon` / `surface` / `icon-progress-light`) is the blue "in flight / informational" ramp. It is *not* interchangeable with `positive`: `--icon-positive` is `#4f8263`, the same green as `--interaction-primary-default`, so anything that wants blue must say `progress`.
+
+### Size ladder — the one value that moved
+
+`--font-size-m` is **18px** (Figma `font/size/m`). It used to be 16px, the only wrong step in the whole ladder, and both `--text-h4` and `--text-body` dereference it — so **body copy and h4 grew 2px system-wide.** Expect reflow when adopting. Everything else on the ladder (10 / 14 / 20 / 24 / 32 / 40 / 48 / 64) was already correct.
+
+### Focus rings — an approved deviation from Figma
+
+Figma draws all three focus effects as a **single 3px ring** in the pale `*-focus` tint. Those tints read 1.0–1.2:1 against `--surface-page` and would be effectively invisible, so the design system deliberately ships a **two-stop ring** instead: an inner 2px `--surface-light` halo (breathing room, no `outline-offset` needed) plus a visible 4px ring in the solid tone from the same family, which clears the 3:1 non-text contrast minimum of **WCAG SC 2.4.11 (Focus Appearance)**.
+
+| ring | 4px stop | used by |
+| --- | --- | --- |
+| `--focus-primary` | `--interaction-primary-default` (green `#4f8263`) | every focusable control in the library today |
+| `--focus-secondary` | `--interaction-secondary-active` (brand-blue `#1c3d59`) | reserved for secondary-tier controls; declared and shipped, not yet consumed in-library |
+| `--focus-error` | `--icon-negative` (red `#b91c1c`) | inputs, checkbox, radio in their error state |
+
+This is policy, not drift: Figma will keep disagreeing, and the code wins. Two consequences worth knowing:
+
+- `--focus-secondary` used to be a byte-for-byte copy of `--focus-primary`, which collapsed the green/blue split Figma draws between the two button tiers. It is now genuinely distinct. Figma's `interaction/secondary-default` is white and unusable as a ring, so the tier's solid blue carries it.
+- There is **no `--focus-ring-error` color token.** It existed, referenced nothing, and was removed; use `--focus-error` (the full shadow) instead. The pale `*-focus` tints remain in the palette as background washes (e.g. the SideNavigation active row), not as rings.
+
+### Elevation — one step, by design
+
+Figma defines exactly **one** elevation effect style (`elevation/l`), and `--elevation-l` matches it stop-for-stop (`#443321` = `rgb(68,51,33)`). There is no `s`/`m`/`xs` elevation and none should be invented without a Figma effect style to match — **`shadow-elevation-s` does not exist and never will**; a class name like that silently produces nothing.
+
+`--shadow-control` / `--shadow-control-pressed` are the 1px lift on a Switch/Slider thumb and a pressed Toggle segment. They are code-side *control* shadows, not elevation steps, and are named apart so they can never be mistaken for one.
+
+### Code-only tokens (no Figma provenance)
+
+Two color tokens exist in code with no counterpart anywhere in the Figma variable collections. Both are kept because something still consumes them; **do not reach for them in new components**:
+
+- `--border-default` (`#01012e14`) — looks imported from another system.
+- `--interaction-tertiary-active` (`#e2efe6`) — Figma has no `tertiary` interaction tier at all.
+
+`--font-size-xxs` (12px) is likewise code-only. Two further runtime-only tokens paint the scrollbar (`--ds-scrollbar-track`, `--ds-scrollbar-thumb`, the latter aliasing `--ds-border-medium`) so the reset never hard-codes a color, and two carry the stacking order (`--ds-z-overlay: 50`, `--ds-z-toast: 100`).
+
+One Figma token is deliberately **not** imported: `border/neutral-light` is a byte-for-byte duplicate of `border/light` — a Figma-side defect, tracked in `docs/audit-follow-ups-2026-08.md`, not a gap in the code.
 
 ### Base reset
 
@@ -139,6 +223,63 @@ body {
 button { font-family: inherit; }
 ```
 
+Body copy is `--font-size-m`, so it is **18px**, not the 16px this reset used to imply.
+
+### Token names in the shipped build
+
+The names above are the spec's own. The published stylesheet expresses the same tokens through Tailwind v4 namespaces, and it is worth knowing the mapping when reading component code:
+
+| spec | shipped | note |
+| --- | --- | --- |
+| `--surface-page` | `--color-surface-page` → `var(--ds-surface-page)` | every color is a two-hop reference; see below |
+| `--space-m` (16px) | `--spacing-16` | the shipped scale is numeric-px, not t-shirt |
+| `--radius-l` (12px) | `--radius-12` | same |
+| `--font-size-m` | `--text-m` | plus semantic multi-prop tokens `--text-h1`…`--text-label-input` |
+| `--elevation-l` | `--shadow-elevation-l` | `--shadow-control`, `--shadow-control-pressed` alongside |
+| `--focus-primary` | `--shadow-focus-primary` | `-secondary`, `-error` likewise |
+| `--border-width-m` | `--border-width-m` | utility is **`border-w-m`**, not `border-m` — `border-l` already means border-left-width in Tailwind |
+
+Utility names drop the namespace prefix: `bg-surface-page`, `p-16`, `rounded-12`, `text-h1`, `shadow-elevation-l`, `border-w-m`.
+
+### Theming: the `--ds-*` seam
+
+Every **color** token is a `var(--ds-*)` reference into a runtime palette; that palette is the only place a brand hex appears. Because the reference (not the hex) is baked into each utility, overriding a `--ds-*` custom property on any scoping element — `:root`, a wrapper `div`, a `.dark` class — retints every utility and focus shadow that derives from it, with no rebuild. A build gate fails if any color utility re-bakes a literal.
+
+Radius, spacing, border-width, font and elevation tokens stay literal by design (no brand-variance need yet); moving them onto the seam later is the same mechanical step.
+
+Adding a token is **two edits, not one**: declare it in the theme, and pin it in the shipped-utility safelist. A token added to the theme and forgotten in the safelist is a build failure, not a silent hole — see below for why.
+
+A **dark palette is not implemented.** Figma fully specifies a second mode for all 47 product semantic colors; the architecture is ready for it and the values are recorded in `docs/audit-follow-ups-2026-08.md`.
+
+### Consuming the shipped stylesheet
+
+Import order stays what it always was — your own Tailwind first, the design system last:
+
+```css
+@import "tailwindcss";
+@import "@majistudio/ogcr-design-system/styles.css";
+```
+
+Beyond that there are four things a consuming app must know. All of them are recent, and two are behaviour changes.
+
+1. **Every declared token now ships — as a variable *and* as a utility.** The stylesheet is compiled once at publish time by a JIT compiler, so it used to contain only what the library's own components happened to use: `bg-surface-progress` or `var(--spacing-160)` were documented, visible in the token gallery, and produced nothing in a consumer app. The theme block is now emitted in full, and a safelist pins the utility surface (`bg-`/`text-`/`border-` for every color, `fill-`/`stroke-` for the icon tier, the padding/margin/gap/space/size/inset families over every spacing step, every radius variant, every text size, the families/weights, the shadow tokens, `border-w-{s,m,l}`). A build gate asserts the two sets agree.
+
+2. **Design-system utilities now LOSE to yours at equal specificity.** Everything the library ships is inside a *nested* cascade layer, `@layer utilities.ogcr-ds`. Per CSS Cascade 5, rules in a nested sub-layer always lose to their parent layer's own unlayered rules — so your `sm:flex` beats our `.hidden`, in either stylesheet order, and you have to declare nothing. Before this, both sheets landed in a flat `@layer utilities`, layer sorting was a no-op, and the later-loaded library silently beat every responsive variant an app wrote. The library's utilities still outrank `base`/preflight, so only the *consumer* outranks them. Nothing the library ships is unlayered any more — which also means an app's plain `:root { --ds-…: … }` override finally wins (the palette rides `@layer theme`).
+
+3. **`--spacing` is pinned to `1px` globally.** Tailwind keeps a dynamic fallback alive: any `p-<n>` with no matching token resolves to `calc(var(--spacing) * n)`. Stock Tailwind sets `.25rem`, so an app's own `gap-6` meant 24px while this scale means 6px — a silent 4× on every class the app wrote itself. Pinning the multiplier makes the dynamic path agree with the px scale. **This rescales existing app markup that used the stock 4px-step scale: `p-4` is 4px now, not 16px.** Sweep numeric spacing classes during adoption; arbitrary values (`p-[16px]`) and keyword values (`w-full`) are unaffected.
+
+4. **Two sizes moved.** `--font-size-m` went 16 → 18px, taking `--text-h4` and `--text-body` with it (see above), so body copy and h4 grew 2px. And `shadow-elevation-s` never existed — if an app is using it, it has been rendering nothing; use `shadow-elevation-l` or `shadow-control`.
+
+5. **Variants: a curated set ships precompiled; the `./theme` export covers the rest.** The safelist pins the state variants the interaction model implies (`hover:`/`focus-visible:`/`active:`/`disabled:` across the interaction tier, plus the hover/disabled forms of the surface/text/icon/border families). Any variant beyond that — `group-hover:`, responsive prefixes on color utilities, `data-[…]:` — can't exist in a precompiled sheet. For full native generation, import the token source into your own Tailwind build instead:
+
+   ```css
+   @import "tailwindcss";
+   @import "@majistudio/ogcr-design-system/theme"; /* @theme tokens + --ds-* palette */
+   @import "@majistudio/ogcr-design-system/styles.css";
+   ```
+
+   With `./theme` imported, your compiler generates any utility × any variant from the real scale, and the precompiled safelist becomes a fallback rather than the ceiling.
+
 ---
 
 ## 2. Typography utilities
@@ -150,21 +291,34 @@ Mobile/tablet sizes; `@media (min-width: 1024px)` shifts to desktop sizes. Headi
 .text-h2 { font-family: var(--font-family-default); font-weight: 500; font-size: var(--font-size-xl); line-height: 1.2; }
 .text-h3 { font-family: var(--font-family-default); font-weight: 500; font-size: var(--font-size-l); line-height: 1.2; }
 .text-h4 { font-family: var(--font-family-default); font-weight: 500; font-size: var(--font-size-m); line-height: 1.2; }
+.text-lead { font-family: var(--font-family-default); font-weight: 400; font-size: var(--font-size-l); line-height: 1.5; }
+.text-body-l { font-family: var(--font-family-default); font-weight: 400; font-size: var(--font-size-l); line-height: 1.5; }
 .text-body { font-family: var(--font-family-default); font-weight: 400; font-size: var(--font-size-m); line-height: 1.5; }
-.text-body-s { font-family: var(--font-family-default); font-weight: 400; font-size: var(--font-size-xs); line-height: 1.4; }
-.text-label-button { font-family: var(--font-family-default); font-weight: 500; font-size: var(--font-size-xs); line-height: 1; letter-spacing: 0.28px; }
+.text-body-s { font-family: var(--font-family-default); font-weight: 400; font-size: var(--font-size-s); line-height: 1.4; }
+.text-quote { font-family: var(--font-family-default); font-weight: 400; font-style: italic; font-size: var(--font-size-xl); line-height: 1.4; }
+.text-label-button { font-family: var(--font-family-default); font-weight: 500; font-size: var(--font-size-s); line-height: 1; letter-spacing: 0.02em; }
+.text-label-navigation { font-family: var(--font-family-default); font-weight: 500; font-size: var(--font-size-s); line-height: 1; letter-spacing: 0.02em; }
 .text-label-input { font-family: var(--font-family-default); font-weight: 500; font-size: var(--font-size-s); line-height: 1.4; }
 
 @media (min-width: 1024px) {
-  .text-h1 { font-size: var(--font-size-3xl); }
-  .text-h2 { font-size: var(--font-size-2xl); }
-  .text-h3 { font-size: var(--font-size-xl); }
-  .text-h4 { font-size: var(--font-size-l); }
-  .text-body { font-size: var(--font-size-l); }
-  .text-body-s { font-size: var(--font-size-s); }
-  .text-label-button { font-size: var(--font-size-s); }
+  .text-h1 { font-size: var(--font-size-3xl); }            /* 40 */
+  .text-h2 { font-size: var(--font-size-2xl); }            /* 32 */
+  .text-h3 { font-size: var(--font-size-xl); }             /* 24 */
+  .text-h4 { font-size: var(--font-size-l); }              /* 20 */
+  .text-lead { font-size: var(--font-size-xl); }           /* 24 */
+  .text-body-l { font-size: var(--font-size-xl); }         /* 24 */
+  .text-body { font-size: var(--font-size-l); }            /* 20 */
+  .text-body-s { font-size: var(--font-size-m); }          /* 18 */
+  .text-quote { font-size: var(--font-size-2xl); }         /* 32 */
+  .text-label-button { font-size: var(--font-size-m); }    /* 18 */
+  .text-label-navigation { font-size: var(--font-size-m); }/* 18 */
+  /* .text-label-input is flat 14 at every breakpoint — deliberately not bumped. */
 }
 ```
+
+The size primitives are also available on their own (`text-xs` … `text-5xl` in the shipped utility set); `text-xs` is **10px**, not 12 — the smallest primitive on the ladder. `letter-spacing: 0.02em` on the label styles resolves to the 0.28px the components hard-code at 14px.
+
+Three of the desktop bumps above are inherited from an earlier reading of Figma and are **suspect**: Figma keeps `body-s` flat at 14 across all breakpoints, and its `labels/button` / `labels/navigation` ladder (14 → 18 → 18 → 14) shrinks again at the largest breakpoint, which reads as a mode-authoring error. They ship as written today; revisiting them is part of the deferred responsive-ladder work (`docs/audit-follow-ups-2026-08.md`).
 
 Body weights: 400 default, 500 medium, 700 bold. `body/quote` style is italic 400.
 `label/*` text is **not** auto-uppercased; encode casing in the source string.
@@ -191,7 +345,7 @@ Spacing conventions:
 - Grouped controls: `--space-s` (12)
 - Card sections / outer card padding: `--space-m` (16)
 - Section spacing: `--space-xl` (32) and up
-- `2xl` not defined; derive from m/xl if needed.
+- The full Figma gap scale is 4 · 8 · 12 · 16 · 24 · 32 · 48 · 64 · 80 · 120 · 160. The shipped px scale is denser (0 · 1 · 2 · 4 · 6 · 8 · 10 · 12 · 16 · 20 · 24 · 28 · 32 · 36 · 40 · 48 · 56 · 64 · 72 · 80 · 96 · 120 · 128 · 160 · 192 · 256 · 320) because it also serves sizing, not just gaps; the Figma steps are all present in it.
 
 ---
 
@@ -202,11 +356,19 @@ Naming: BEM-ish, prefixed `ogcr-`. Pseudo-HTML shows the DOM the CSS expects. CS
 ### 4.1 Button
 
 **Variants:** `filled` (default) | `outlined` | `text`
+**Size:** `s` 32px | `m` 40px | `l` 48px — optional; defaults per variant (`filled`/`outlined` → `l`, `text` → `m`)
+**Modifiers:** `fullWidth`, `iconOnly`, `shape` (`rounded` | `circle`)
 
 ```html
 <button class="ogcr-button ogcr-button--filled" type="button">
   <span class="ogcr-button__icon" aria-hidden="true"><svg>…</svg></span>
   <span class="ogcr-button__label">Label</span>
+  <span class="ogcr-button__icon" aria-hidden="true"><svg>…</svg></span>
+</button>
+
+<!-- icon-only: no label span; the name comes from aria-label -->
+<button class="ogcr-button ogcr-button--filled ogcr-button--icon-only ogcr-button--circle"
+        type="button" aria-label="New record" data-icon-only="true">
   <span class="ogcr-button__icon" aria-hidden="true"><svg>…</svg></span>
 </button>
 ```
@@ -221,7 +383,6 @@ Naming: BEM-ish, prefixed `ogcr-`. Pseudo-HTML shows the DOM the CSS expects. CS
   --button-color: var(--surface-page);
   --button-hover-bg: var(--interaction-primary-hover);
   --button-active-bg: var(--interaction-primary-active);
-  --button-focus-ring: var(--interaction-primary-focus);
 
   display: inline-flex;
   align-items: center;
@@ -241,7 +402,7 @@ Naming: BEM-ish, prefixed `ogcr-`. Pseudo-HTML shows the DOM the CSS expects. CS
     transform var(--motion-fast);
   font-family: var(--font-family-default);
   font-weight: 500;
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-s);
   line-height: 1;
   letter-spacing: 0.28px;
 }
@@ -249,7 +410,7 @@ Naming: BEM-ish, prefixed `ogcr-`. Pseudo-HTML shows the DOM the CSS expects. CS
 .ogcr-button:active:not(:disabled) { background: var(--button-active-bg); transform: translateY(1px); }
 .ogcr-button:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--surface-page), 0 0 0 4px var(--button-focus-ring);
+  box-shadow: var(--focus-primary);
 }
 .ogcr-button:disabled { cursor: not-allowed; opacity: 0.5; }
 
@@ -267,8 +428,8 @@ Naming: BEM-ish, prefixed `ogcr-`. Pseudo-HTML shows the DOM the CSS expects. CS
 .ogcr-button--outlined:hover:not(:disabled) { border-color: var(--border-strong); }
 
 .ogcr-button--text {
-  --button-height: 32px;
-  --button-padding-x: var(--space-xs);
+  --button-height: 40px;
+  --button-padding-x: var(--space-s);
   --button-radius: var(--radius-m);
   --button-bg: transparent;
   --button-border: transparent;
@@ -276,11 +437,31 @@ Naming: BEM-ish, prefixed `ogcr-`. Pseudo-HTML shows the DOM the CSS expects. CS
   --button-hover-bg: var(--surface-neutral);
   --button-active-bg: var(--surface-neutral);
 }
+
+/* Size scale — overrides the variant default when set explicitly. */
+.ogcr-button--s { --button-height: 32px; --button-padding-x: var(--space-xs); --button-radius: var(--radius-m); gap: var(--space-xs); }
+.ogcr-button--m { --button-height: 40px; --button-padding-x: var(--space-s);  --button-radius: var(--radius-m); gap: var(--space-xs); }
+.ogcr-button--l { --button-height: 48px; --button-padding-x: var(--space-m);  --button-radius: var(--radius-l); gap: var(--space-s); }
+.ogcr-button--s .ogcr-button__icon,
+.ogcr-button--m .ogcr-button__icon { width: 20px; height: 20px; }
+
+/* Modifiers */
+.ogcr-button--full-width { width: 100%; }
+.ogcr-button--circle { border-radius: var(--radius-full); }
+.ogcr-button--icon-only { padding: 0; flex-shrink: 0; }
+.ogcr-button--icon-only.ogcr-button--s { width: 32px; }
+.ogcr-button--icon-only.ogcr-button--m { width: 40px; }
+.ogcr-button--icon-only.ogcr-button--l { width: 48px; }
 ```
 
 Behavior:
-- Both icon slots optional; render only when content provided. Each icon is 24×24.
-- Focus ring is double: 2px page-color inner + 2px focus-color outer (offset look without `outline-offset`).
+- Both icon slots optional; render only when content provided. Icon box is 24×24 at `l`, 20×20 at `s`/`m`.
+- Focus ring is the shared two-stop `--focus-primary` (§1) — 2px `--surface-light` halo + 4px solid green.
+- **`size` is optional and per-variant.** `filled` and `outlined` default to `l` (48px); `text` defaults to **`m` (40px)**. The `text` variant used to be 32px, which broke the §8 40×40 minimum hit target on its own; `size="s"` restores the old dense look and is only valid inside a larger padded row.
+- `fullWidth` stretches the button to its container — use it instead of a `w-full` class.
+- **`iconOnly`** renders a square, label-less button: no label element, `padding: 0`, one icon slot, width locked to the size (32/40/48). The glyph may be supplied as `iconLeft`, `iconRight`, or `children`. The root carries `data-icon-only="true"`.
+- **`shape="circle"`** fully rounds the corners. `iconOnly` + `shape="circle"` + `--elevation-l` is the FAB recipe.
+- **Type-enforced accessible name.** In the React implementation `ButtonProps` is a union: `iconOnly: true` requires `aria-label` *or* `aria-labelledby`. Omitting both is a compile error, not a lint warning — the first type-level a11y contract in the system. Any reimplementation should enforce the same rule.
 - Single-character labels: rely on padding to keep min hit area; do not collapse below 40×40 effective.
 
 ### 4.2 Input
@@ -304,7 +485,7 @@ Behavior:
 .ogcr-input { display: flex; flex-direction: column; gap: var(--space-2xs); width: 100%; }
 .ogcr-input__label {
   font-family: var(--font-family-default); font-weight: 400;
-  font-size: var(--font-size-xs); line-height: 1.4; color: var(--text-secondary);
+  font-size: var(--font-size-s); line-height: 1.4; color: var(--text-secondary);
 }
 .ogcr-input__field {
   display: flex; align-items: center; gap: var(--space-s);
@@ -317,7 +498,7 @@ Behavior:
 .ogcr-input__field:hover { border-color: var(--border-strong); }
 .ogcr-input__field:focus-within {
   border-color: var(--interaction-primary-default);
-  box-shadow: 0 0 0 3px var(--interaction-primary-focus);
+  box-shadow: var(--focus-primary);
 }
 .ogcr-input__icon {
   display: inline-flex; align-items: center; justify-content: center;
@@ -328,29 +509,30 @@ Behavior:
   flex: 1 1 0; min-width: 0; height: 100%;
   border: none; outline: none; background: transparent;
   font-family: var(--font-family-default); font-weight: 500;
-  font-size: var(--font-size-s); line-height: 1.4; color: var(--text-primary);
+  font-size: var(--font-size-m); line-height: 1.4; color: var(--text-primary);
 }
 .ogcr-input__control::placeholder { color: var(--text-secondary); font-weight: 500; }
 .ogcr-input__control:disabled { cursor: not-allowed; color: var(--text-secondary); }
 .ogcr-input__helper {
   margin: 0;
   font-family: var(--font-family-default); font-weight: 400;
-  font-size: var(--font-size-xs); line-height: 1.4; color: var(--text-secondary);
+  font-size: var(--font-size-s); line-height: 1.4; color: var(--text-secondary);
 }
 .ogcr-input--error .ogcr-input__field { border-color: var(--border-negative-strong); }
-.ogcr-input--error .ogcr-input__field:focus-within { box-shadow: 0 0 0 3px var(--surface-negative); }
+.ogcr-input--error .ogcr-input__field:focus-within { box-shadow: var(--focus-error); }
 .ogcr-input--error .ogcr-input__helper { color: var(--text-negative); }
 ```
 
 Behavior:
 - Label, helper, and either icon are optional.
 - Use `aria-describedby` on the input pointing at the helper id.
-- Error focus ring is negative-tinted (`--surface-negative`), not primary.
+- Error focus ring is the red-family `--focus-error`, not primary.
 - Control has `flex: 1 1 0; min-width: 0` so it shrinks below content width.
 
 ### 4.3 Card
 
 **Variants:** `floating` (boolean class) — adds elevation.
+**Padding:** `none` | `s` | `m` (default) | `l` — 0 / 12 / 16 / 24px.
 
 ```html
 <section class="ogcr-card ogcr-card--floating">
@@ -374,6 +556,9 @@ Behavior:
   border-radius: var(--radius-xl);
 }
 .ogcr-card--floating { box-shadow: var(--elevation-l); }
+.ogcr-card--padding-none { padding: var(--space-none); }
+.ogcr-card--padding-s    { padding: var(--space-s); }
+.ogcr-card--padding-l    { padding: var(--space-l); }
 .ogcr-card__header { display: flex; align-items: center; justify-content: space-between; gap: var(--space-s); }
 .ogcr-card__titles { display: flex; flex-direction: column; gap: var(--space-2xs); min-width: 0; }
 .ogcr-card__title {
@@ -382,7 +567,7 @@ Behavior:
 }
 .ogcr-card__subtitle {
   margin: 0; font-family: var(--font-family-default); font-weight: 400;
-  font-size: var(--font-size-xs); line-height: 1.4; color: var(--text-secondary);
+  font-size: var(--font-size-s); line-height: 1.4; color: var(--text-secondary);
 }
 .ogcr-card__trailing { display: inline-flex; align-items: center; gap: var(--space-xs); flex-shrink: 0; }
 .ogcr-card__body { display: flex; flex-direction: column; gap: var(--space-m); }
@@ -392,6 +577,7 @@ Behavior:
 - Header omits if no title/subtitle/trailing supplied.
 - Body omits if no children.
 - Trailing typically holds a Pill, segmented control, or icon button.
+- `padding` changes only the outer padding; the internal 16px gaps stay put. `l` (24px) is the page-level-panel step — reach for it instead of wrapping a Card in a padding div. The title's heading level is configurable (`headingLevel`, default `h3`) so a Card slots into any document outline.
 
 ### 4.4 Checkbox
 
@@ -421,7 +607,7 @@ Behavior:
   display: inline-flex; align-items: center; gap: var(--space-s);
   cursor: pointer; position: relative;
   font-family: var(--font-family-default); font-weight: 500;
-  font-size: var(--font-size-xs); line-height: 1.4; color: var(--text-primary);
+  font-size: var(--font-size-s); line-height: 1.4; color: var(--text-primary);
 }
 .ogcr-check--border-left,
 .ogcr-check--border-right {
@@ -459,7 +645,7 @@ Behavior:
   background: var(--icon-primary); border-color: var(--icon-primary);
 }
 .ogcr-check__input:focus-visible ~ .ogcr-check__box {
-  box-shadow: 0 0 0 3px var(--interaction-secondary-focus);
+  box-shadow: var(--focus-primary);
 }
 .ogcr-check--error .ogcr-check__box { border-color: var(--icon-negative); }
 .ogcr-check--error.ogcr-check--checked .ogcr-check__box,
@@ -467,7 +653,7 @@ Behavior:
   background: var(--icon-negative); border-color: var(--icon-negative);
 }
 .ogcr-check--error .ogcr-check__input:focus-visible ~ .ogcr-check__box {
-  box-shadow: 0 0 0 3px var(--focus-ring-error);
+  box-shadow: var(--focus-error);
 }
 .ogcr-check--disabled { cursor: not-allowed; }
 .ogcr-check--disabled .ogcr-check__box { opacity: 0.5; }
@@ -501,7 +687,7 @@ Behavior:
   display: inline-flex; align-items: center; gap: var(--space-s);
   cursor: pointer; position: relative;
   font-family: var(--font-family-default); font-weight: 500;
-  font-size: var(--font-size-xs); line-height: 1.4; color: var(--text-primary);
+  font-size: var(--font-size-s); line-height: 1.4; color: var(--text-primary);
 }
 .ogcr-radio--border-left,
 .ogcr-radio--border-right {
@@ -545,14 +731,14 @@ Behavior:
 .ogcr-radio__line2 { color: var(--text-secondary); font-weight: 500; }
 
 .ogcr-radio__input:focus-visible ~ .ogcr-radio__box {
-  box-shadow: 0 0 0 3px var(--interaction-secondary-focus);
+  box-shadow: var(--focus-primary);
 }
 .ogcr-radio--error .ogcr-radio__box { border-color: var(--icon-negative); }
 .ogcr-radio--error.ogcr-radio--checked .ogcr-radio__box {
   background: var(--icon-negative); border-color: var(--icon-negative);
 }
 .ogcr-radio--error .ogcr-radio__input:focus-visible ~ .ogcr-radio__box {
-  box-shadow: 0 0 0 3px var(--focus-ring-error);
+  box-shadow: var(--focus-error);
 }
 .ogcr-radio--disabled { cursor: not-allowed; }
 .ogcr-radio--disabled .ogcr-radio__box { opacity: 0.5; }
@@ -567,10 +753,23 @@ Behavior:
 
 ### 4.6 Pill
 
-**Variants (tone):** `neutral` (default) | `positive` | `warning` | `negative`. Presentational only, no interactive states.
+**Variants (tone):** `neutral` (default) | `positive` | `warning` | `negative` | `progress`. Presentational only, no interactive states.
+**Leading content:** `dot` (boolean) or `leading` (arbitrary node).
 
 ```html
-<span class="ogcr-pill ogcr-pill--positive">+12%</span>
+<span class="ogcr-pill ogcr-pill--positive" data-tone="positive">+12%</span>
+
+<!-- with a status dot -->
+<span class="ogcr-pill ogcr-pill--progress" data-tone="progress">
+  <span class="ogcr-pill__dot" aria-hidden="true"></span>
+  In review
+</span>
+
+<!-- with an arbitrary leading glyph (wins over dot) -->
+<span class="ogcr-pill ogcr-pill--neutral" data-tone="neutral">
+  <span class="ogcr-pill__leading" aria-hidden="true"><svg>…</svg></span>
+  Draft
+</span>
 ```
 
 ```css
@@ -579,14 +778,29 @@ Behavior:
   padding: var(--space-2xs) var(--space-xs);
   border-radius: var(--radius-m);
   font-family: var(--font-family-default); font-weight: 400;
-  font-size: var(--font-size-xs); line-height: 1.4;
+  font-size: var(--font-size-s); line-height: 1.4;
   white-space: nowrap;
 }
 .ogcr-pill--neutral  { background: var(--surface-neutral);  color: var(--text-primary); }
 .ogcr-pill--positive { background: var(--surface-positive); color: var(--text-positive); }
 .ogcr-pill--warning  { background: var(--surface-warning);  color: var(--text-warning); }
 .ogcr-pill--negative { background: var(--surface-negative); color: var(--text-negative); }
+.ogcr-pill--progress { background: var(--surface-progress); color: var(--text-progress); }
+
+.ogcr-pill__dot {
+  display: inline-block; width: 8px; height: 8px; flex-shrink: 0;
+  border-radius: var(--radius-full);
+  background: currentColor;
+}
+.ogcr-pill__leading { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.ogcr-pill__leading > svg { width: 16px; height: 16px; }
 ```
+
+Behavior:
+- `progress` is the blue in-flight / informational ramp — distinct from `neutral`, which is the "no state" grey. Pill tone is the canonical tone list: KPI's tone set is a superset of it, and KPI sources its status chip straight from Pill so the two cannot drift.
+- `dot` tints itself with `currentColor`, i.e. the tone's own text color. When the dot needs some *other* color (a domain state palette that deliberately diverges from the tone), pass `leading` instead — it takes precedence over `dot` and accepts any node.
+- Both leading elements are `aria-hidden`; the pill's meaning must be in its text.
+- The root carries `data-tone` for styling hooks and testing.
 
 ### 4.7 ProgressBar
 
@@ -613,7 +827,7 @@ Behavior:
   width: 100%;
   --progress-fill: var(--interaction-primary-default);
 }
-.ogcr-progress--blue    { --progress-fill: var(--icon-positive); }
+.ogcr-progress--blue    { --progress-fill: var(--icon-progress); }
 .ogcr-progress--orange  { --progress-fill: var(--icon-warning); }
 .ogcr-progress--neutral { --progress-fill: var(--text-neutral); }
 
@@ -621,14 +835,14 @@ Behavior:
 .ogcr-progress__label {
   display: inline-flex; align-items: center; gap: var(--space-xs);
   font-family: var(--font-family-default); font-weight: 400;
-  font-size: var(--font-size-xs); line-height: 1.4; color: var(--text-secondary);
+  font-size: var(--font-size-s); line-height: 1.4; color: var(--text-secondary);
 }
 .ogcr-progress__label-icon { display: inline-flex; width: 20px; height: 20px; color: var(--icon-secondary); }
 .ogcr-progress__label-icon > svg { width: 100%; height: 100%; }
 .ogcr-progress__value {
   margin-left: auto;
   font-family: var(--font-family-default); font-weight: 500;
-  font-size: var(--font-size-xs); line-height: 1.4; color: var(--text-primary);
+  font-size: var(--font-size-s); line-height: 1.4; color: var(--text-primary);
 }
 .ogcr-progress__track {
   position: relative; height: 8px; width: 100%;
@@ -647,11 +861,16 @@ Behavior:
 Behavior:
 - Clamp `value` 0–100 in app code; set fill width inline.
 - Text row optional. Omit if no label and no displayed value.
+- **`blue` is `--icon-progress` (`#265277`), not `--icon-positive`.** This spec used to say `--icon-positive`, which is `#4f8263` — the same green as `--interaction-primary-default`, so the `blue` variant would have rendered identically to `default`. `progress` is the deliberate blue token; the variant name is kept as `blue` for back-compat.
+- `value: null` renders the indeterminate ARIA state; the fill still clamps to 0.
+- **Naming precedence:** when a visible `label` is rendered, it is wired as the bar's `aria-labelledby`, which takes precedence over any `aria-label`. So `aria-label` only names the bar when there is no visible label — don't rely on it to override one.
 
 ### 4.8 ContextMenu
 
+**Width:** `s` 256 | `m` 280 | `l` 320 (default) | `auto` — the shared overlay width scale, see below.
+
 ```html
-<div class="ogcr-menu" role="menu">
+<div class="ogcr-menu" role="menu" data-width="l">
   <header class="ogcr-menu__header">
     <span class="ogcr-menu__title">Header</span>
     <span class="ogcr-pill ogcr-pill--neutral">3 selected</span>
@@ -695,15 +914,13 @@ Behavior:
   background: transparent; border: none; border-radius: var(--radius-m);
   cursor: pointer; text-align: left;
   font-family: var(--font-family-default); font-weight: 500;
-  font-size: var(--font-size-xs); line-height: 1.4; color: var(--text-primary);
+  font-size: var(--font-size-s); line-height: 1.4; color: var(--text-primary);
   transition: background-color var(--motion-fast), color var(--motion-fast);
 }
 .ogcr-menu__item:hover:not(:disabled) { background: var(--surface-neutral); }
-.ogcr-menu__item:focus-visible {
-  outline: none;
-  background: var(--surface-neutral);
-  box-shadow: 0 0 0 2px var(--interaction-secondary-focus);
-}
+/* Keyboard highlight IS the focus indicator here — the roving-highlight model
+   moves a `data-highlighted` state between items rather than focusing each one. */
+.ogcr-menu__item[data-highlighted] { outline: none; background: var(--surface-neutral); }
 .ogcr-menu__item:disabled { cursor: not-allowed; opacity: 0.5; }
 .ogcr-menu__item--destructive { color: var(--text-negative); }
 .ogcr-menu__item--destructive:hover:not(:disabled) { background: var(--surface-negative); }
@@ -713,8 +930,9 @@ Behavior:
 ```
 
 Behavior:
-- Width fixed 320px. Items full-width buttons.
-- Header optional (omit if no title/status).
+- **Width comes from the shared overlay scale** (`s` 256 / `m` 280 / `l` 320 / `auto`), defaulting to `l` — the 320px this menu has always shipped. `auto` drops the fixed width so the popup shrinks to its content. The same scale drives Popover (§4.29); it lives in one place (`src/lib/overlay/chrome.ts` `overlayWidths`) so the two cannot drift. `m` (280px) is deliberately an arbitrary value: 280 sits between the 256 and 320 steps of the spacing scale. The root carries `data-width`.
+- Items are full-width buttons.
+- Header optional (omit if no title/status). It carries `role="presentation"` so it stays out of the `role="menu"` required-children set.
 - Destructive items shift background and icon color on hover (not just text).
 
 ### 4.9 Message
@@ -785,7 +1003,7 @@ Behavior:
 }
 .ogcr-message__description {
   margin: 0; font-family: var(--font-family-default); font-weight: 400;
-  font-size: var(--font-size-xs); line-height: 1.4; color: inherit;
+  font-size: var(--font-size-s); line-height: 1.4; color: inherit;
 }
 .ogcr-message__action {
   flex-shrink: 0;
@@ -808,15 +1026,28 @@ Behavior:
 ```
 
 Behavior:
-- Border is **1.5px**, not 1.
+- Border is **1.5px**, not 1 — this is `--border-width-m`, the Figma `border-width/m` step (see §1); it is the one place in the system that uses it.
 - Per-state colors all flow through `--message-fg`, `--message-icon`, `--message-action-border` so the action button inherits theme.
 - Close button only on `floating`.
-- ARIA role: `alert` for `error`; `status` otherwise.
+- **ARIA role matrix — `alert` is reserved for `error`.** `role="alert"` interrupts the screen reader mid-utterance, which is right for a failure and wrong for anything else. Every other state, `warning` included, announces politely.
+
+  | state | role | icon |
+  | --- | --- | --- |
+  | `neutral` | `status` | Info |
+  | `success` | `status` | CheckCircle |
+  | `warning` | `status` | Warning (triangle) |
+  | `error` | `alert` | WarningOctagon |
+
+  The state also lands on the root as `data-state`, and the icon is chosen by state — it is not a caller-supplied slot.
 
 ### 4.10 Sidesheet
 
+A right-anchored **modal** sheet for a focused sub-task: portal + backdrop + focus trap, dismissible with Escape or a click outside. It is not a bare panel — dropping the chrome in-page is a different component.
+
 ```html
-<aside class="ogcr-sidesheet" role="dialog" aria-modal="false" aria-labelledby="ss-title">
+<!-- portalled to the end of <body> -->
+<div class="ogcr-sidesheet__backdrop" data-slot="sidesheet-backdrop"></div>
+<aside class="ogcr-sidesheet" role="dialog" aria-modal="true" aria-labelledby="ss-title">
   <div class="ogcr-sidesheet__nav">
     <button class="ogcr-button ogcr-button--outlined" aria-label="Back">
       <span class="ogcr-button__icon"><svg>arrow-left</svg></span>
@@ -830,21 +1061,31 @@ Behavior:
   </header>
   <div class="ogcr-sidesheet__body">…</div>
   <footer class="ogcr-sidesheet__footer">
-    <button class="ogcr-button ogcr-button--outlined">Secondary</button>
     <button class="ogcr-button ogcr-button--filled">Primary</button>
+    <button class="ogcr-button ogcr-button--outlined">Secondary</button>
   </footer>
 </aside>
 ```
 
 ```css
+.ogcr-sidesheet__backdrop {
+  position: fixed; inset: 0; z-index: 40;   /* one layer BELOW the overlay stack */
+  background: rgba(0, 0, 0, 0.4);
+  transition: opacity var(--motion-base);
+}
 .ogcr-sidesheet {
+  position: fixed; top: 0; right: 0; z-index: 50;
   display: flex; flex-direction: column;
-  width: 480px; max-height: 720px;
+  width: 480px; max-width: 100vw; height: 100vh;
   background: var(--surface-light);
-  border-radius: var(--radius-xl);
   box-shadow: var(--elevation-l);
   overflow: hidden;
+  outline: none;
+  transition: transform var(--motion-base);
 }
+/* Enter/exit: slides in from the right edge. */
+.ogcr-sidesheet[data-starting-style],
+.ogcr-sidesheet[data-ending-style] { transform: translateX(100%); }
 .ogcr-sidesheet__nav { display: flex; align-items: center; justify-content: space-between; padding: var(--space-m); gap: var(--space-s); }
 .ogcr-sidesheet__close {
   display: inline-flex; align-items: center; justify-content: center;
@@ -873,20 +1114,26 @@ Behavior:
 ```
 
 Behavior:
-- Fixed 480 wide, capped at 720 tall. Body scrolls; nav and footer stay pinned via flex.
-- Body has top + bottom 1px hairlines that visually separate scroll area.
-- Component is a panel, not an overlay — overlay/scrim and focus trap are app responsibility if used as a modal.
+- **Modal by design.** The sheet portals out of the page, paints a scrim, traps focus, locks page scroll, and closes on Escape / outside click. The app supplies no chrome of its own. (This spec previously described a bare 480×720 panel and pushed the scrim and focus trap onto the app; the shipped component owns them, and the modal reading is now canonical. `modal={false}` is available for the rare non-trapping case, but it is not the design.)
+- Fixed **480 wide, full viewport height**, pinned to the right edge, with `max-width: 100vw` so it degrades to full-bleed on narrow screens. Square corners — it meets three viewport edges, so radius would look like a mistake. Body scrolls; nav, header and footer stay pinned via flex.
+- Body has top + bottom 1px hairlines that visually separate the scroll area.
+- **Stacking:** the scrim sits at `z-index: 40`, one layer *below* the shared overlay stack (`--ds-z-overlay`, 50) that the sheet itself rides. That is deliberate — a Dialog or Popover opened from inside the sheet still lands above it.
+- **Footer order is primary-first / leftmost**, then secondary — the same left-anchored CTA rule as Dialog (§4.30), AlertDialog (§4.31) and Form (§4.13). The footer renders only when at least one action is supplied.
 - Back button uses outlined Button + arrow-left icon. Either back button or status pill may be omitted.
 
 ### 4.11 KPI
 
-**Variants (tone):** `positive` (default, no class) | `warning` | `negative` | `neutral`. Tone drives the 6px top accent bar color.
+**Variants (tone):** `positive` (default, no class) | `warning` | `negative` | `neutral` | `progress`. Tone drives the 6px top accent bar color.
+**Slots:** `icon` (optional, before the label) · `accentBar` (boolean, default on).
 
 ```html
-<article class="ogcr-kpi ogcr-kpi--warning">
+<article class="ogcr-kpi ogcr-kpi--warning" data-tone="warning">
   <span class="ogcr-kpi__bar" aria-hidden="true"></span>
   <header class="ogcr-kpi__header">
-    <span class="ogcr-kpi__label">Removals YTD</span>
+    <span class="ogcr-kpi__label-group">
+      <span class="ogcr-kpi__icon" aria-hidden="true"><svg>…</svg></span>
+      <span class="ogcr-kpi__label">Removals YTD</span>
+    </span>
     <span class="ogcr-pill ogcr-pill--warning">At risk</span>
   </header>
   <span class="ogcr-kpi__value">1,234 t</span>
@@ -908,12 +1155,18 @@ Behavior:
 .ogcr-kpi--warning  { --kpi-accent: var(--icon-warning); }
 .ogcr-kpi--negative { --kpi-accent: var(--icon-negative); }
 .ogcr-kpi--neutral  { --kpi-accent: var(--text-neutral); }
+.ogcr-kpi--progress { --kpi-accent: var(--icon-progress); }
 
 .ogcr-kpi__bar { position: absolute; inset: 0 0 auto 0; height: 6px; background: var(--kpi-accent); }
+/* The header's top padding exists only to clear the accent bar — drop it with the bar. */
 .ogcr-kpi__header { display: flex; align-items: center; justify-content: space-between; gap: var(--space-s); padding-top: var(--space-2xs); }
+.ogcr-kpi--no-bar .ogcr-kpi__header { padding-top: 0; }
+.ogcr-kpi__label-group { display: inline-flex; align-items: center; gap: var(--space-xs); min-width: 0; }
+.ogcr-kpi__icon { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; flex-shrink: 0; color: var(--icon-secondary); }
+.ogcr-kpi__icon > svg { width: 100%; height: 100%; }
 .ogcr-kpi__label {
   font-family: var(--font-family-default); font-weight: 400;
-  font-size: var(--font-size-xs); line-height: 1.4; color: var(--text-secondary);
+  font-size: var(--font-size-s); line-height: 1.4; color: var(--text-secondary);
 }
 .ogcr-kpi__value {
   font-family: var(--font-family-default); font-weight: 500;
@@ -921,13 +1174,16 @@ Behavior:
 }
 .ogcr-kpi__secondary {
   margin: 0; font-family: var(--font-family-default); font-weight: 400;
-  font-size: var(--font-size-xs); line-height: 1.4; color: var(--text-secondary);
+  font-size: var(--font-size-s); line-height: 1.4; color: var(--text-secondary);
 }
 ```
 
 Behavior:
-- Accent bar is decorative (`aria-hidden`) but is the primary signal of status.
-- Status Pill in the header is optional, mirrors tone.
+- Accent bar is decorative (`aria-hidden`) and is the primary signal of status — **unless `accentBar={false}`, in which case the icon + label carry the identity.** Turn it off for quiet, icon-led stat tiles in a dense dashboard row; the header's `4px` top padding (which exists only to clear the bar) is dropped with it.
+- `icon` is a 20×20 `--icon-secondary` glyph rendered before the label, `aria-hidden` — decoration, never the only carrier of meaning.
+- Status Pill in the header is optional and mirrors tone. **KPI's tone set is Pill's tone set** (including `progress`) and the chip is rendered by Pill itself, so the two can't drift.
+- `label` and `value` both accept arbitrary nodes, not just strings.
+- The root carries `data-tone`.
 
 ### 4.12 Navigation
 
@@ -943,13 +1199,15 @@ Behavior:
       <span class="ogcr-nav__product">Product Name</span>
     </div>
     <ul class="ogcr-nav__list">
+      <!-- link form: an item with an href renders as <a>, no type attribute -->
       <li>
-        <button class="ogcr-nav__button ogcr-nav__button--active" aria-current="page">
+        <a href="/overview" class="ogcr-nav__button ogcr-nav__button--active" aria-current="page">
           <span class="ogcr-nav__icon"><svg>…</svg></span>
           <span class="ogcr-nav__label">Overview</span>
-        </button>
+        </a>
       </li>
-      <li><button class="ogcr-nav__button">…</button></li>
+      <!-- button form: an item that only changes in-page state -->
+      <li><button class="ogcr-nav__button" type="button">…</button></li>
     </ul>
   </div>
   <div class="ogcr-nav__trailing">…</div>
@@ -985,7 +1243,7 @@ Behavior:
 .ogcr-nav__divider { display: inline-block; width: 1px; height: 24px; background: var(--border-medium); }
 .ogcr-nav__product {
   font-family: var(--font-family-default); font-weight: 500;
-  font-size: var(--font-size-xs); color: var(--text-primary);
+  font-size: var(--font-size-s); color: var(--text-primary);
 }
 .ogcr-nav__list { display: flex; align-items: center; gap: var(--space-xs); list-style: none; margin: 0; padding: 0; }
 .ogcr-nav__button {
@@ -993,9 +1251,10 @@ Behavior:
   height: 32px; padding: 0 var(--space-xs);
   background: transparent; border: none;
   border-radius: var(--radius-m); cursor: pointer;
+  text-decoration: none;              /* the link form must not pick up the UA underline */
   color: var(--text-secondary);
   font-family: var(--font-family-default); font-weight: 500;
-  font-size: var(--font-size-xs); letter-spacing: 0.28px;
+  font-size: var(--font-size-s); letter-spacing: 0.28px;
   transition: background-color var(--motion-fast), color var(--motion-fast);
 }
 .ogcr-nav__button:hover { background: var(--surface-neutral); color: var(--text-primary); }
@@ -1021,7 +1280,7 @@ Behavior:
   border-radius: var(--radius-m); cursor: pointer;
   color: var(--text-secondary);
   font-family: var(--font-family-default); font-weight: 500;
-  font-size: var(--font-size-xs); letter-spacing: 0.28px;
+  font-size: var(--font-size-s); letter-spacing: 0.28px;
   transition: background-color var(--motion-fast), color var(--motion-fast);
 }
 .ogcr-nav__mobile-button:hover { color: var(--text-primary); }
@@ -1039,8 +1298,14 @@ Behavior:
 Behavior:
 - Desktop active item: solid `--interaction-primary-focus` background pill.
 - Mobile active item: only the 48×48 icon plate fills with `--interaction-primary-focus`; label color shifts.
-- `aria-current="page"` on the active button.
+- `aria-current="page"` on the active item.
 - Mobile icon plate is 48×48 to satisfy 40×40 minimum hit target with margin.
+- **Element choice per item — `button`, `<a href>`, or your router's link.** A nav item is a button when it only changes in-page state, a link when it goes somewhere, and neither when the app owns routing:
+  - `NavItem.href` → renders `<a href>` with real link affordances (middle-click, ⌘-click, "copy link address") and **no** `type` attribute. `onSelect` still fires.
+  - `NavItem.render` → the Base UI `render` contract (`NavRender`): a `ReactElement` to clone, or `(props, state) => ReactElement`. The item's `className`, `aria-current`, icon+label children and click handler are merged into whatever you hand back, so `render={<Link href="/overview" />}` keeps every nav affordance. `render` wins over `href` for the element type.
+  - Neither → `<button type="button">`, the historical behavior.
+
+  Both apply to the `desktop` and `mobile` layouts, and the same contract is shared with SideNavigation (§4.40) — one internal element renderer serves both.
 
 ### 4.13 Form
 
@@ -1120,7 +1385,7 @@ Pieces: `Form` (`<form>` wrapper), `FormSection` (step + title + description + b
 .ogcr-form__section-description {
   margin: 0; max-width: 60ch;
   font-family: var(--font-family-default); font-weight: 400;
-  font-size: var(--font-size-xs); line-height: 1.45;
+  font-size: var(--font-size-s); line-height: 1.45;
   color: var(--text-secondary);
 }
 .ogcr-form__section-body { display: flex; flex-direction: column; gap: var(--space-m); min-width: 0; }
@@ -1135,14 +1400,14 @@ Pieces: `Form` (`<form>` wrapper), `FormSection` (step + title + description + b
 .ogcr-form__field { display: flex; flex-direction: column; gap: var(--space-2xs); min-width: 0; }
 .ogcr-form__label {
   font-family: var(--font-family-default); font-weight: 400;
-  font-size: var(--font-size-xs); line-height: 1.4;
+  font-size: var(--font-size-s); line-height: 1.4;
   color: var(--text-secondary);
 }
 .ogcr-form__required { color: var(--text-negative); margin-left: 4px; font-weight: 500; }
 .ogcr-form__helper {
   margin: 0;
   font-family: var(--font-family-default); font-weight: 400;
-  font-size: var(--font-size-xs); line-height: 1.4;
+  font-size: var(--font-size-s); line-height: 1.4;
   color: var(--text-secondary);
 }
 .ogcr-form__field--error .ogcr-form__helper { color: var(--text-negative); }
@@ -1154,7 +1419,7 @@ Pieces: `Form` (`<form>` wrapper), `FormSection` (step + title + description + b
 .ogcr-form__legend {
   padding: 0;
   font-family: var(--font-family-default); font-weight: 400;
-  font-size: var(--font-size-xs); line-height: 1.4;
+  font-size: var(--font-size-s); line-height: 1.4;
   color: var(--text-secondary);
 }
 .ogcr-form__fieldset-body { display: flex; flex-direction: column; gap: var(--space-xs); }
@@ -1200,7 +1465,13 @@ Behavior:
 - Section head is title-led: small mono step kicker, then title, then description. All left-aligned at the top of the section body.
 - `FormRow` opt-in: pairs two fields side-by-side on a 2-col grid; collapses to 1-col under 520px.
 - `FormFieldset` defaults to a vertical body; add `ogcr-form__fieldset--inline` (or pass `inline` to the React component) to lay options out horizontally — useful for short radio/checkbox card pairs. Stacks under 520px.
-- Field-level error: pass `errorText`; the wrapper sets `ogcr-form__field--error` and the helper turns `--text-negative`. Primitives like Input expose their own `error` boolean — the Form wrappers don't override it, they coexist.
+- Field-level error: pass `errorText`; the wrapper sets `ogcr-form__field--error` and the helper turns `--text-negative`. Primitives like Input expose their own `error` boolean, and the two **OR together** rather than one overriding the other. Exact resolution order for the control's `aria-invalid` (and the error styling it drives — one resolved value feeds both, so they can never diverge):
+
+  1. the control's own `aria-invalid` prop, if passed — **the child always wins**;
+  2. otherwise the field-level state published by `FormField` (set whenever `errorText` is present);
+  3. otherwise the control's own `error` boolean.
+
+  Consequence worth stating plainly: **`error={false}` cannot cancel a field-level error.** Every primitive defaults `error` to `false`, so `false` is indistinguishable from "not passed" — honouring it would silently un-flag every control inside a `FormField` that has `errorText`, and would split the ARIA state from the visible red helper text. The explicit opt-out is `aria-invalid={false}` on the child, which is rule 1 and works today.
 - Required indicator: the `*` is `aria-hidden`; pair with `required` on the underlying input for assistive tech.
 - Footer: left-side action stack (primary CTA first / leftmost), right-side mono note (e.g. "Required fields are marked *"). CTAs are anchored bottom-**left**, not bottom-right. Stacks on narrow widths.
 
@@ -1308,7 +1579,7 @@ The component is the only one in this library that takes a runtime dependency. T
 .ogcr-table__td {
   padding: var(--space-s) var(--space-m);
   border-bottom: 1px dashed var(--border-light);
-  font-size: var(--font-size-s); font-weight: 400;
+  font-size: var(--font-size-m); font-weight: 400;
   color: var(--text-primary); vertical-align: middle; white-space: nowrap;
 }
 .ogcr-table__tbody tr:last-child .ogcr-table__td { border-bottom: none; }
@@ -1322,7 +1593,7 @@ The component is the only one in this library that takes a runtime dependency. T
 .ogcr-table__empty {
   padding: var(--space-xl) var(--space-m); text-align: center;
   color: var(--text-secondary);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-s);
   font-family: var(--font-family-mono);
   letter-spacing: 0.12em; text-transform: uppercase;
 }
@@ -1343,7 +1614,7 @@ declare module '@tanstack/react-table' {
 
 Behavior:
 - Sort: `aria-sort` reflects `none` / `ascending` / `descending`. Click toggles asc → desc → cleared. Sort button is the only focusable thing in the header cell.
-- Hover row: `--surface-neutral` background tint. Last row drops the dashed border so it doesn't double up with the table's own border.
+- Hover row: `--surface-neutral` background tint. **Last row drops the dashed border** so it doesn't double up with the table's own border — the rule lives on the *cells* (`.ogcr-table__tbody tr:last-child .ogcr-table__td`), because a `<tr>` can't paint the bottom edge of a collapsed-border table. In the Tailwind implementation each `<tr>` is marked `group` and the cells carry `group-last:border-b-0`; without the `group` marker the variant has nothing to match and *every* row keeps its rule.
 - Empty state: single full-span cell with mono-caps copy ("No records" by default).
 - Responsive: header row never wraps (`white-space: nowrap`); the wrapper `.ogcr-table__scroll` provides horizontal overflow on narrow viewports.
 
@@ -1399,6 +1670,7 @@ Numeric input with steppers, clamping, and `Intl` formatting. **Wraps:** Base UI
 - **Anatomy:** `Group` › `Decrement` + `Input` + `Increment`.
 - **Dimensions/tokens:** group `height: 48px`, `--radius-l`; steppers `width: 44px` with divider borders; input centered + `tabular-nums`.
 - **Behavior:** steppers honor small/large step modifiers; value clamps to `min`/`max`; `errorText` overrides `helperText`.
+- **Note on the 44px steppers:** 44 is deliberately *not* on the spacing scale, so the implementation writes it as an arbitrary value. A bare `w-44` would resolve through the `--spacing` multiplier to 44px only by coincidence of the 1px scale — the spacing gate rejects off-scale bare numbers in library source for exactly that reason.
 
 ### 4.20 Slider
 
@@ -1416,9 +1688,10 @@ Two-state pressable button, standalone or grouped. **Wraps:** Base UI `Toggle` /
 
 - **Exports:** `Toggle`, `ToggleGroup`; types `ToggleSize`, `ToggleProps`, `ToggleGroupItem`, `ToggleGroupProps`.
 - **Toggle props:** `pressed?`, `defaultPressed?`, `onPressedChange?(pressed: boolean)`, `value?`, `size?='m'` (`s | m`), `disabled?`, `aria-label?`.
-- **Group props:** `items: ToggleGroupItem[]`, `value?: string[]`, `defaultValue?`, `onValueChange?(value: string[])`, `multiple?=false`, `size?`, `disabled?`, `aria-label?`. `ToggleGroupItem = { value; label?; icon?; disabled? }`.
-- **Dimensions/tokens:** Toggle `s`=32 / `m`=40 px tall, `--radius-m` items; group is `role=toolbar`, `--radius-l`, `--surface-neutral`; pressed Toggle → `--interaction-primary-focus`, pressed segment → `--surface-light`.
-- **Behavior:** standalone is on/off; group is single-select unless `multiple`; value carried as a string array.
+- **Group props:** `items: ToggleGroupItem[]`, `value?: string[]`, `defaultValue?`, `onValueChange?(value: string[])`, `multiple?=false`, `size?`, `disabled?`, `aria-label?`, **plus any Base UI `ToggleGroup` prop** (rest and `ref` are forwarded to the group element, after our defaults, so injected props win). `ToggleGroupItem = { value; label?; icon?; disabled?; 'aria-label'? }`.
+- **Dimensions/tokens:** Toggle `s`=32 / `m`=40 px tall, `--radius-m` items; group is `role=toolbar`, `--radius-l`, `--surface-neutral`; pressed Toggle → `--interaction-primary-focus`, pressed segment → `--surface-light` + `--shadow-control-pressed`.
+- **Behavior:** standalone is on/off; group is single-select unless `multiple`; value carried as a string array. The group deliberately overrides Base UI's default `role="group"` with `role="toolbar"`: Base UI also emits `aria-orientation`, which ARIA permits on `toolbar` but not on `group`, and the roving-focus keyboard model already matches a toolbar.
+- **Toolbar projection:** the open prop/ref forwarding above is what makes `<ToolbarButton render={<ToggleGroup … />} />` (§4.39) work — Base UI hands the projected element its roving-focus wiring (`tabIndex`, key handlers, `data-*`, `ref`) as ordinary props, and a wrapper with a closed prop set would swallow them.
 
 ### 4.22 Switch
 
@@ -1492,10 +1765,10 @@ One-pixel divider, optionally labeled. **Wraps:** Base UI `Separator` (plain `di
 
 Floating surface anchored to a trigger. **Wraps:** Base UI `Popover`.
 
-- **Exports:** `Popover`, `PopoverArrowSvg`; types `PopoverSide`, `PopoverAlign`, `PopoverProps`.
-- **Props:** `trigger: ReactElement` (cloned via `render`), `title?` (wires `aria-labelledby`), `description?` (wires `aria-describedby`), `open?`, `defaultOpen?`, `onOpenChange?(open: boolean)`, `side?='bottom'`, `align?='center'`, `sideOffset?=8`, `showArrow?=false`, `modal?=false`.
+- **Exports:** `Popover`, `PopoverArrowSvg` (**@deprecated** — a back-compat re-export of the shared internal arrow; prefer `showArrow`); types `PopoverSide`, `PopoverAlign`, `PopoverWidth`, `PopoverProps`.
+- **Props:** `trigger: ReactElement` (cloned via `render`), `title?` (wires `aria-labelledby`), `description?` (wires `aria-describedby`), `open?`, `defaultOpen?`, `onOpenChange?(open: boolean)`, `side?='bottom'`, `align?='center'`, `sideOffset?=8`, `showArrow?=false`, `modal?=false`, `width?='m'` (`s | m | l | auto`). Rest props and `ref` land on the popup, the styleable surface.
 - **Anatomy:** `Trigger` › `Portal` › `Positioner` › `Popup` (+ `Arrow`, `Title`, `Description`).
-- **Dimensions/tokens:** popup `width: 280px`, `max-width: calc(100vw - 32px)`, `padding: 16px`, `--radius-l`, `--elevation-l`.
+- **Dimensions/tokens:** popup `max-width: calc(100vw - 32px)`, `padding: 16px`, `--radius-l`, `--elevation-l`; width from the shared overlay scale — `s` 256 / **`m` 280 (default)** / `l` 320 / `auto` (no fixed width, shrink to content). The root carries `data-width`. The scale is shared with ContextMenu (§4.8) from one place, `overlayWidths` in `src/lib/overlay/chrome.ts`; `m` stays an arbitrary 280px because 280 sits between the 256 and 320 spacing steps.
 - **Behavior:** non-modal by default; `modal` traps focus and locks scroll; title/description auto-wire ARIA.
 
 ### 4.30 Dialog
@@ -1592,9 +1865,39 @@ Styled, cross-browser custom scrollbar. **Wraps:** Base UI `ScrollArea`.
 Roving-focus container for grouped controls. **Wraps:** Base UI `Toolbar`.
 
 - **Exports:** `Toolbar`, `ToolbarButton`, `ToolbarGroup`, `ToolbarSeparator`, `ToolbarLink`, `ToolbarInput`; types `ToolbarOrientation`, `ToolbarDensity`, `ToolbarProps`, and each part's `*Props`.
-- **Props:** `Toolbar` — `children`, `orientation?='horizontal'` (`horizontal | vertical`), `density?='comfortable'` (`comfortable | compact`), `aria-label` (names the `role="toolbar"` landmark), `className`. Parts extend their Base UI component props; `ToolbarButton` accepts `render` to project an existing control (e.g. a `Toggle` / `ToggleGroup`) into the roving-focus model.
+- **Props:** `Toolbar` — `children`, `orientation?='horizontal'` (`horizontal | vertical`), `density?='comfortable'` (`comfortable | compact`), `aria-label` (names the `role="toolbar"` landmark), `className`. Parts extend their Base UI component props; `ToolbarButton` accepts `render` to project an existing control (e.g. a `Toggle` / `ToggleGroup`) into the roving-focus model — which works because those two forward rest props and `ref` (§4.21). A wrapper with a closed prop set cannot be projected: Base UI passes the roving-focus wiring as ordinary props and they would be swallowed.
 - **Dimensions/tokens:** container `--surface-light`, `--border-light`, `--radius-l`; interactive parts 36px (comfortable) / 32px (compact) tall via density context, `--radius-m`, hover `--surface-neutral`, `--shadow-focus-primary`; separator 1px `--border-light`.
 - **Behavior:** arrow keys move between items and only one item is in the tab order; `density` is set once on `Toolbar` and flows to the parts through context; `ToolbarInput` is a search/filter field that stays in the roving-focus order. Overflow / "more"-menu collapsing is deferred — see `docs/component-pickups-plan.md`.
+
+### 4.40 SideNavigation
+
+The app-shell sidebar: a collapsible desktop rail with nested sections, badges and a user chip, and a drawer on mobile. Sibling of the top-bar `Navigation` (§4.12) — same item contract, different chrome. **Wraps:** Base UI `Dialog` (mobile drawer only); the desktop rail is a plain `<aside>`.
+
+- **Exports:** `SideNavigation`; types `SideNavigationItem`, `SideNavigationChild`, `SideNavigationUser`, `SideNavigationProps`. The `render` prop's type, `NavRender`, is exported once from the Navigation module and shared.
+- **Props:**
+  - `items: SideNavigationItem[]`, `activeId: string`, `onSelect?(id: string)` — `activeId` may name a parent *or* a child.
+  - `product?` (name beside the logo), `trailing?` (nodes above the user chip), `user?: SideNavigationUser` (`{ name, role?, initials }`), `onUserAction?`.
+  - `collapsed?` / `onToggleCollapsed?(next)` / `defaultCollapsed?=false` — controlled or uncontrolled rail width.
+  - `defaultExpandedIds?: string[]` — which sections start open. Omit it and the parent of `activeId` opens automatically. Expansion is uncontrolled by design; there is no `expandedIds` prop.
+  - `layout?='desktop'` (`desktop | mobile`), `mobileTrigger?` (extra chrome in the mobile top bar, left of the hamburger).
+  - Plus any `<aside>` prop (`onSelect` is `Omit`ted — it collides with the DOM event). **The mobile branch does not forward `...rest`**; only `className` reaches the drawer.
+- **Item model:** `SideNavigationItem = { id, label, icon, badge?, children?, href?, render? }`; `SideNavigationChild = { id, label, badge?, href?, render? }`.
+- **Anatomy (desktop):** `[data-slot=sidebar]` › brand block (LogoMark + divider + `product` + collapse toggle) › `[data-slot=sidebar-nav]` (`<nav aria-label="Sections">` › `ul` › rows › nested `ul`) › footer (`trailing` + user chip).
+- **Anatomy (mobile):** `[data-slot=sidebar-mobile]` top bar (LogoMark + `product` + `mobileTrigger` + hamburger) › Dialog `Portal` › `Backdrop` + `[data-slot=sidebar-mobile-drawer]`.
+- **Dimensions/tokens:**
+  - Rail **264px expanded / 72px collapsed**, `padding: 16px` (8px horizontal when collapsed), `--surface-light`, right hairline `--border-light`, `--radius-l` on the left corners, width/padding transition 200ms.
+  - Rows 40px tall, `padding: 0 12px`, `gap: 12px`, `--radius-m`; label `text-s` medium, `letter-spacing: 0.28px`; icon slot 20×20 (`--icon-secondary`, `--icon-primary` when active or hovered). Active row: `--interaction-primary-focus` background + `--text-primary`, plus a 3px `--interaction-primary-default` marker on the left edge (expanded only). Collapsed rows become 40×40 centered squares and take a native `title` tooltip.
+  - Child rows sit in a list indented behind a 1px `--border-light` rule, min-height 32px, `padding: 4px 12px`, `--radius-s`; the active child gets a 2px `--interaction-primary-default` pip on the rule.
+  - Badges: pill-shaped 20px-tall chips, 11px semibold, `--surface-neutral` (or `--surface-light` on an active row).
+  - Brand block reserves 128px min-height; LogoMark 36px expanded / 28px collapsed; collapse toggle 32×32 with `aria-expanded` and an "Expand/Collapse navigation" label.
+  - Mobile: 56px top bar; drawer `88vw` capped at 360px, full `100svh`, slides from the left, `--elevation-l`; scrim is a translucent navy wash with a 2px backdrop blur, one layer below the drawer.
+- **Behavior:**
+  - **Element choice per row is the Navigation contract** (§4.12): `href` → `<a href>`, `render` → your framework's link, neither → `<button type="button">`. `onSelect` fires either way, and it applies to children too.
+  - **One deliberate exception:** while a parent owns an *expanded* sub-list, that row is a disclosure control — it carries `aria-expanded`/`aria-controls`, clicking it opens the list, and its `href`/`render` are ignored. Put the `href` on the children. When the rail is **collapsed** there is no sub-list to disclose, so the parent's `href` is honoured and the row selects.
+  - `aria-current="page"` marks the row whose `id` is `activeId`. A collapsed rail (or a closed section) shows the parent as active when one of its children is.
+  - Selecting an item on mobile closes the drawer. `collapsed` is forced off in the mobile layout.
+  - The user chip is a button named `Account · {name}`; it renders the Avatar alone when collapsed.
+  - Rows and the user chip take a 2px `--interaction-primary-default` focus outline at 2px offset (an outline reads better against a tinted row than the halo ring); the chrome buttons — collapse toggle, hamburger, drawer close — use the shared `--focus-primary` ring.
 
 ---
 
@@ -1715,19 +2018,44 @@ Reference set (used by current code; production should swap for Phosphor equival
 
 Production icon set: Phosphor (~18,000 glyphs). Each ships 6 weights × 2 formats. Defaults: weight `Regular`, format `Stroke`. Use `Fill` only for selected/active states.
 
+### The shipped set — 48 glyphs, re-exported under stable names
+
+The library re-exports a curated slice of Phosphor under `*Icon` names, grouped as *navigation & chrome* (11), *actions* (9), *status & feedback* (9) and *objects & domain* (19). Two things every re-export guarantees:
+
+1. **Decorative by default** — each carries `aria-hidden`, because icons in this system sit inside a labelled control or beside visible text. Pass Phosphor's `alt` prop (renders a `<title>`) or `aria-hidden={false}` for a meaningful standalone icon.
+2. **Stable public names** — the `*Icon` suffix and the OGCR aliases are the contract; the underlying glyph can change without breaking a consumer. Current aliases: `SearchIcon` ← `MagnifyingGlass`, `MailIcon` ← `Envelope`, `PanelLeftIcon` ← `SidebarSimple`, `GlobeIcon` ← `GlobeHemisphereWest`, `MapIcon` ← `MapTrifold`, `CalendarIcon` ← `CalendarBlank`.
+
+Color follows `currentColor` (Phosphor renders with `fill`), size defaults to `1em` and is set by the `size`/`width`/`height` props or a CSS rule on the svg.
+
+**Apps must not import from `@phosphor-icons/react` directly.** A raw import loses the `aria-hidden` default and re-opens the naming contract. Two supported ways to get a glyph that isn't in the set:
+
+- add it to the set (preferred, if it will be used more than once), or
+- wrap it with the exported **`createDecorativeIcon(Glyph, displayName)`** — the same wrapper the set itself is built from:
+
+```tsx
+import { createDecorativeIcon } from '@majistudio/ogcr-design-system'
+import { Tractor } from '@phosphor-icons/react'
+
+const TractorIcon = createDecorativeIcon(Tractor, 'TractorIcon')
+```
+
+The types **`PhosphorIcon`** (the glyph component type) and **`PhosphorIconProps`** are re-exported too, so an app can type an icon slot (`icon: PhosphorIcon`) without taking a direct dependency on Phosphor. They are renamed on the way out to keep a bare `Icon` off the barrel.
+
 ---
 
 ## 6. Logo
 
-Two React exports from `src/components/Logo.tsx`:
+Two React exports from `src/components/Logo/`:
 
 - **`Logo`** — full mark + "OGCR" wordmark. Native SVG 129×46. Use at sizes where the wordmark stays legible (≥ ~88px wide). The hero is currently the only place this is used.
 - **`LogoMark`** — icon only (no wordmark). Native SVG 50×45. Use anywhere the wordmark would render too small to read — top nav, side nav rail (collapsed and expanded), favicon-style placements.
 
-Both accept `width` (number, px) and preserve their native aspect ratio (height is computed). Both accept any `SVGProps<SVGSVGElement>` plus an optional `title` (default `"OGCR"`) for the `aria-label`. Keep contrast ≥ WCAG AA against the chosen surface. Variants in Figma: full-color, mono white/blue/black, horizontal/vertical.
+Both accept `width` (number, px) and preserve their native aspect ratio (height is computed). Both accept any `SVGProps<SVGSVGElement>` plus an optional `title` (default `"OGCR"`) for the `aria-label`. Keep contrast ≥ WCAG AA against the chosen surface.
+
+The two brand colors are painted with the `fill-brand-blue-800` / `fill-brand-green-500` utilities rather than hard-coded path fills, so the mark retints with the palette like everything else. Variants in Figma: full-color, mono white/blue/black, horizontal/vertical.
 
 ```tsx
-import { Logo, LogoMark } from './components/Logo'
+import { Logo, LogoMark } from '@majistudio/ogcr-design-system'
 
 <Logo width={129} />          {/* hero */}
 <LogoMark width={36} />       {/* top nav, side nav (expanded) */}
@@ -1740,11 +2068,8 @@ import { Logo, LogoMark } from './components/Logo'
 
 These have Figma specs but no code yet. Implement when needed, following §1 tokens.
 
-### 7.1 Icon Button
-- Square hit area: 32×32 (small) or 40×40 (medium).
-- Icon size 20px inside a 40px target.
-- Same color/variant logic as Button minus the label.
-
+> Icon Button is now built — it is Button's `iconOnly` mode, see §4.1. The old spec's
+> 32×32 / 40×40 squares are `size="s"` / `size="m"`, and 48px `l` is a new third step.
 > Tooltip is now built — see §4.34.
 
 ### 7.2 Charts
@@ -1760,11 +2085,12 @@ Reference implementation only. Recommendation in Figma: prefer open-source / Map
 
 ## 8. Accessibility
 
-- Min hit target: 40×40 for any interactive control, even when visual is smaller (Checkbox box is 16 — wrap the label).
-- Focus ring (default): `box-shadow: 0 0 0 2px var(--surface-page), 0 0 0 4px var(--interaction-primary-focus)`. 3px single ring is acceptable for inline controls (Input, Checkbox box).
-- Error focus ring: `box-shadow: 0 0 0 3px var(--surface-negative)` (Input) or `--focus-ring-error` (Checkbox/Radio).
+- Min hit target: 40×40 for any interactive control, even when visual is smaller (Checkbox box is 16 — wrap the label). **Button now enforces this by default**: the `text` variant is 40px tall, and the 32px `size="s"` is documented as valid only inside a larger padded row.
+- **Icon-only controls must carry an accessible name**, and for `Button` this is enforced at the *type* level — `iconOnly: true` without `aria-label`/`aria-labelledby` does not compile (§4.1).
+- Focus ring: the shared two-stop `--focus-primary` / `--focus-secondary` / `--focus-error` (§1) — a 2px `--surface-light` halo plus a 4px ring in the solid tone of the family. Every focusable control in the library uses one of the three; a few nav rows use a 2px outline at 2px offset instead, where an outline reads better against a tinted row. Do **not** hand-roll a pale 3px ring: the pale `*-focus` tints fail WCAG SC 2.4.11 against `--surface-page`.
+- Error focus ring: `--focus-error` everywhere (Input, Checkbox, Radio, NumberField, Slider, Switch). There is no `--focus-ring-error` color token any more.
 - Contrast: every text/icon token must clear WCAG AA against the chosen surface. `--text-secondary` (#6a8196) on `--surface-light` is ~4.5:1 — fine for body, audit for small text.
-- ARIA: dialogs (Sidesheet) get `role="dialog"`; menus get `role="menu"` / `role="menuitem"`; alerts get `role="alert"` (errors) or `role="status"` (other states); progress bars get `role="progressbar"` + `aria-valuenow`/`min`/`max`.
+- ARIA: dialogs (Sidesheet, Dialog, AlertDialog) get `role="dialog"` + `aria-modal`; menus get `role="menu"` / `role="menuitem"`; messages get `role="alert"` **only** for the error state and `role="status"` otherwise (§4.9 — `alert` interrupts the screen reader); progress bars get `role="progressbar"` + `aria-valuenow`/`min`/`max`.
 - Hidden native inputs (Checkbox/Radio) must remain keyboard-reachable; use the visually-hidden `clip` pattern, not `display:none`.
 - Tooltip is supplemental, never the only label. `aria-describedby`.
 
@@ -1831,4 +2157,4 @@ Useful MCP calls:
 - `mcp__plugin_figma_figma__get_design_context` on a component node id — spec + reference React/Tailwind code.
 - `mcp__plugin_figma_figma__search_design_system` with `includeLibraryKeys: ['lk-fe936dd…6a5b062']` — scope to OGCR.
 
-Icons not yet pulled into the file as components (rendered inline today via `src/components/icons.tsx` — see §5). Phosphor categories in Figma: Weather & Nature `6152:3505`, System & Devices `6152:105822`, Education `6152:138748`, Security & Warnings `6152:138746`, Development `6152:138744`, People `6152:138742`, Arrows `6152:138740`, Commerce `6152:138738`, Office & Editing `6152:138736`, Math & Finance `6152:138734`, Health & Wellness `6152:102768`, Brands `6152:96660`, Design `6152:93606`, Games `6152:90552`, Time `6152:87498`, Media `6152:84444`, Maps & Travel `6152:81390`, Communication `6152:78336`. Logo symbol frame: `2005:1524`.
+Icons not yet pulled into the Figma file as components (code re-exports Phosphor from `src/components/icons/` — see §5). Phosphor categories in Figma: Weather & Nature `6152:3505`, System & Devices `6152:105822`, Education `6152:138748`, Security & Warnings `6152:138746`, Development `6152:138744`, People `6152:138742`, Arrows `6152:138740`, Commerce `6152:138738`, Office & Editing `6152:138736`, Math & Finance `6152:138734`, Health & Wellness `6152:102768`, Brands `6152:96660`, Design `6152:93606`, Games `6152:90552`, Time `6152:87498`, Media `6152:84444`, Maps & Travel `6152:81390`, Communication `6152:78336`. Logo symbol frame: `2005:1524`.
