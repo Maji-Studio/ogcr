@@ -9,6 +9,11 @@ listed per component below.
 
 **Status legend:** ✅ done · 🔨 scaffolded (functional, has TODOs) · ⏸ deferred (needs a decision) · 📋 planned
 
+> Scope note: this file tracks the five picked-up components and the Base UI wrapper-alignment
+> workstream. Backlog from the 2026-08 spec/token audit — Figma-side defects, dark mode, the
+> responsive type ladder, known debt, and the app-side adoption sweep — lives in
+> `docs/audit-follow-ups-2026-08.md`.
+
 | Component | Built on | Status | Barrel |
 |---|---|---|---|
 | `Menu` | Base UI `menu` | ✅ | ✅ |
@@ -54,21 +59,30 @@ production-complete without it. Per-component detail is in the sections below.
 
 **Needs a shared-primitive / API decision:**
 - [ ] `Kbd` primitive for Menu `shortcut` (reusable across Menu / Command / Tooltip).
-- [ ] Make `Toggle` forward `ref`/props so it can be projected into `Toolbar` via `render`.
+- [x] Make `Toggle` forward `ref`/props so it can be projected into `Toolbar` via `render`.
+      **Done (2026-08 audit).** `ToggleProps` / `ToggleGroupProps` now derive from the Base UI
+      component props, so rest + `ref` reach the underlying element after our defaults (injected
+      props win). Unit-tested: `ref`, `tabIndex` and a `data-*` all land on the group element.
+      Documented in spec §4.21. The Toolbar-side projection *story* is still unwritten — see the
+      Toolbar section below.
 - [ ] `DateRangePicker` variant (range mode + two-field trigger).
 
 **Cross-cutting (tracked elsewhere too):**
-- [ ] `docs/design-system.md` spec sections for all five (the authoritative spec).
+- [x] `docs/design-system.md` spec sections for all five (the authoritative spec).
+      **Done:** Calendar §4.35, DatePicker §4.36, Menu §4.37, ScrollArea §4.38, Toolbar §4.39.
+      `SideNavigation` — which had no section at all — was added as §4.40 in the same pass.
 - [ ] color-contrast palette decision (system-wide; covers Calendar today/selected).
-- [ ] `pnpm changeset` when these land for real.
+- [ ] `pnpm changeset` when these land for real. *(A major-bump changeset for the 2026-08 audit
+      remediation exists in `.changeset/`; it covers the audit's API/token work, **not** a release
+      of these five — that still needs its own entry when they ship.)*
 
-**Before committing — stage selectively:**
-- [ ] The working tree carries a large *pre-existing* uncommitted set (~20 unrelated
-      components — Accordion, Combobox, Toggle, Tooltip, … — a `ComponentProps`
-      passthrough sweep) that is **not** part of this work. `git add src/components`
-      would sweep it all in. Stage only the five new dirs + `src/index.ts`,
-      `src/components/icons/index.tsx`, `vite.lib.config.ts`, `package.json`,
-      `pnpm-lock.yaml`, `pnpm-workspace.yaml`, and this doc.
+**Dependency risk to settle:**
+- [ ] **Base UI peer range.** `peerDependencies` accepted `^1` while development targeted 1.5,
+      and the wrappers rely on 1.5-era behavior (`use-render`'s render contract, `Toolbar`
+      density/input parts, `Menu` viewport semantics). Installing the library against Base UI
+      1.0–1.4 would satisfy the range and break at runtime. The floor has been raised to
+      `^1.5.0`; keep it moving with the version the wrappers are actually built against, and
+      raise it again before relying on any newer Base UI part.
 
 ---
 
@@ -136,8 +150,10 @@ checkbox / radio / submenu.
 - [ ] Real `Kbd` styling for `shortcut` — left as a muted span. ⏸ Introducing a
       shared `Kbd` public primitive is API surface that should be designed once and
       reused (Menu, Command palette, Tooltip), so it's deliberately not invented here.
-- [ ] Decide `Menu` vs `ContextMenu` (see cross-cutting #4) — product sign-off.
-- [ ] `docs/design-system.md` section (authoritative spec) once the API is signed off.
+- [ ] Decide `Menu` vs `ContextMenu` (see cross-cutting #4) — product sign-off. Still open; note
+      that the 2026-08 audit gave both the same `width` scale, which makes a future fold cheaper
+      but does not decide it.
+- [x] `docs/design-system.md` section (authoritative spec) — §4.37.
 
 ---
 
@@ -160,12 +176,11 @@ focus-visible rings, roving-focus arrow-key nav (unit-tested).
 - [ ] Overflow / "more" affordance (collapse into a `Menu`) for narrow widths. ⏸
       Needs a ResizeObserver measure-and-collapse pass *and* a product call on which
       items collapse first — too much surface to stub safely.
-- [ ] Project the OGCR `Toggle`/`ToggleGroup` into the toolbar via `render`. ⏸
-      Blocked on `Toggle` not forwarding `ref`/arbitrary props (it has a fixed prop
-      set), so Base UI's roving-focus props can't be merged onto it. Fixing that
-      touches the already-shipped `Toggle` public API — separate change. Stateful
-      controls already compose fine as `ToolbarButton`s.
-- [ ] `docs/design-system.md` section.
+- [x] Project the OGCR `Toggle`/`ToggleGroup` into the toolbar via `render`. **Unblocked
+      (2026-08 audit)** — `Toggle`/`ToggleGroup` now forward rest props and `ref`, so Base UI's
+      roving-focus wiring merges onto them; covered by a `ToggleGroup` unit test and documented
+      in §4.21/§4.39. Remaining nicety: a `Toolbar` story that actually shows the projection.
+- [x] `docs/design-system.md` section — §4.39.
 
 ---
 
@@ -186,7 +201,7 @@ Styled custom scrollbar on Base UI `scroll-area`. Single props-driven component
   scroll-into-view correctness — see Menu's note). `ScrollArea` stays the host for
   non-menu long surfaces. Wiring it into `Select`/`Combobox` popups is optional and
   left for when those surfaces need it.
-- [ ] `docs/design-system.md` section.
+- [x] `docs/design-system.md` section — §4.38.
 
 ---
 
@@ -215,7 +230,7 @@ for determinism.
 - [ ] Week numbers; `locale` is already passthrough (full DayPicker API).
 - [ ] Brand-token color-contrast on `today`/`selected` — part of the system-wide
       palette decision (see cross-cutting #1), not Calendar-specific.
-- [ ] `docs/design-system.md` section.
+- [x] `docs/design-system.md` section — §4.35.
 
 ---
 
@@ -244,7 +259,7 @@ formatted value).
       (which formats to accept, how to handle ambiguity) — a product/UX decision,
       not just code.
 - [ ] `DateRangePicker` variant (range mode + two-field trigger).
-- [ ] `docs/design-system.md` section.
+- [x] `docs/design-system.md` section — §4.36.
 
 ---
 
@@ -313,8 +328,10 @@ need to **look at / decide later**.
 
 ## 📋 Standard follow-ups (same as the pickups)
 
-6. **`docs/design-system.md`** — spec not yet updated for the new rest/ref
-   escape hatches or the `TooltipProvider` export. Update once the compound-parts
-   decision (#1) settles, since it may change the documented surface.
+6. **`docs/design-system.md`** — **done for this round.** The 2026-08 audit pass reconciled the
+   spec with the code (tokens, focus rings, Sidesheet-as-modal, every changed component API) and
+   covers `TooltipProvider` (§4.34) plus the rest/ref escape hatches where they matter
+   (`Popover` §4.29, `ContextMenu` §4.8, `Toggle` §4.21, `SideNavigation` §4.40). Still open: if
+   the compound-parts decision (#1) ever lands, the documented surface changes again.
 7. **a11y gate** (`pnpm test:a11y`) and **changeset** (`pnpm changeset`) — run
    when this lands for real; same known brand-token color-contrast caveat.

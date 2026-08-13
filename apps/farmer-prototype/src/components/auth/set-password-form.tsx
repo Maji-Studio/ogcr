@@ -64,7 +64,7 @@ function SetPasswordFormContent() {
   // Show error if no token in URL
   if (!token) {
     return (
-      <div className="space-y-24">
+      <div className="space-y-96">
         <div
           className="p-m bg-[var(--color-signal-red)]/10 border border-[var(--color-signal-red)] rounded-none text-[var(--color-signal-red)]"
           role="alert"
@@ -89,9 +89,9 @@ function SetPasswordFormContent() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-24">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-96">
       {success ? (
-        <div className="space-y-24">
+        <div className="space-y-96">
           <div
             className="p-m bg-green-50 border border-green-500 rounded-none text-green-700"
             role="status"

@@ -13,6 +13,10 @@ const meta = {
     description:
       'This batch has cleared automated checks and is awaiting a reviewer signature before issuance.',
   },
+  argTypes: {
+    width: { control: 'inline-radio', options: ['s', 'm', 'l', 'auto'] },
+    side: { control: 'inline-radio', options: ['top', 'right', 'bottom', 'left'] },
+  },
 } satisfies Meta<typeof Popover>
 
 export default meta
@@ -23,6 +27,29 @@ export const Default: Story = {}
 export const Open: Story = { args: { defaultOpen: true } }
 
 export const WithArrow: Story = { args: { defaultOpen: true, showArrow: true } }
+
+/** `s` 256px · `m` 280px (default) · `l` 320px · `auto` shrinks to the content. */
+export const Wide: Story = {
+  args: { defaultOpen: true, width: 'l' },
+}
+
+export const Narrow: Story = {
+  args: { defaultOpen: true, width: 's' },
+}
+
+export const AutoWidth: Story = {
+  args: {
+    defaultOpen: true,
+    width: 'auto',
+    title: 'Auto width',
+    description: undefined,
+    children: (
+      <p className="m-0 font-standard font-normal text-s leading-[1.4] text-text-secondary">
+        Sized by its content.
+      </p>
+    ),
+  },
+}
 
 export const RichContent: Story = {
   args: {

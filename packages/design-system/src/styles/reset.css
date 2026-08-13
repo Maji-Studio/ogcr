@@ -3,6 +3,10 @@
  * Mirrors `/14 Manukai/.../assets/styles/reset.css`: tiny
  * normalize layer that pairs with theme.css. Anything beyond
  * this belongs in global.css or a component stylesheet.
+ *
+ * Imported into `@layer base` (after Tailwind's preflight) by
+ * global.css, so it beats preflight but loses to any unlayered
+ * consumer style. See the cascade note in global.css.
  * ============================================================ */
 
 *,
@@ -56,12 +60,14 @@ button {
   font-family: inherit;
 }
 
+/* Scrollbar chrome rides the --ds-* seam like every other color, so a
+   host can retint it without a rebuild. Widths use the spacing scale. */
 *::-webkit-scrollbar {
-  background-color: #ffffff00;
-  width: 8px;
-  height: 8px;
+  background-color: var(--ds-scrollbar-track);
+  width: var(--spacing-8);
+  height: var(--spacing-8);
 }
 
 *::-webkit-scrollbar-thumb {
-  background-color: rgb(214, 214, 214);
+  background-color: var(--ds-scrollbar-thumb);
 }

@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import {
-  FileText,
-  Plant,
-  SealCheck,
-  TestTube,
-} from "@phosphor-icons/react/dist/ssr";
-import { Avatar, Card, Kpi, Select } from "@majistudio/ogcr-design-system";
+  Avatar,
+  Card,
+  FileTextIcon,
+  Kpi,
+  PlantIcon,
+  Select,
+} from "@majistudio/ogcr-design-system";
+import { SealCheckIcon, TestTubeIcon } from "@/components/icons";
 import { MapView } from "@/components/map";
 import {
   ACTIVITIES,
@@ -19,11 +21,11 @@ import {
 
 const MAP_ZOOM = 12;
 
-const ACTIVITY_ICONS: Record<ActivityKind, typeof Plant> = {
-  sampling: TestTube,
-  practice: Plant,
-  verification: SealCheck,
-  report: FileText,
+const ACTIVITY_ICONS: Record<ActivityKind, typeof PlantIcon> = {
+  sampling: TestTubeIcon,
+  practice: PlantIcon,
+  verification: SealCheckIcon,
+  report: FileTextIcon,
 };
 
 const dateFormatter = new Intl.DateTimeFormat("en-GB", {

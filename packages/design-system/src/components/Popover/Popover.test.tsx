@@ -25,6 +25,41 @@ describe('Popover', () => {
     expect(screen.getByText('All clear')).toBeInTheDocument()
   })
 
+  it('defaults to the 280px spec width', () => {
+    render(
+      <Popover trigger={<button>Open</button>} defaultOpen>
+        body
+      </Popover>,
+    )
+    const popup = document.querySelector('[data-slot="popover"]')!
+    expect(popup).toHaveAttribute('data-width', 'm')
+    expect(popup.className).toContain('w-[280px]')
+  })
+
+  it.each([
+    ['s', 'w-256'],
+    ['l', 'w-320'],
+  ] as const)('honours width=%s', (width, cls) => {
+    render(
+      <Popover trigger={<button>Open</button>} defaultOpen width={width}>
+        body
+      </Popover>,
+    )
+    const popup = document.querySelector('[data-slot="popover"]')!
+    expect(popup.className).toContain(cls)
+    expect(popup.className).not.toContain('w-[280px]')
+  })
+
+  it('drops the fixed width entirely with width="auto"', () => {
+    render(
+      <Popover trigger={<button>Open</button>} defaultOpen width="auto">
+        body
+      </Popover>,
+    )
+    const popup = document.querySelector('[data-slot="popover"]')!
+    expect(popup.className).not.toMatch(/(^|\s)w-(256|320|\[280px\])(\s|$)/)
+  })
+
   it('fires onOpenChange when toggled', async () => {
     const onOpenChange = vi.fn()
     render(

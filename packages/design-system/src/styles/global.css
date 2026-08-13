@@ -2,37 +2,87 @@
  * OGCR Design System — global entry
  * Single import point for consumers and the app itself.
  *
- * Load order matters:
+ * Load order:
  *   1. palette.css — runtime --ds-* brand palette (the theming
  *                    seam; theme.css token values reference it)
- *   2. tailwindcss — generates utilities & layer scaffolding
- *   3. reset.css   — tiny normalize layer
- *   4. theme.css   — design tokens (must come before any rule
- *                    that references var() or @apply)
+ *   2. tailwindcss — theme / preflight / utilities, imported in
+ *                    their expanded form so we can place the
+ *                    utilities in a sub-layer (see CASCADE below)
+ *   3. reset.css   — tiny normalize layer (after preflight)
+ *   4. theme.css   — design tokens + @utility rules
+ *   5. safelist.css— pins the shipped utility surface
+ *
+ * ------------------------------------------------------------
+ * CASCADE: WHY EVERYTHING THE DS SHIPS IS LAYERED
+ *
+ * The DS stylesheet is imported AFTER the consumer app's own
+ * Tailwind ("loaded last so the DS layer wins"). That ordering used
+ * to be a bug, not a feature. Tailwind v4 puts its utilities in
+ * `@layer utilities`; both sheets used the SAME layer name, so layer
+ * sorting was a no-op and plain source order decided every tie. The
+ * DS's `.hidden` / `.flex-col` therefore beat the app's `sm:flex` /
+ * `lg:flex-row` — equal specificity, DS later. Responsive layout in
+ * consumer apps silently stopped working.
+ *
+ * THE FIX: the DS's utilities go into a NESTED layer,
+ * `@layer utilities.ogcr-ds`. Per CSS Cascade 5 §6.4.4, style rules
+ * inside a layer that are not in one of its nested layers are sorted
+ * into an implicit FINAL sub-layer — i.e. nested sub-layers always
+ * lose to their parent layer's own unlayered rules. The app's
+ * utilities sit directly in `utilities`; ours sit in a sub-layer of
+ * it; so the app wins every tie, in both stylesheet orders, without
+ * the app declaring anything.
+ *
+ *   app:  @layer utilities { .sm\:flex { display:flex } }      ← wins
+ *   DS:   @layer utilities { @layer ogcr-ds { .hidden{…} } }   ← loses
+ *
+ * Why not a top-level `@layer ogcr-ds`? Layer order is fixed by first
+ * appearance, and the app's Tailwind declares `theme, base,
+ * components, utilities` before we are parsed — a brand-new top-level
+ * name is appended AFTER `utilities`, which would make the collision
+ * worse, not better. It would only work if every consuming app
+ * hand-wrote `@layer ogcr-ds, theme, base, components, utilities;`
+ * ahead of its own Tailwind. Nesting needs no app cooperation.
+ *
+ * Everything else the DS ships is layered for the same reason:
+ * palette.css into `theme` (so an app's unlayered `:root { --ds-… }`
+ * override wins — it previously lost, since the DS sheet is later),
+ * reset.css and the element defaults below into `base`. Nothing the
+ * DS ships is unlayered, so an app can always take precedence with
+ * ordinary unlayered CSS.
+ *
+ * PRECEDENCE THE DS STILL KEEPS: `utilities.ogcr-ds` > `base` >
+ * `theme`, so DS utilities still beat preflight and the DS reset —
+ * only the *consumer* outranks them.
  * ============================================================ */
 
-@import './palette.css';
-@import 'tailwindcss';
-@import './reset.css';
+@layer theme, base, components, utilities;
+
+@import './palette.css' layer(theme);
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/preflight.css' layer(base);
+@import 'tailwindcss/utilities.css' layer(utilities.ogcr-ds);
+@import './reset.css' layer(base);
 @import './theme.css';
-
-body {
-  font-family: var(--font-standard);
-  font-size: var(--text-m);
-  line-height: 1.5;
-  color: var(--color-text-neutral);
-  background: var(--color-surface-page);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-  font-synthesis: none;
-}
-
-#root {
-  min-height: 100svh;
-}
+@import './safelist.css';
 
 @layer base {
+  body {
+    font-family: var(--font-standard);
+    font-size: var(--text-m);
+    line-height: 1.5;
+    color: var(--color-text-neutral);
+    background: var(--color-surface-page);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-synthesis: none;
+  }
+
+  #root {
+    min-height: 100svh;
+  }
+
   h1 {
     @apply text-h1;
   }
@@ -54,7 +104,12 @@ body {
   }
 }
 
-@layer utilities {
+/* These live in the DS's own utilities sub-layer, after the generated
+   utilities, so they override `.text-quote` / `.text-h1` etc. from the
+   same block — but still lose to a consumer's utilities, exactly like
+   every other DS utility. (Unlayered, they would have beaten the app's
+   own `lg:text-5xl`, re-creating the bug the sub-layer fixes.) */
+@layer utilities.ogcr-ds {
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
@@ -63,29 +118,31 @@ body {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-}
 
-/* Italic on .text-quote — Tailwind v4's --text-* multi-prop API
-   covers font-size, font-weight, line-height, letter-spacing, but
-   not font-style. Applied here so the .text-quote utility carries
-   italic at every breakpoint, matching Figma typography-styles/body/quote. */
-.text-quote { font-style: italic; }
+  /* Italic on .text-quote — Tailwind v4's --text-* multi-prop API
+     covers font-size, font-weight, line-height, letter-spacing, but
+     not font-style. Applied here so the .text-quote utility carries
+     italic at every breakpoint, matching Figma typography-styles/body/quote. */
+  .text-quote {
+    font-style: italic;
+  }
 
-/* Responsive typography. Tailwind v4 inlines --text-h1 → var(--text-2xl)
-   at build time, so we override the generated utility classes directly
-   at the desktop breakpoint rather than redefining --text-h1 at :root.
-   Resolved sizes mirror Figma's mobile vs desktop breakpoint values. */
-@media (min-width: 1024px) {
-  .text-h1 { font-size: var(--text-3xl); }            /* 40 */
-  .text-h2 { font-size: var(--text-2xl); }            /* 32 */
-  .text-h3 { font-size: var(--text-xl); }             /* 24 */
-  .text-h4 { font-size: var(--text-l); }              /* 20 */
-  .text-body { font-size: var(--text-l); }            /* 20 */
-  .text-body-s { font-size: var(--text-m); }          /* 16 */
-  .text-body-l { font-size: var(--text-xl); }         /* 24 */
-  .text-lead { font-size: var(--text-xl); }           /* 24 */
-  .text-quote { font-size: var(--text-2xl); }         /* 32 */
-  .text-label-button { font-size: var(--text-m); }    /* 16 */
-  .text-label-navigation { font-size: var(--text-m); }/* 16 */
-  /* .text-label-input intentionally not bumped — Figma keeps it at 14 across all breakpoints. */
+  /* Responsive typography. Tailwind v4 inlines --text-h1 → var(--text-2xl)
+     at build time, so we override the generated utility classes directly
+     at the desktop breakpoint rather than redefining --text-h1 at :root.
+     Resolved sizes mirror Figma's mobile vs desktop breakpoint values. */
+  @media (min-width: 1024px) {
+    .text-h1 { font-size: var(--text-3xl); }            /* 40 */
+    .text-h2 { font-size: var(--text-2xl); }            /* 32 */
+    .text-h3 { font-size: var(--text-xl); }             /* 24 */
+    .text-h4 { font-size: var(--text-l); }              /* 20 */
+    .text-body { font-size: var(--text-l); }            /* 20 */
+    .text-body-s { font-size: var(--text-m); }          /* 18 */
+    .text-body-l { font-size: var(--text-xl); }         /* 24 */
+    .text-lead { font-size: var(--text-xl); }           /* 24 */
+    .text-quote { font-size: var(--text-2xl); }         /* 32 */
+    .text-label-button { font-size: var(--text-m); }    /* 18 */
+    .text-label-navigation { font-size: var(--text-m); }/* 18 */
+    /* .text-label-input intentionally not bumped — Figma keeps it at 14 across all breakpoints. */
+  }
 }

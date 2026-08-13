@@ -1,14 +1,19 @@
-import { useState, type ComponentProps, type ReactNode } from 'react'
+import { useState, type ComponentPropsWithoutRef, type ReactNode } from 'react'
 import { Dialog } from '@base-ui/react/dialog'
 import { Avatar } from '../Avatar'
 import { LogoMark } from '../Logo'
 import { CaretDownIcon, DotsThreeIcon, PanelLeftIcon, XIcon } from '../icons'
+import { NavElement, type NavRender } from '../../lib/nav-element'
 import { cn } from '../../lib/cn'
 
 export type SideNavigationChild = {
   id: string
   label: string
   badge?: ReactNode
+  /** Renders this child as an `<a href>` instead of a `<button>`. `onSelect` still fires. */
+  href?: string
+  /** Base UI `render` escape hatch — project a framework link component into the row. */
+  render?: NavRender
 }
 
 export type SideNavigationItem = {
@@ -17,6 +22,14 @@ export type SideNavigationItem = {
   icon: ReactNode
   badge?: ReactNode
   children?: SideNavigationChild[]
+  /**
+   * Renders this item as an `<a href>` instead of a `<button>`. Ignored while the item acts
+   * as a disclosure (it has `children` and the rail is expanded), because the row's job there
+   * is to open the sub-list, not to navigate — put the `href` on the children instead.
+   */
+  href?: string
+  /** Base UI `render` escape hatch. Same disclosure caveat as `href`. */
+  render?: NavRender
 }
 
 export type SideNavigationUser = {
@@ -25,7 +38,12 @@ export type SideNavigationUser = {
   initials: string
 }
 
-export type SideNavigationProps = Omit<ComponentProps<'aside'>, 'children' | 'onSelect'> & {
+// `...rest` lands on the desktop <aside> *or* the mobile <div>, so the props can't carry an
+// aside-specific `ref` — WithoutRef keeps the pass-through attributes valid for both roots.
+export type SideNavigationProps = Omit<
+  ComponentPropsWithoutRef<'aside'>,
+  'children' | 'onSelect'
+> & {
   items: SideNavigationItem[]
   activeId: string
   onSelect?: (id: string) => void
@@ -44,7 +62,7 @@ export type SideNavigationProps = Omit<ComponentProps<'aside'>, 'children' | 'on
 
 const navButton = (active: boolean, collapsed: boolean) =>
   cn(
-    'group relative flex items-center gap-12 w-full h-40 px-12 bg-transparent border-0 rounded-8 cursor-pointer text-left',
+    'group relative flex items-center gap-12 w-full h-40 px-12 bg-transparent border-0 rounded-8 cursor-pointer text-left no-underline',
     'font-standard font-medium text-s tracking-[0.28px]',
     'transition-[background-color,color] duration-150',
     'hover:bg-surface-neutral hover:text-text-primary',
@@ -56,7 +74,7 @@ const navButton = (active: boolean, collapsed: boolean) =>
 
 const subButton = (active: boolean) =>
   cn(
-    'relative flex items-center gap-12 w-full min-h-[32px] py-4 px-12 bg-transparent border-0 rounded-4 cursor-pointer text-left',
+    'relative flex items-center gap-12 w-full min-h-[32px] py-4 px-12 bg-transparent border-0 rounded-4 cursor-pointer text-left no-underline',
     'font-standard font-medium text-s tracking-[0.28px]',
     'transition-[background-color,color] duration-150',
     'hover:bg-surface-neutral hover:text-text-primary',
@@ -84,52 +102,69 @@ function NavBody({ items, activeId, collapsed, expanded, onSelect, toggleExpande
           const childActive = hasChildren && item.children!.some((c) => c.id === activeId)
           const showActive = isActive || (childActive && (!isExpanded || collapsed))
 
+          // While an item owns a sub-list it is a disclosure control, so it stays a <button>
+          // even if the caller gave it an href — the click opens the list rather than navigates.
+          const isDisclosure = hasChildren && !collapsed
+
           return (
             <li key={item.id} className="relative">
-              <button
-                type="button"
-                className={navButton(showActive, collapsed)}
-                onClick={() => {
-                  if (hasChildren && !collapsed) toggleExpanded(item.id)
-                  else onSelect(item.id)
+              <NavElement
+                href={isDisclosure ? undefined : item.href}
+                render={isDisclosure ? undefined : item.render}
+                props={{
+                  className: navButton(showActive, collapsed),
+                  onClick: () => {
+                    if (isDisclosure) toggleExpanded(item.id)
+                    else onSelect(item.id)
+                  },
+                  'aria-current': isActive ? 'page' : undefined,
+                  'aria-expanded': isDisclosure ? isExpanded : undefined,
+                  'aria-controls': isDisclosure ? `sidenav-${item.id}-children` : undefined,
+                  title: collapsed ? item.label : undefined,
+                  children: (
+                    <>
+                      <span
+                        className={cn(
+                          'inline-flex w-20 h-20 shrink-0 transition-colors duration-150 [&>svg]:w-full [&>svg]:h-full',
+                          showActive
+                            ? 'text-icon-primary'
+                            : 'text-icon-secondary group-hover:text-icon-primary',
+                        )}
+                      >
+                        {item.icon}
+                      </span>
+                      {!collapsed && (
+                        <>
+                          <span className="flex-1 whitespace-nowrap overflow-hidden text-ellipsis">
+                            {item.label}
+                          </span>
+                          {item.badge !== undefined && (
+                            <span
+                              className={cn(
+                                'inline-flex items-center justify-center min-w-80 h-20 px-[6px] font-standard text-[11px] font-semibold tracking-[0.4px] text-text-primary rounded-full',
+                                showActive ? 'bg-surface-light' : 'bg-surface-neutral',
+                              )}
+                            >
+                              {item.badge}
+                            </span>
+                          )}
+                          {hasChildren && (
+                            <span
+                              aria-hidden="true"
+                              className={cn(
+                                'inline-flex w-16 h-16 text-icon-secondary transition-transform duration-200 [&>svg]:w-full [&>svg]:h-full',
+                                isExpanded && 'rotate-180',
+                              )}
+                            >
+                              <CaretDownIcon />
+                            </span>
+                          )}
+                        </>
+                      )}
+                    </>
+                  ),
                 }}
-                aria-current={isActive ? 'page' : undefined}
-                aria-expanded={hasChildren && !collapsed ? isExpanded : undefined}
-                aria-controls={hasChildren && !collapsed ? `sidenav-${item.id}-children` : undefined}
-                title={collapsed ? item.label : undefined}
-              >
-                <span
-                  className={cn(
-                    'inline-flex w-20 h-20 shrink-0 transition-colors duration-150 [&>svg]:w-full [&>svg]:h-full',
-                    showActive ? 'text-icon-primary' : 'text-icon-secondary group-hover:text-icon-primary',
-                  )}
-                >
-                  {item.icon}
-                </span>
-                {!collapsed && (
-                  <>
-                    <span className="flex-1 whitespace-nowrap overflow-hidden text-ellipsis">
-                      {item.label}
-                    </span>
-                    {item.badge !== undefined && (
-                      <span className={cn(
-                        'inline-flex items-center justify-center min-w-80 h-20 px-[6px] font-standard text-[11px] font-semibold tracking-[0.4px] text-text-primary rounded-full',
-                        showActive ? 'bg-surface-light' : 'bg-surface-neutral',
-                      )}>
-                        {item.badge}
-                      </span>
-                    )}
-                    {hasChildren && (
-                      <span aria-hidden="true" className={cn(
-                        'inline-flex w-16 h-16 text-icon-secondary transition-transform duration-200 [&>svg]:w-full [&>svg]:h-full',
-                        isExpanded && 'rotate-180',
-                      )}>
-                        <CaretDownIcon />
-                      </span>
-                    )}
-                  </>
-                )}
-              </button>
+              />
 
               {hasChildren && isExpanded && !collapsed && (
                 <ul
@@ -146,21 +181,27 @@ function NavBody({ items, activeId, collapsed, expanded, onSelect, toggleExpande
                             className="absolute -left-[13px] top-1.5 bottom-1.5 w-2 bg-interaction-primary-default rounded-full"
                           />
                         )}
-                        <button
-                          type="button"
-                          className={subButton(childIsActive)}
-                          onClick={() => onSelect(child.id)}
-                          aria-current={childIsActive ? 'page' : undefined}
-                        >
-                          <span className="flex-1 whitespace-nowrap overflow-hidden text-ellipsis">
-                            {child.label}
-                          </span>
-                          {child.badge !== undefined && (
-                            <span className="inline-flex items-center justify-center min-w-80 h-20 px-[6px] font-standard text-[11px] font-semibold tracking-[0.4px] text-text-primary bg-surface-neutral rounded-full">
-                              {child.badge}
-                            </span>
-                          )}
-                        </button>
+                        <NavElement
+                          href={child.href}
+                          render={child.render}
+                          props={{
+                            className: subButton(childIsActive),
+                            onClick: () => onSelect(child.id),
+                            'aria-current': childIsActive ? 'page' : undefined,
+                            children: (
+                              <>
+                                <span className="flex-1 whitespace-nowrap overflow-hidden text-ellipsis">
+                                  {child.label}
+                                </span>
+                                {child.badge !== undefined && (
+                                  <span className="inline-flex items-center justify-center min-w-80 h-20 px-[6px] font-standard text-[11px] font-semibold tracking-[0.4px] text-text-primary bg-surface-neutral rounded-full">
+                                    {child.badge}
+                                  </span>
+                                )}
+                              </>
+                            ),
+                          }}
+                        />
                       </li>
                     )
                   })}
@@ -264,7 +305,7 @@ export function SideNavigation({
   if (isMobile) {
     return (
       <Dialog.Root open={mobileOpen} onOpenChange={setMobileOpen} modal>
-        <div data-slot="sidebar-mobile" className="relative w-full">
+        <div data-slot="sidebar-mobile" className={cn('relative w-full', className)} {...rest}>
           <div className="flex items-center gap-12 h-56 px-12 bg-surface-light border-b border-border-light rounded-t-12">
             <div className="inline-flex items-center gap-12 flex-1 min-w-0">
               <LogoMark width={32} />
@@ -298,6 +339,9 @@ export function SideNavigation({
           <Dialog.Portal>
             <Dialog.Backdrop
               className={cn(
+              /* allow-literal-color: TODO tokenize the scrim. This is surface-strong at 36%, but
+                 lib/overlay/chrome.ts uses bg-black/40 for every other scrim — the two need to
+                 agree before either becomes a token. */
                 'fixed inset-0 z-40 bg-[rgba(15,54,85,0.36)] backdrop-blur-[2px]',
                 'data-[starting-style]:opacity-0 data-[ending-style]:opacity-0',
                 'transition-opacity duration-200',
@@ -358,9 +402,9 @@ export function SideNavigation({
 
   return (
     <aside
-      {...rest}
       data-slot="sidebar"
       aria-label="Primary"
+      {...rest}
       className={cn(
         'flex flex-col gap-24 min-h-full p-16 bg-surface-light border-r border-border-light rounded-l-12',
         'transition-[width,padding] duration-200',

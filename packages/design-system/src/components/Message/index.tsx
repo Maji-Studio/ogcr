@@ -71,12 +71,17 @@ export function Message({
   className,
   ...rest
 }: MessageProps) {
+  // Spec §4.9: `role="alert"` is reserved for the error state — it interrupts the
+  // screen reader. Every other state (including `warning`) announces politely via
+  // `role="status"`.
+  const role = state === 'error' ? 'alert' : 'status'
+
   return (
     <div
       {...rest}
       data-slot="message"
       data-state={state}
-      role={state === 'error' || state === 'warning' ? 'alert' : 'status'}
+      role={role}
       className={cn(wrapper({ state, type }), className)}
     >
       <div data-slot="message-content" className="flex items-start gap-12 flex-1 min-w-0">

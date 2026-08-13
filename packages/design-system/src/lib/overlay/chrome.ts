@@ -43,3 +43,20 @@ export const overlayArrowClassName = cn(
 
 /** Default gap between an anchored popup and its trigger, in px. */
 export const OVERLAY_SIDE_OFFSET = 8
+
+/**
+ * Fixed widths for anchored panel-style popups (Popover, ContextMenu).
+ *
+ * `m` (280px) is the spec §4.29 default and is deliberately kept as an arbitrary
+ * value: 280 sits between the 256 and 320 steps of the spacing scale. `s`/`l` ride
+ * the scale. `auto` drops the fixed width so the popup shrinks to its content —
+ * pair it with a `max-w-*` from the caller.
+ */
+export const overlayWidths = {
+  s: 'w-256',
+  m: 'w-[280px]',
+  l: 'w-320',
+  auto: '',
+} as const
+
+export type OverlayWidth = keyof typeof overlayWidths

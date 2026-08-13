@@ -126,7 +126,7 @@ export function LoginForm() {
       <Button
         type="submit"
         variant="filled"
-        className="w-full"
+        fullWidth
         disabled={isSubmitting}
       >
         {isSubmitting ? "Signing in..." : "Sign In"}

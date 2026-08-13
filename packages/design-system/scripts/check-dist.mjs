@@ -7,8 +7,20 @@
 //      must stay importable from a Server Component).
 //   3. Table is NOT re-exported from dist/index.d.ts (it is deep-import-only so barrel consumers
 //      don't drag in the optional @tanstack/react-table peer).
-//   4. `npm pack --dry-run` succeeds and the tarball includes dist/index.js (the package is
+//   4. `pnpm pack --dry-run` succeeds and the tarball includes dist/index.js (the package is
 //      actually publishable and ships its entry).
+//   5. THE SHIPPED-STYLESHEET CONTRACT (added after the 2026-08 audit). dist/styles.css is
+//      precompiled at publish time, so a token that produces no CSS here produces no CSS anywhere
+//      — the consumer cannot "just rebuild". Three assertions close that hole:
+//        a. every `--color-*` token declared in theme.css has at least one utility rule
+//           (bg-/text-/border-/fill-/stroke-) in dist/styles.css;
+//        b. every declared `--spacing-*` / `--radius-*` / `--text-*` / `--border-width-*` /
+//           `--shadow-*` / `--font-*` variable is emitted into the shipped `:root` block, so a
+//           consumer can `var()` anything the DS documents (this is what `@theme static` buys);
+//        c. the utilities are wrapped in the `utilities.ogcr-ds` sub-layer and `--spacing` is
+//           pinned to 1px — the two cascade/scale guarantees consumer apps depend on.
+//      Fix a failure by adding the class to src/styles/safelist.css (a) or checking that the
+//      `@theme static inline` modifier is still on the block in theme.css (b/c).
 //
 // Any failure exits non-zero and fails the build.
 
@@ -71,22 +83,148 @@ if (fs.existsSync(barrelDts)) {
 }
 
 // --- 4. Package is publishable and ships its entry --------------------------------------------
+// pnpm-only repo: `pnpm pack --dry-run --json` returns `{ name, version, filename, files:[{path}] }`
+// (npm returns an ARRAY of that shape — hence the `meta.files` vs `meta[0].files` difference).
 let packedOk = false;
 try {
-  const out = execFileSync('npm', ['pack', '--dry-run', '--json'], {
+  const out = execFileSync('pnpm', ['pack', '--dry-run', '--json'], {
     cwd: root,
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
   });
   const meta = JSON.parse(out);
-  const files = (meta?.[0]?.files ?? []).map((f) => f.path);
+  const files = ((Array.isArray(meta) ? meta[0]?.files : meta?.files) ?? []).map((f) =>
+    typeof f === 'string' ? f : f.path,
+  );
   packedOk = true;
   check(
     files.includes('dist/index.js'),
-    'npm pack --dry-run did not include dist/index.js in the tarball.',
+    'pnpm pack --dry-run did not include dist/index.js in the tarball.',
+  );
+  check(
+    files.includes('dist/styles.css'),
+    'pnpm pack --dry-run did not include dist/styles.css in the tarball.',
   );
 } catch (err) {
-  failures.push(`npm pack --dry-run failed: ${err.message?.split('\n')[0] ?? err}`);
+  failures.push(`pnpm pack --dry-run failed: ${err.message?.split('\n')[0] ?? err}`);
+}
+
+// --- 5. The shipped-stylesheet contract -------------------------------------------------------
+const cssPath = path.join(dist, 'styles.css');
+const themePath = path.join(root, 'src', 'styles', 'theme.css');
+let colorCount = 0;
+let varCount = 0;
+
+if (!fs.existsSync(cssPath)) {
+  failures.push('dist/styles.css missing — the ./styles.css export did not build.');
+} else if (!fs.existsSync(themePath)) {
+  failures.push('src/styles/theme.css missing — token parser has nothing to check against.');
+} else {
+  const css = fs.readFileSync(cssPath, 'utf8');
+  const theme = fs.readFileSync(themePath, 'utf8');
+
+  // Declared token names, straight from theme.css. Multi-prop modifier siblings
+  // (`--text-h1--font-weight`) are excluded: they are not standalone utilities/variables.
+  const declared = (prefix) =>
+    [...new Set(
+      [...theme.matchAll(new RegExp(`^\\s*--${prefix}-([a-z0-9-]+)\\s*:`, 'gm'))]
+        .map((m) => m[1])
+        .filter((n) => !n.includes('--')),
+    )];
+
+  // 5a. Every color token reaches a utility. A consumer writing `bg-<token>` must get a rule.
+  const colorTokens = declared('color');
+  colorCount = colorTokens.length;
+  const utilityPrefixes = ['bg', 'text', 'border', 'fill', 'stroke', 'ring', 'outline'];
+  const missingUtilities = colorTokens.filter(
+    (t) => !utilityPrefixes.some((p) => css.includes(`.${p}-${t}{`)),
+  );
+  check(
+    missingUtilities.length === 0,
+    `${missingUtilities.length} --color-* token(s) declared in theme.css produce NO utility in ` +
+      `dist/styles.css (a consumer writing the class gets nothing): ` +
+      `${missingUtilities.join(', ')}. Add them to src/styles/safelist.css.`,
+  );
+
+  // 5b. Every scale variable is emitted, so `var(--spacing-160)` etc. resolve in a consumer app.
+  //     This is what the `static` modifier on theme.css's `@theme` block guarantees.
+  const varPrefixes = ['spacing', 'radius', 'text', 'border-width', 'shadow', 'font'];
+  const missingVars = [];
+  for (const prefix of varPrefixes) {
+    for (const name of declared(prefix)) {
+      varCount += 1;
+      // Tailwind emits `--<prefix>-<name>:<value>` inside `@layer theme{:root,:host{…}}`.
+      if (!new RegExp(`--${prefix}-${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*:`).test(css)) {
+        missingVars.push(`--${prefix}-${name}`);
+      }
+    }
+  }
+  check(
+    missingVars.length === 0,
+    `${missingVars.length} token variable(s) declared in theme.css are NOT emitted into ` +
+      `dist/styles.css, so \`var(…)\` on them is invalid in a consumer app: ` +
+      `${missingVars.slice(0, 12).join(', ')}${missingVars.length > 12 ? ', …' : ''}. ` +
+      `Check that theme.css's block is still \`@theme static inline\`.`,
+  );
+
+  // 5c. Cascade + scale guarantees the consumption contract depends on (see global.css).
+  //     Not just "the layer name appears" — representative generated rules must sit INSIDE the
+  //     sub-layer block, or Tailwind emitted them somewhere that outranks consumer utilities.
+  const layerStart = css.indexOf('@layer utilities.ogcr-ds');
+  let layerEnd = -1;
+  if (layerStart !== -1) {
+    const open = css.indexOf('{', layerStart);
+    let depth = 0;
+    for (let i = open; i < css.length; i++) {
+      if (css[i] === '{') depth++;
+      else if (css[i] === '}' && --depth === 0) {
+        layerEnd = i;
+        break;
+      }
+    }
+  }
+  check(
+    layerStart !== -1,
+    'dist/styles.css does not wrap its utilities in the `utilities.ogcr-ds` sub-layer — DS ' +
+      'utilities would beat the consuming app\'s own responsive variants at equal specificity. ' +
+      'See the CASCADE note in src/styles/global.css.',
+  );
+  if (layerStart !== -1 && layerEnd !== -1) {
+    // One stock utility, one @utility-defined class (theme.css), one safelist-pinned class.
+    for (const probe of ['.hidden{', '.border-w-m{', '.bg-surface-page{']) {
+      const at = css.indexOf(probe);
+      check(
+        at > layerStart && at < layerEnd,
+        `dist/styles.css emits \`${probe.slice(0, -1)}\` outside the utilities.ogcr-ds sub-layer ` +
+          '— generated utilities are escaping the cascade guarantee. Check the import layering ' +
+          'in src/styles/global.css.',
+      );
+    }
+  }
+  // 5d. The `/theme` export: the escape hatch from the precompiled surface. It must exist, be
+  //     self-contained (no build-relative @import a consumer cannot resolve), and actually carry
+  //     the token block — otherwise a consumer importing it into their Tailwind gets silence.
+  const themeExport = path.join(dist, 'theme.css');
+  check(fs.existsSync(themeExport), 'dist/theme.css missing — the ./theme export did not build.');
+  if (fs.existsSync(themeExport)) {
+    const exported = fs.readFileSync(themeExport, 'utf8');
+    check(
+      !/^\s*@import\b/m.test(exported),
+      'dist/theme.css contains an @import — a published stylesheet cannot resolve build-relative ' +
+        'paths. Inline the dependency in scripts/build-theme-export.mjs.',
+    );
+    check(
+      /@theme\s+static\s+inline/.test(exported) && exported.includes('--ds-surface-page'),
+      'dist/theme.css is missing the `@theme static inline` block or the --ds-* palette — the ' +
+        './theme export would teach a consumer\'s Tailwind nothing.',
+    );
+  }
+
+  check(
+    /--spacing:\s*1px/.test(css),
+    'dist/styles.css does not pin `--spacing: 1px` — a consumer\'s own Tailwind would resolve ' +
+      'DS-style spacing classes on the stock 0.25rem scale (4× the DS value).',
+  );
 }
 
 // --- Report -----------------------------------------------------------------------------------
@@ -99,5 +237,7 @@ if (failures.length) {
 
 console.log(
   `check:dist ✓ all entries carry 'use client', cn.js is pure, Table is deep-import-only, ` +
-    `npm pack ${packedOk ? 'ships dist/index.js' : 'ok'}.`,
+    `pnpm pack ${packedOk ? 'ships dist/index.js + styles.css' : 'ok'}; ` +
+    `${colorCount} color tokens have utilities and ${varCount} token variables ship in styles.css ` +
+    `(layered as utilities.ogcr-ds, --spacing pinned to 1px).`,
 );

@@ -36,7 +36,7 @@ const fontSizes = [
   "label-button", "label-navigation", "label-input",
 ];
 
-const radiusScale = ["2", "4", "8", "12", "16", "20", "24", "32", "48"];
+const radiusScale = ["0", "2", "4", "8", "12", "16", "20", "24", "32", "48"];
 // Every border-radius classGroup id tailwind-merge ships: base, per-side, per-corner.
 const radiusGroupIds = [
   "rounded", "rounded-s", "rounded-e", "rounded-t", "rounded-r", "rounded-b", "rounded-l",

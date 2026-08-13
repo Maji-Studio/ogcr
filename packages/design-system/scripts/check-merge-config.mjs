@@ -1,5 +1,5 @@
 // Guards the tailwind-merge config in src/lib/cn.ts against drift from the token scales in
-// src/styles/theme.css. Run as `npm run check:merge`, chained into build:lib.
+// src/styles/theme.css. Run as `pnpm run check:merge`, chained into build:lib.
 //
 // WHY THIS EXISTS: the DS renames Tailwind's font-size and border-radius scales, so cn.ts
 // hand-registers those names with extendTailwindMerge (stock tailwind-merge doesn't know them).

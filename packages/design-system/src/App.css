@@ -9,14 +9,14 @@
   --paper: var(--color-surface-page);
   --ink: var(--color-text-primary);
   --ink-soft: var(--color-text-secondary);
-  --rule: rgba(15, 54, 85, 0.12);
+  --rule: color-mix(in srgb, var(--color-text-primary) 12%, transparent);
   --accent: var(--color-interaction-primary-default);
 }
 
 body {
   background:
-    radial-gradient(1200px 600px at 100% -10%, rgba(79, 130, 99, 0.05), transparent 60%),
-    radial-gradient(1000px 500px at -10% 30%, rgba(68, 51, 33, 0.04), transparent 60%),
+    radial-gradient(1200px 600px at 100% -10%, color-mix(in srgb, var(--color-interaction-primary-default) 5%, transparent), transparent 60%),
+    radial-gradient(1000px 500px at -10% 30%, color-mix(in srgb, var(--color-surface-inverted) 4%, transparent), transparent 60%),
     var(--paper);
   background-attachment: fixed;
   color: var(--ink);
@@ -430,8 +430,8 @@ body {
   border: 1px solid var(--rule);
   background: var(--color-surface-light);
   box-shadow:
-    0 1px 0 rgba(15, 54, 85, 0.04),
-    0 16px 40px -28px rgba(15, 54, 85, 0.18);
+    0 1px 0 color-mix(in srgb, var(--color-text-primary) 4%, transparent),
+    0 16px 40px -28px color-mix(in srgb, var(--color-text-primary) 18%, transparent);
   overflow: hidden;
 }
 
@@ -440,7 +440,7 @@ body {
   align-items: stretch;
   height: 320px;
   background:
-    linear-gradient(180deg, rgba(79, 130, 99, 0.02), transparent 60%),
+    linear-gradient(180deg, color-mix(in srgb, var(--color-interaction-primary-default) 2%, transparent), transparent 60%),
     var(--color-surface-page);
 }
 
@@ -516,7 +516,7 @@ body {
   flex: 1 1 auto;
   border-radius: 28px;
   background:
-    radial-gradient(120% 80% at 30% 0%, rgba(79, 130, 99, 0.08), transparent 60%),
+    radial-gradient(120% 80% at 30% 0%, color-mix(in srgb, var(--color-interaction-primary-default) 8%, transparent), transparent 60%),
     var(--color-surface-page);
   border: 1px solid rgba(255, 255, 255, 0.04);
   display: flex;
@@ -541,8 +541,8 @@ body {
   border: 1px solid var(--rule);
   background: var(--color-surface-light);
   box-shadow:
-    0 1px 0 rgba(15, 54, 85, 0.04),
-    0 16px 40px -28px rgba(15, 54, 85, 0.18);
+    0 1px 0 color-mix(in srgb, var(--color-text-primary) 4%, transparent),
+    0 16px 40px -28px color-mix(in srgb, var(--color-text-primary) 18%, transparent);
   overflow: hidden;
 }
 
@@ -553,7 +553,7 @@ body {
   justify-content: center;
   padding: var(--spacing-24);
   background:
-    linear-gradient(180deg, rgba(79, 130, 99, 0.02), transparent 60%),
+    linear-gradient(180deg, color-mix(in srgb, var(--color-interaction-primary-default) 2%, transparent), transparent 60%),
     var(--color-surface-page);
 }
 

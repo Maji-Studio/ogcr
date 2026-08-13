@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Pencil, Trash } from "@phosphor-icons/react/dist/ssr";
+import { PencilIcon, PlusIcon, TrashIcon } from "@majistudio/ogcr-design-system";
 import { formatDistanceToNow } from "date-fns";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Table } from "@majistudio/ogcr-design-system/Table";
@@ -130,14 +130,16 @@ export function ItemList({ projectId }: ItemListProps) {
         <div className="flex items-center justify-end gap-8">
           <Button
             variant="text"
+            size="s"
             aria-label="Edit item"
-            iconLeft={<Pencil size={18} />}
+            iconLeft={<PencilIcon size={18} />}
             onClick={() => setEditingItem(row.original)}
           />
           <Button
             variant="text"
+            size="s"
             aria-label="Archive item"
-            iconLeft={<Trash size={18} />}
+            iconLeft={<TrashIcon size={18} />}
             onClick={() => setArchivingItem(row.original)}
           />
         </div>
@@ -169,7 +171,7 @@ export function ItemList({ projectId }: ItemListProps) {
         <h1 className="text-h1 text-text-primary">Items</h1>
         <Button
           variant="filled"
-          iconLeft={<Plus size={18} weight="bold" />}
+          iconLeft={<PlusIcon size={18} weight="bold" />}
           onClick={() => setIsCreating(true)}
         >
           New item

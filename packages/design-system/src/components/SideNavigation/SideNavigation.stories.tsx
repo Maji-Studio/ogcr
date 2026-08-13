@@ -62,6 +62,38 @@ export const Collapsed: Story = {
   },
 }
 
+/**
+ * Leaf items and sub-items accept `href` (renders an `<a>`) or `render` (projects a
+ * framework link component). A parent with an expanded sub-list stays a disclosure
+ * `<button>`, so put the `href` on its children.
+ */
+export const Links: Story = {
+  args: {
+    items: [
+      { id: 'overview', label: 'Overview', icon: <SquaresFourIcon />, href: '#overview' },
+      {
+        id: 'farm',
+        label: 'Farm & parcel',
+        icon: <LeafIcon />,
+        children: [
+          { id: 'farm-all', label: 'All farms', badge: 38, href: '#farm-all' },
+          { id: 'farm-parcels', label: 'Parcels', href: '#farm-parcels' },
+          // Stands in for next/link, react-router NavLink, TanStack Link, …
+          { id: 'farm-plots', label: 'Plots', render: <a href="#farm-plots" data-router-link="" /> },
+        ],
+      },
+      { id: 'sample', label: 'Sample', icon: <FlaskIcon />, badge: 4, href: '#sample' },
+      { id: 'settings', label: 'Settings', icon: <GearIcon />, href: '#settings' },
+    ],
+    activeId: 'farm-parcels',
+  },
+  render: (args) => (
+    <div className="flex min-h-[640px] bg-surface-page">
+      <SideNavigation {...args} product="Operator platform" user={USER} />
+    </div>
+  ),
+}
+
 export const Mobile: Story = {
   render: (args) => {
     const [active, setActive] = useState('overview')

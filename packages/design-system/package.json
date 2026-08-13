@@ -48,6 +48,8 @@
       "import": "./dist/index.js"
     },
     "./styles.css": "./dist/styles.css",
+    "./theme": "./dist/theme.css",
+    "./theme.css": "./dist/theme.css",
     "./manifest.json": "./dist/manifest.json",
     "./llms.txt": "./dist/llms.txt",
     "./cn": {
@@ -226,10 +228,11 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "build:lib": "vite build --config vite.lib.config.ts && rm -f dist/styles.js dist/styles.js.map && node scripts/generate-lib-meta.mjs && node scripts/inject-use-client.mjs && npm run check:merge && npm run check:spacing && npm run check:tokens && npm run check:dist",
-    "prepublishOnly": "npm run build:lib",
+    "build:lib": "vite build --config vite.lib.config.ts && rm -f dist/styles.js dist/styles.js.map && node scripts/generate-lib-meta.mjs && node scripts/build-theme-export.mjs && node scripts/inject-use-client.mjs && pnpm run check:merge && pnpm run check:spacing && pnpm run check:colors && pnpm run check:tokens && pnpm run check:dist",
+    "prepublishOnly": "pnpm run build:lib",
     "check:merge": "node scripts/check-merge-config.mjs",
     "check:spacing": "node scripts/check-spacing-scale.mjs",
+    "check:colors": "node scripts/check-no-literal-colors.mjs",
     "check:tokens": "node scripts/check-token-seam.mjs",
     "check:dist": "node scripts/check-dist.mjs",
     "lint": "eslint .",
@@ -244,7 +247,7 @@
     "release": "changeset publish"
   },
   "peerDependencies": {
-    "@base-ui/react": "^1",
+    "@base-ui/react": "^1.5.0",
     "@tanstack/react-table": "^8",
     "react": "^19",
     "react-dom": "^19"

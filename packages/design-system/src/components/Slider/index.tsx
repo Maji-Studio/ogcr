@@ -81,6 +81,7 @@ export function Slider({
             getAriaLabel={ariaLabel ? () => ariaLabel : undefined}
             data-slot="slider-thumb"
             className={cn(
+              /* allow-literal-color: TODO replace with the `shadow-control` token (theme.css). */
               'w-20 h-20 rounded-full bg-surface-light border-2 shadow-[0_1px_2px_rgba(68,51,33,0.16)] outline-none',
               'transition-shadow duration-150',
               error

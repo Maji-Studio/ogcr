@@ -1,8 +1,16 @@
 import type { ComponentProps, ReactElement, ReactNode } from 'react'
 import { Menu } from '@base-ui/react/menu'
 import { Pill } from '../Pill'
-import { OVERLAY_SIDE_OFFSET, overlayPopupClassName } from '../../lib/overlay'
+import {
+  OVERLAY_SIDE_OFFSET,
+  overlayPopupClassName,
+  overlayWidths,
+  type OverlayWidth,
+} from '../../lib/overlay'
 import { cn } from '../../lib/cn'
+
+/** `s` 256px · `m` 280px · `l` 320px (default) · `auto` shrink-to-content. */
+export type ContextMenuWidth = OverlayWidth
 
 export type ContextMenuItem = {
   id: string
@@ -30,6 +38,8 @@ export type ContextMenuProps = Omit<
   side?: 'top' | 'right' | 'bottom' | 'left'
   align?: 'start' | 'center' | 'end'
   sideOffset?: number
+  /** Popup width. Defaults to `l` (320px) — the width this menu has always shipped. */
+  width?: ContextMenuWidth
 }
 
 export function ContextMenu({
@@ -44,6 +54,7 @@ export function ContextMenu({
   side = 'bottom',
   align = 'start',
   sideOffset = OVERLAY_SIDE_OFFSET,
+  width = 'l',
   ...rest
 }: ContextMenuProps) {
   return (
@@ -58,7 +69,13 @@ export function ContextMenu({
           <Menu.Popup
             {...rest}
             data-slot="context-menu"
-            className={cn('w-[320px] flex flex-col gap-16 p-16', overlayPopupClassName, className)}
+            data-width={width}
+            className={cn(
+              'flex flex-col gap-16 p-16',
+              overlayWidths[width],
+              overlayPopupClassName,
+              className,
+            )}
           >
             {(header || status) && (
               // role="presentation" keeps this title/status chrome out of the

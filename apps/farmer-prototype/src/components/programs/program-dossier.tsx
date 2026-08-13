@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Check, CheckCircle, Plant } from "@phosphor-icons/react/dist/ssr";
 import {
   Breadcrumb,
   Card,
+  CheckCircleIcon,
+  CheckIcon,
   Message,
   Pill,
+  PlantIcon,
   Tabs,
 } from "@majistudio/ogcr-design-system";
 import { Button } from "@majistudio/ogcr-design-system/Button";
@@ -118,14 +120,14 @@ export function ProgramDossier({ projectId, program }: ProgramDossierProps) {
           >
             <div className="flex flex-col">
               <PaymentRow
-                icon={<CheckCircle size={16} />}
+                icon={<CheckCircleIcon size={16} />}
                 label="Guaranteed base"
                 detail={`${EURO.format(program.basePerHa)} per ha × ${areaHa} ha`}
                 amount={EURO.format(base)}
                 divider
               />
               <PaymentRow
-                icon={<Plant size={16} />}
+                icon={<PlantIcon size={16} />}
                 label="Soil bonus"
                 detail={`${EURO.format(program.bonusPerTonne)} per t CO₂ stored`}
                 amount={`est. ${EURO.format(program.estimatedBonus)}`}
@@ -148,7 +150,7 @@ export function ProgramDossier({ projectId, program }: ProgramDossierProps) {
                 {program.assurances.map((assurance) => (
                   <div key={assurance} className="flex items-start gap-8">
                     <span className="mt-2 inline-flex shrink-0 text-icon-positive">
-                      <CheckCircle size={16} />
+                      <CheckCircleIcon size={16} />
                     </span>
                     <span className="text-body-s text-text-secondary">
                       {assurance}
@@ -156,8 +158,8 @@ export function ProgramDossier({ projectId, program }: ProgramDossierProps) {
                   </div>
                 ))}
                 <Button
-                  className="w-full"
-                  iconLeft={<Check />}
+                  fullWidth
+                  iconLeft={<CheckIcon />}
                   onClick={() => setApproved(true)}
                 >
                   Approve participation

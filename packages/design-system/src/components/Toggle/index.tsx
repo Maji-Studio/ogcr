@@ -66,6 +66,7 @@ const segment = cva(
     'font-standard font-medium leading-none text-s text-text-secondary',
     'transition-[color,background-color,box-shadow] duration-150',
     'hover:text-text-primary',
+    /* allow-literal-color: TODO replace with the `shadow-control-pressed` token (theme.css). */
     'data-[pressed]:bg-surface-light data-[pressed]:text-text-primary data-[pressed]:shadow-[0_1px_2px_rgba(68,51,33,0.12)]',
     'focus-visible:shadow-focus-primary',
     'data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed data-[disabled]:hover:text-text-secondary',
@@ -90,7 +91,17 @@ export type ToggleGroupItem = {
   'aria-label'?: string
 }
 
-export type ToggleGroupProps = {
+/**
+ * Open-ended on purpose: the group is projected into a `Toolbar` via
+ * `<ToolbarButton render={<ToggleGroup … />} />` (spec §4.39), and Base UI's `render`
+ * hands the projected element its roving-focus wiring (`tabIndex`, key handlers,
+ * `data-*`, `ref`) as ordinary props. Anything the wrapper doesn't own itself is
+ * forwarded to `BaseToggleGroup` *after* our defaults, so injected props win.
+ */
+export type ToggleGroupProps = Omit<
+  ComponentProps<typeof BaseToggleGroup>,
+  'value' | 'defaultValue' | 'onValueChange' | 'className' | 'children'
+> & {
   items: ToggleGroupItem[]
   value?: string[]
   defaultValue?: string[]
@@ -99,7 +110,6 @@ export type ToggleGroupProps = {
   multiple?: boolean
   disabled?: boolean
   size?: ToggleSize
-  'aria-label'?: string
   className?: string
 }
 
@@ -111,8 +121,8 @@ export function ToggleGroup({
   multiple = false,
   disabled,
   size,
-  'aria-label': ariaLabel,
   className,
+  ...rest
 }: ToggleGroupProps) {
   return (
     <BaseToggleGroup
@@ -126,8 +136,8 @@ export function ToggleGroup({
       // is the correct role for a set of related controls and makes the
       // orientation valid; the roving-focus keyboard model already matches.
       role="toolbar"
-      aria-label={ariaLabel}
       data-slot="toggle-group"
+      {...rest}
       className={cn(
         'inline-flex items-center gap-2 p-2 rounded-12 bg-surface-neutral border border-border-light',
         className,

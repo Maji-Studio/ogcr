@@ -37,7 +37,7 @@ const crumbLink =
 
 export function Breadcrumb({ items, separator, label = 'Breadcrumb', className, ...rest }: BreadcrumbProps) {
   return (
-    <nav {...rest} aria-label={label} data-slot="breadcrumb" className={className}>
+    <nav {...rest} aria-label={label} data-slot="breadcrumb" className={cn(className)}>
       <ol className="flex items-center gap-8 list-none m-0 p-0">
         {items.map((item, index) => {
           const isLast = index === items.length - 1
