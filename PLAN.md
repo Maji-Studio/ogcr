@@ -60,11 +60,12 @@ DS. So "reuse all of the OGCR design system" means:
   `apps/farmer-prototype/src/styles/fonts.css` + `src/styles/fonts/*.woff2` and drop the GT-Flexa
   `@import`/`--font-*` from `globals.css`. (If the DS expects a specific web font loaded, load it via
   `next/font` — check `packages/design-system/src/styles/theme.css` font tokens when wiring.)
-- ✅ **DS repo future:** keep the standalone repo as the synced **upstream**. Wired:
-  remote `ds-upstream` → `/Users/kenji/Dropbox/Maji/20 OGCR/ogcr-design-system`; pull updates with
-  **`pnpm ds:sync`** (`scripts/sync-design-system.sh`, uses `git merge -X subtree=packages/design-system`).
-  DS development continues in the standalone repo; the monorepo pulls. (The remote is a local path —
-  machine-specific, not stored in commits; re-add on another machine, or repoint to the GitHub URL.)
+- ✅ **DS repo future** *(superseded 2026-08-14)*: the standalone repo was originally kept as a
+  synced upstream (`ds-upstream` remote + `pnpm ds:sync`). After the 2026-08 audit remediation
+  shipped from the monorepo (v1.1.0 published here, changesets moved to the monorepo root), the
+  flow had inverted, so the standalone repo was **archived** with a pointer README —
+  https://github.com/Maji-Studio/ogcr-design-system is a frozen 1.0.0 snapshot. The monorepo is
+  the sole source of truth; the sync script and remote were removed.
 
 ---
 

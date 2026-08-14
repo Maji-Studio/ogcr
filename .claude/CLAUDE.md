@@ -35,9 +35,9 @@ ogcr/                      pnpm workspace (turbo)
 ```
 
 - **Design system** — 42 component modules on Vite + React 19 + TS, **Base UI** primitives (plus
-  react-day-picker v9 for `Calendar`/`DatePicker`), Tailwind v4 tokens, CVA + `cn()`. Developed in a
-  **standalone upstream repo** and pulled in here history-preserving (`pnpm ds:sync`); it keeps
-  publishing to npm via its own Changesets flow. Migration plan/status: `PLAN.md`.
+  react-day-picker v9 for `Calendar`/`DatePicker`), Tailwind v4 tokens, CVA + `cn()`. This monorepo
+  is its **sole source of truth**: it publishes to npm from here via Changesets (`.changeset/` at
+  the workspace root; the former standalone repo is archived). Migration record: `PLAN.md`.
 - **farmer-prototype** — Next.js 16 App Router app from `Maji-Studio/nextjs-template`: Better Auth,
   PostgreSQL + Drizzle, React Query + react-hook-form, with the OGCR design system as its design
   layer (green brand, Inter via `next/font`). Needs `.env.local` to boot (env validated at import):
@@ -58,7 +58,6 @@ ogcr/                      pnpm workspace (turbo)
 | `pnpm ds:build` | Build the DS's publishable `dist/` (`build:lib`, **not** the demo `build`) |
 | `pnpm ds:watch` | Rebuild the DS `dist/` on every DS source change |
 | `pnpm ds:storybook` | Design system Storybook |
-| `pnpm ds:sync` | Pull design-system updates from the standalone upstream repo |
 | `pnpm lint` / `pnpm test` | Lint / test across the workspace |
 
 Per-package scripts run with `pnpm --filter <pkg> <script>`:

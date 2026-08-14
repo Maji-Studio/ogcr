@@ -14,8 +14,7 @@
     "test": "turbo run test",
     "ds:build": "pnpm --filter @majistudio/ogcr-design-system build:lib",
     "ds:watch": "turbo watch build:lib --filter=@majistudio/ogcr-design-system",
-    "ds:storybook": "pnpm --filter @majistudio/ogcr-design-system storybook",
-    "ds:sync": "bash scripts/sync-design-system.sh"
+    "ds:storybook": "pnpm --filter @majistudio/ogcr-design-system storybook"
   },
   "devDependencies": {
     "turbo": "^2"

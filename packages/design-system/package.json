@@ -6,13 +6,14 @@
   "type": "module",
   "license": "MIT",
   "author": "Maji Studio",
-  "homepage": "https://github.com/Maji-Studio/ogcr-design-system#readme",
+  "homepage": "https://github.com/Maji-Studio/ogcr/tree/main/packages/design-system#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Maji-Studio/ogcr-design-system.git"
+    "url": "git+https://github.com/Maji-Studio/ogcr.git",
+    "directory": "packages/design-system"
   },
   "bugs": {
-    "url": "https://github.com/Maji-Studio/ogcr-design-system/issues"
+    "url": "https://github.com/Maji-Studio/ogcr/issues"
   },
   "keywords": [
     "ogcr",

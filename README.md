@@ -32,7 +32,6 @@ pnpm dev               # design-system watch + farmer dev server on http://local
 | `pnpm ds:build` | Build the DS's publishable `dist/` (`build:lib`, **not** the demo `build`) |
 | `pnpm ds:watch` | `turbo watch build:lib` — rebuild the DS `dist/` on every DS source change |
 | `pnpm ds:storybook` | Run the design system's Storybook |
-| `pnpm ds:sync` | Pull design-system updates from the standalone upstream repo |
 | `pnpm lint` / `pnpm test` | Lint / test across the workspace |
 
 ### Build orchestration (the `build:lib` vs `build` gotcha)
@@ -74,8 +73,11 @@ Components are consumed **prebuilt** (`dist/`), so a DS source edit reaches an a
 `'use client'` injection and token checks); refresh the app afterward. True TSX HMR
 (`transpilePackages`) is intentionally deferred — see [`PLAN.md`](./PLAN.md).
 
-## Design system as upstream
+## Design system releases
 
-The design system is developed in its **standalone repo** and pulled in here (history-preserving).
-Run `pnpm ds:sync` to merge upstream changes; the standalone repo keeps publishing to npm via its
-own Changesets flow. See [`PLAN.md`](./PLAN.md) for the full migration plan and current status.
+This monorepo is the design system's **sole source of truth** — it develops in
+`packages/design-system/` and publishes to npm from here via Changesets (`.changeset/` at the
+workspace root; `pnpm --filter @majistudio/ogcr-design-system run version` then `run release`).
+The former standalone repo ([Maji-Studio/ogcr-design-system](https://github.com/Maji-Studio/ogcr-design-system))
+is archived as a frozen 1.0.0 snapshot; its history is preserved in this repo. See
+[`PLAN.md`](./PLAN.md) for the migration record.
