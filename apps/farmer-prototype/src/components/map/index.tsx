@@ -19,4 +19,4 @@ export const MapView = dynamic(
   },
 );
 
-export type { BaseMapProps } from "./base-map";
+export type { BaseMapProps, MapFeatureSelection } from "./base-map";
