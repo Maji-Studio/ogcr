@@ -3,8 +3,15 @@
  * Database queries for projects
  */
 import { and, desc, eq } from "drizzle-orm";
-import { db } from "@/db";
+import { env } from "@/config/env";
 import { projectMembers, projects, type Project } from "@/db/schema";
+import {
+  createMockProject,
+  deleteMockProject,
+  getMockProjectById,
+  getMockProjects,
+  updateMockProject,
+} from "@/lib/mock-data-store";
 
 /**
  * Get all projects for current user
@@ -12,6 +19,16 @@ import { projectMembers, projects, type Project } from "@/db/schema";
 export async function getProjects(userId: string): Promise<Project[]> {
   if (!userId) {
     throw new Error("Unauthorized");
+  }
+
+  if (env.MOCK_DATA) {
+    return getMockProjects();
+  }
+
+  const { db } = await import("@/db");
+
+  if (env.DISABLE_AUTH) {
+    return db.select().from(projects).orderBy(desc(projects.updatedAt));
   }
 
   return db
@@ -44,6 +61,13 @@ export async function getProjectById(
 ): Promise<Project> {
   await requireProjectMember(id, userId);
 
+  if (env.MOCK_DATA) {
+    const project = getMockProjectById(id);
+    if (!project) throw new Error("Project not found");
+    return project;
+  }
+
+  const { db } = await import("@/db");
   const [project] = await db.select().from(projects).where(eq(projects.id, id));
   if (!project) {
     throw new Error("Project not found");
@@ -66,6 +90,11 @@ export async function createProject(
     throw new Error("Unauthorized");
   }
 
+  if (env.MOCK_DATA) {
+    return createMockProject(userId, data);
+  }
+
+  const { db } = await import("@/db");
   return db.transaction(async (tx) => {
     const [project] = await tx
       .insert(projects)
@@ -100,6 +129,13 @@ export async function updateProject(
     throw new Error("Forbidden: Only project owners can update projects");
   }
 
+  if (env.MOCK_DATA) {
+    const project = updateMockProject(id, data);
+    if (!project) throw new Error("Project not found");
+    return project;
+  }
+
+  const { db } = await import("@/db");
   const [updatedProject] = await db
     .update(projects)
     .set({
@@ -126,6 +162,12 @@ export async function deleteProject(id: string, userId: string): Promise<void> {
     throw new Error("Forbidden: Only project owners can delete projects");
   }
 
+  if (env.MOCK_DATA) {
+    deleteMockProject(id);
+    return;
+  }
+
+  const { db } = await import("@/db");
   await db.delete(projects).where(eq(projects.id, id));
 }
 
@@ -141,6 +183,18 @@ export async function requireProjectMember(
     throw new Error("Unauthorized");
   }
 
+  if (env.MOCK_DATA) {
+    if (!getMockProjectById(projectId)) {
+      throw new Error("Forbidden: Not a project member");
+    }
+    return;
+  }
+
+  if (env.DISABLE_AUTH) {
+    return;
+  }
+
+  const { db } = await import("@/db");
   const membership = await db.query.projectMembers.findFirst({
     where: and(
       eq(projectMembers.projectId, projectId),
@@ -164,6 +218,15 @@ export async function isProjectOwner(
     return false;
   }
 
+  if (env.MOCK_DATA) {
+    return !!getMockProjectById(projectId);
+  }
+
+  if (env.DISABLE_AUTH) {
+    return true;
+  }
+
+  const { db } = await import("@/db");
   const membership = await db.query.projectMembers.findFirst({
     where: and(
       eq(projectMembers.projectId, projectId),
@@ -186,6 +249,15 @@ export async function getProjectRole(
     return null;
   }
 
+  if (env.MOCK_DATA) {
+    return getMockProjectById(projectId) ? "owner" : null;
+  }
+
+  if (env.DISABLE_AUTH) {
+    return "owner";
+  }
+
+  const { db } = await import("@/db");
   const membership = await db.query.projectMembers.findFirst({
     where: and(
       eq(projectMembers.projectId, projectId),

@@ -65,6 +65,10 @@ This template uses **Next.js 16's `proxy.ts`** instead of traditional `middlewar
 
 - React Query provider is mounted once in `src/app/layout.tsx`.
 - Feature hooks (`use-items`, `use-projects`) call server actions and invalidate cache keys.
+- `MOCK_DATA=true` is the default data adapter. It keeps seeded projects and items in process, so
+  the app needs no database or external API while it is a prototype. State resets on restart.
+- `MOCK_DATA=false` switches the same guarded data-access functions to Drizzle/PostgreSQL. UI,
+  hooks, server actions, validation, and authorization call sites do not change between adapters.
 
 ### Caching Strategy
 
@@ -135,6 +139,8 @@ export async function GET() {
 
 - `src/db/schema/*` defines tables and types.
 - `src/data-access/*` owns query composition and permission checks.
+- `src/lib/mock-data-store.ts` holds the in-process fixtures. It is only reached through the same
+  guarded data-access entry points used by the database adapter.
 - Connection pooling defaults are centralized in `src/db/index.ts` with optional env tuning.
 
 ## What Is Intentionally Scaffolded

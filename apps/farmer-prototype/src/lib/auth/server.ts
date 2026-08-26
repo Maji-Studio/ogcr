@@ -3,23 +3,40 @@
  * For use in Server Components and Server Actions
  */
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { eq } from "drizzle-orm";
 import { env } from "@/config/env";
-import { db } from "@/db";
 import { users } from "@/db/schema";
-import {
-  getBetterAuthSession,
-  mapBetterAuthUser,
-  signOut as providerSignOut,
-} from "./providers/better-auth-server";
+import { MOCK_USER_ID } from "@/lib/mock-data-store";
 import type { AuthUser } from "./providers/better-auth-client";
+
+const MOCK_USER: AuthUser = {
+  id: MOCK_USER_ID,
+  email: "farmer@example.com",
+  name: "Alex Morgan",
+  role: "admin",
+  emailVerified: true,
+  createdAt: new Date("2026-01-15T09:00:00.000Z"),
+  updatedAt: new Date("2026-08-18T14:30:00.000Z"),
+};
 
 /**
  * Get the current user from server context
  * Returns null if not authenticated
  */
 export async function getUser(): Promise<AuthUser | null> {
+  if (env.MOCK_DATA) {
+    await connection();
+    return { ...MOCK_USER };
+  }
+
   if (env.DISABLE_AUTH) {
+    // Keep protected pages dynamic in open-access mode. Without a session or
+    // headers read, Next.js would otherwise try to query the database while
+    // prerendering them during the production build.
+    await connection();
+
+    const { db } = await import("@/db");
     const bypassEmail = env.ADMIN_EMAIL ?? "admin@example.com";
     const user = await db.query.users.findFirst({
       where: eq(users.email, bypassEmail),
@@ -42,6 +59,9 @@ export async function getUser(): Promise<AuthUser | null> {
     };
   }
 
+  const { getBetterAuthSession, mapBetterAuthUser } = await import(
+    "./providers/better-auth-server"
+  );
   const session = await getBetterAuthSession();
 
   if (!session?.user) {
@@ -105,5 +125,12 @@ export async function isAdmin(): Promise<boolean> {
  * Use this in route handlers or server actions
  */
 export async function signOut() {
+  if (env.MOCK_DATA) {
+    return { success: true } as const;
+  }
+
+  const { signOut: providerSignOut } = await import(
+    "./providers/better-auth-server"
+  );
   return await providerSignOut();
 }

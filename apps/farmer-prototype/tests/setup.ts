@@ -8,6 +8,7 @@ import { config } from "dotenv";
 config({ path: ".env.test" });
 
 const testEnvDefaults: Record<string, string> = {
+  MOCK_DATA: "false",
   DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/app_template_test",
   NEXT_PUBLIC_APP_URL: "http://localhost:3100",
   BETTER_AUTH_SECRET: "test-secret-32-chars-minimum-length",

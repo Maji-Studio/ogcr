@@ -40,10 +40,10 @@ ogcr/                      pnpm workspace (turbo)
   the workspace root; the former standalone repo is archived). Migration record: `PLAN.md`.
 - **farmer-prototype** — Next.js 16 App Router app from `Maji-Studio/nextjs-template`: Better Auth,
   PostgreSQL + Drizzle, React Query + react-hook-form, with the OGCR design system as its design
-  layer (green brand, Inter via `next/font`). Needs `.env.local` to boot (env validated at import):
-  copy `.env.example`; placeholders are enough for the UI. Real Postgres
-  (`pnpm --filter farmer-prototype dev:docker`) only for DB-backed routes — without it, auth-gated
-  pages redirect to `/login`, which is expected.
+  layer (green brand, Inter via `next/font`). It is self-contained by default: `MOCK_DATA=true`
+  provides an in-process demo user, projects, and items with no `.env.local` or external services.
+  Set `MOCK_DATA=false` and configure `.env.local` to opt into PostgreSQL + Better Auth; use
+  `DISABLE_AUTH=true` only when intentionally bypassing sessions against that real database.
 - Template chrome not yet ported off the old design layer (sidebar/nav, projects + dashboard pages,
   remaining auth forms, `components/ui/*` + `components/forms/*`) renders with undefined tokens —
   port those screens to DS components when they become real.
@@ -156,9 +156,10 @@ deferred — see `PLAN.md`.
 - **Auth:** admin-invite only by default (`ALLOW_SELF_SIGNUP=false`); admin via `ADMIN_EMAIL`;
   invites + resets via Resend; Better Auth session cookies; route protection through
   `src/proxy.ts` → `updateSession()` → `auth.api.getSession()`.
-- **Env:** validated via Zod in `src/config/env.ts`. Required: `DATABASE_URL`,
-  `NEXT_PUBLIC_APP_URL`, `BETTER_AUTH_SECRET` (32+ chars), `RESEND_API_KEY`, `RESEND_FROM_EMAIL`,
-  `ADMIN_EMAIL`, `ALLOW_SELF_SIGNUP`. Document variable NAMES only, never values.
+- **Env:** validated via Zod in `src/config/env.ts`. Mock mode needs no environment file. With
+  `MOCK_DATA=false`, `DATABASE_URL` and `BETTER_AUTH_SECRET` (32+ chars) are required;
+  `NEXT_PUBLIC_APP_URL`, email settings, admin settings, and pool tuning remain configurable.
+  Document variable NAMES only, never real values.
 
 ## Git & Branch Guardrails
 

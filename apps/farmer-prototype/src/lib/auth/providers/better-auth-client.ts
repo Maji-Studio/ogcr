@@ -7,7 +7,7 @@
 import { createAuthClient } from "better-auth/react";
 
 export const authClient = createAuthClient({
-  baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3100",
+  baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3200",
 });
 
 export interface AuthResult<T = void> {
@@ -233,7 +233,7 @@ export async function requestPasswordReset(
   try {
     // Better Auth handles password reset through the server configuration
     // We make a direct API call to the forget-password endpoint
-    const baseURL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3100";
+    const baseURL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3200";
 
     // Create AbortController with timeout to prevent hanging requests
     const controller = new AbortController();

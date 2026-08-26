@@ -1,6 +1,12 @@
 import { and, desc, eq } from "drizzle-orm";
-import { db } from "@/db";
+import { env } from "@/config/env";
 import { items, type Item, type ItemStatus } from "@/db/schema";
+import {
+  createMockItem,
+  getMockItemById,
+  getMockItems,
+  updateMockItem,
+} from "@/lib/mock-data-store";
 import { requireProjectMember } from "./projects";
 
 const DEFAULT_ITEM_STATUS: ItemStatus = "active";
@@ -16,6 +22,11 @@ export async function getProjectItems(
 ): Promise<Item[]> {
   await requireProjectMember(projectId, userId);
 
+  if (env.MOCK_DATA) {
+    return getMockItems(projectId, status);
+  }
+
+  const { db } = await import("@/db");
   return db
     .select()
     .from(items)
@@ -34,6 +45,11 @@ export async function createItem(
 ): Promise<Item> {
   await requireProjectMember(projectId, userId);
 
+  if (env.MOCK_DATA) {
+    return createMockItem(projectId, data);
+  }
+
+  const { db } = await import("@/db");
   const [item] = await db
     .insert(items)
     .values({
@@ -55,6 +71,17 @@ export async function updateItem(
   userId: string,
   data: { title?: string; description?: string; status?: ItemStatus }
 ): Promise<Item> {
+  if (env.MOCK_DATA) {
+    const item = getMockItemById(itemId);
+    if (!item) throw new Error("Item not found");
+
+    await requireProjectMember(item.projectId, userId);
+    const updatedItem = updateMockItem(itemId, data);
+    if (!updatedItem) throw new Error("Item not found");
+    return updatedItem;
+  }
+
+  const { db } = await import("@/db");
   // Get the item to check project membership
   const [item] = await db.select().from(items).where(eq(items.id, itemId));
 
@@ -81,6 +108,16 @@ export async function archiveItem(
   itemId: string,
   userId: string
 ): Promise<void> {
+  if (env.MOCK_DATA) {
+    const item = getMockItemById(itemId);
+    if (!item) throw new Error("Item not found");
+
+    await requireProjectMember(item.projectId, userId);
+    updateMockItem(itemId, { status: "archived" });
+    return;
+  }
+
+  const { db } = await import("@/db");
   // Get the item to check project membership
   const [item] = await db.select().from(items).where(eq(items.id, itemId));
 

@@ -6,36 +6,23 @@ This guide shows you how to customize and extend this Next.js template for your 
 
 ### 1. Initial Setup
 
-**Prerequisites**: Docker Desktop installed and running.
+No external-service prerequisites are required in the default mock-data mode.
 
 1. Install dependencies:
    ```bash
    pnpm install
    ```
 
-2. Copy environment variables:
-   ```bash
-   cp .env.example .env.local
-   ```
-
-3. Configure `.env.local` with your values (see Environment Variables section in README)
-
-4. Start development:
+2. Start development:
    ```bash
    pnpm dev
    ```
 
-   This automatically:
-   - Starts PostgreSQL via Docker
-   - Creates database schema
-   - Seeds test data (1 admin, 1 user, 1 project, 2 items)
-   - Starts Next.js on port 3100
+   This starts Next.js on port 3200 with an in-process demo user, projects, and items. No
+   `.env.local`, Docker, database, login, or email provider is needed.
 
-5. Set passwords for seeded users:
-   - Visit http://localhost:3100
-   - Click "Forgot Password"
-   - Enter email (from `ADMIN_EMAIL` or `user@example.com`)
-   - Set password via email link
+3. When the service-backed mode is introduced later, create `.env.local`, set `MOCK_DATA=false`,
+   configure the real services, and use `pnpm dev:docker` for the database workflow.
 
 ### 2. Rename the Project
 
@@ -49,7 +36,7 @@ This guide shows you how to customize and extend this Next.js template for your 
 
 2. Update `README.md` with your project details
 
-3. Update environment variables in `.env.local`
+3. Add environment variables only when switching away from mock-data mode
 
 ### 3. Customize the Design System
 

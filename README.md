@@ -18,10 +18,14 @@ pnpm ds:build          # build the design system's publishable dist/ (apps consu
 pnpm dev               # design-system watch + farmer dev server on http://localhost:3200
 ```
 
-> `apps/farmer-prototype` needs an `.env.local` to boot (env is validated at import). Copy
-> `apps/farmer-prototype/.env.example` → `.env.local`; the placeholder values are enough to run the
-> UI. A real Postgres (`pnpm --filter farmer-prototype dev:docker`) is only needed for DB-backed
-> routes — without it, auth-gated pages redirect to `/login`, which is expected.
+The farmer app is self-contained by default: it starts in `MOCK_DATA=true` mode with an in-process
+demo user, projects, and items. No `.env.local`, PostgreSQL, email provider, or separate API server
+is required. Mock changes live for the life of the Next.js process and reset when it restarts.
+
+Vercel should likewise be configured with no environment variables for now. Real services remain
+available as a later explicit opt-in: create `apps/farmer-prototype/.env.local`, set
+`MOCK_DATA=false`, provide the database/auth settings documented in the farmer app, and use
+`pnpm --filter farmer-prototype dev:docker` for the local PostgreSQL workflow.
 
 ## Scripts
 

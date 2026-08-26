@@ -25,6 +25,11 @@ import { updateSession } from "@/lib/auth/middleware";
 
 ## Current Behavior
 
+- `MOCK_DATA=true` (default) enables self-contained prototype access: requests use an in-process
+  demo identity, login routes are skipped, and projects come from local fixtures. No seeded user or
+  database is required.
+- With `MOCK_DATA=false`, Better Auth and project memberships are active. `DISABLE_AUTH=true` can
+  still intentionally bypass sessions against a seeded real database for local debugging.
 - `ALLOW_SELF_SIGNUP=false` (default) disables public email signup.
 - `ALLOW_SELF_SIGNUP=true` enables public signup.
 - Email verification is required before login is considered valid.
@@ -68,6 +73,10 @@ import { updateSession } from "@/lib/auth/middleware";
 - `viewer`
 
 ## Guard Patterns
+
+All guard calls remain in place in mock mode. The local adapter is selected inside auth and the
+project data-access guards, so setting `MOCK_DATA=false` restores the service-backed policy without
+changing callers.
 
 **Layouts (Server Components):**
 ```typescript

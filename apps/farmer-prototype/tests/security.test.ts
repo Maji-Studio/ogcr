@@ -3,6 +3,7 @@
  * Tests the 3 critical vulnerabilities that were fixed
  */
 import { describe, it, expect, vi } from "vitest";
+import { env } from "@/config/env";
 import { db } from "@/db";
 import { projectMembers } from "@/db/schema";
 import {
@@ -64,6 +65,18 @@ describe("Security: Authorization Bypass Prevention", () => {
         requireProjectMember(mockProjectId, mockAdminUserId)
       ).resolves.not.toThrow();
     });
+
+    it("should allow the open-access identity without a membership", async () => {
+      env.DISABLE_AUTH = true;
+
+      try {
+        await expect(
+          requireProjectMember(mockProjectId, mockAdminUserId)
+        ).resolves.not.toThrow();
+      } finally {
+        env.DISABLE_AUTH = false;
+      }
+    });
   });
 
   describe("isProjectOwner()", () => {
@@ -94,6 +107,18 @@ describe("Security: Authorization Bypass Prevention", () => {
       const result = await isProjectOwner(mockProjectId, "");
       expect(result).toBe(false);
     });
+
+    it("should grant owner capabilities to the open-access identity", async () => {
+      env.DISABLE_AUTH = true;
+
+      try {
+        await expect(
+          isProjectOwner(mockProjectId, mockAdminUserId)
+        ).resolves.toBe(true);
+      } finally {
+        env.DISABLE_AUTH = false;
+      }
+    });
   });
 
   describe("getProjectRole()", () => {
@@ -117,6 +142,18 @@ describe("Security: Authorization Bypass Prevention", () => {
 
       const result = await getProjectRole(mockProjectId, mockUserId);
       expect(result).toBe("admin");
+    });
+
+    it("should expose every project as owner in open-access mode", async () => {
+      env.DISABLE_AUTH = true;
+
+      try {
+        await expect(
+          getProjectRole(mockProjectId, mockAdminUserId)
+        ).resolves.toBe("owner");
+      } finally {
+        env.DISABLE_AUTH = false;
+      }
     });
   });
 });

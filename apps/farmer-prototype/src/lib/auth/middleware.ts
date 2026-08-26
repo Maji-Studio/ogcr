@@ -4,7 +4,6 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import { env } from "@/config/env";
-import { auth } from "@/lib/auth/better-auth";
 
 /**
  * Route configuration
@@ -20,7 +19,13 @@ const PUBLIC_ROUTES = [
   "/api/auth",
 ];
 
-const AUTH_ROUTES = ["/login", "/forgot-password"];
+const AUTH_ROUTES = [
+  "/login",
+  "/forgot-password",
+  "/reset-password",
+  "/set-password",
+  "/verify-email",
+];
 
 /**
  * Check if path matches any of the given routes
@@ -41,7 +46,7 @@ function matchesRoute(pathname: string, routes: string[]): boolean {
 export async function updateSession(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
-  if (env.DISABLE_AUTH) {
+  if (env.MOCK_DATA || env.DISABLE_AUTH) {
     if (matchesRoute(pathname, AUTH_ROUTES)) {
       return NextResponse.redirect(new URL("/projects", request.url));
     }
@@ -57,6 +62,7 @@ export async function updateSession(request: NextRequest) {
   // Get session from Better Auth
   let session = null;
   try {
+    const { auth } = await import("@/lib/auth/better-auth");
     session = await auth.api.getSession({
       headers: request.headers,
     });
