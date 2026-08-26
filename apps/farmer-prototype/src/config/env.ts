@@ -13,20 +13,32 @@ const emptyToUndefined = (value: unknown) =>
  */
 const envSchema = z.object({
   // Self-contained prototype mode. Real services are an explicit opt-in.
-  MOCK_DATA: z
-    .string()
-    .optional()
-    .default("true")
-    .transform((val) => val === "true"),
+  MOCK_DATA: z.preprocess(
+    emptyToUndefined,
+    z
+      .string()
+      .optional()
+      .default("true")
+      .transform((val) => val === "true")
+  ),
 
   // Database
-  DATABASE_URL: z.string().url().default(MOCK_DATABASE_URL),
+  DATABASE_URL: z.preprocess(
+    emptyToUndefined,
+    z.string().url().default(MOCK_DATABASE_URL)
+  ),
 
   // App URL (used by Better Auth and other services)
-  NEXT_PUBLIC_APP_URL: z.string().url().default(MOCK_APP_URL),
+  NEXT_PUBLIC_APP_URL: z.preprocess(
+    emptyToUndefined,
+    z.string().url().default(MOCK_APP_URL)
+  ),
 
   // Better Auth
-  BETTER_AUTH_SECRET: z.string().min(32).default(MOCK_AUTH_SECRET),
+  BETTER_AUTH_SECRET: z.preprocess(
+    emptyToUndefined,
+    z.string().min(32).default(MOCK_AUTH_SECRET)
+  ),
 
   // Email (optional for local development)
   RESEND_API_KEY: z.preprocess(emptyToUndefined, z.string().min(1).optional()),
@@ -36,18 +48,27 @@ const envSchema = z.object({
   ),
 
   // Optional
-  ALLOW_SELF_SIGNUP: z
-    .string()
-    .optional()
-    .default("false")
-    .transform((val) => val === "true"),
-  DISABLE_AUTH: z
-    .string()
-    .optional()
-    .default("false")
-    .transform((val) => val === "true"),
-  ADMIN_EMAIL: z.string().email().optional(),
-  LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).optional(),
+  ALLOW_SELF_SIGNUP: z.preprocess(
+    emptyToUndefined,
+    z
+      .string()
+      .optional()
+      .default("false")
+      .transform((val) => val === "true")
+  ),
+  DISABLE_AUTH: z.preprocess(
+    emptyToUndefined,
+    z
+      .string()
+      .optional()
+      .default("false")
+      .transform((val) => val === "true")
+  ),
+  ADMIN_EMAIL: z.preprocess(emptyToUndefined, z.string().email().optional()),
+  LOG_LEVEL: z.preprocess(
+    emptyToUndefined,
+    z.enum(["debug", "info", "warn", "error"]).optional()
+  ),
   DB_POOL_MAX: z.preprocess(
     emptyToUndefined,
     z.coerce.number().int().positive().optional()
@@ -92,5 +113,11 @@ const envSchema = z.object({
 
 export type Env = z.infer<typeof envSchema>;
 
+export function parseEnv(
+  environment: Record<string, string | undefined>
+): Env {
+  return envSchema.parse(environment);
+}
+
 // Validate and export environment variables
-export const env = envSchema.parse(process.env);
+export const env = parseEnv(process.env);
