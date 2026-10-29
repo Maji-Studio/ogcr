@@ -2,7 +2,7 @@
 
 # OGCR Design System
 
-**45 ready-made, on-brand React components — install, import one stylesheet, ship.**
+**46 ready-made, on-brand React components — install, import one stylesheet, ship.**
 
 The component library, design tokens, and Tailwind v4 theme that every OGCR frontend builds on. The single source of truth other OGCR projects share — build on it instead of reinventing components or re-deriving tokens.
 
@@ -20,7 +20,7 @@ The component library, design tokens, and Tailwind v4 theme that every OGCR fron
 ## Contents
 
 - [Quick start](#quick-start) — install, import, render a button
-- [What's included](#whats-included) — all 45 components, grouped
+- [What's included](#whats-included) — all 46 components, grouped
 - [Two ways to import](#two-ways-to-import) — barrel vs. deep imports
 - [Theming](#theming) — runtime-themeable color tokens
 - [Contributing / local development](#contributing--local-development) — commands & conventions
@@ -76,13 +76,13 @@ That's it — you're styled and on-brand. Browse every component (with live cont
 
 ## What's included
 
-45 components built on [Base UI](https://base-ui.com) behavior primitives, styled with Tailwind v4 tokens and [CVA](https://cva.style) variants:
+46 components built on [Base UI](https://base-ui.com) behavior primitives, styled with Tailwind v4 tokens and [CVA](https://cva.style) variants:
 
 | Group | Components |
 | --- | --- |
 | **Overlays** | `Dialog`, `AlertDialog`, `Popover`, `Select`, `Combobox`, `Tooltip`, `Menu`, `ContextMenu`, `Sidesheet` |
 | **Inputs & forms** | `Input`, `Textarea`, `NumberField`, `Checkbox`, `Radio`, `Switch`, `Slider`, `Toggle` / `ToggleGroup`, `OptionCard`, `Calendar`, `DatePicker`, `Form` |
-| **Layout & structure** | `Accordion`, `Collapsible`, `Tabs`, `Table`, `Toolbar`, `ScrollArea`, `Separator`, `Card`, `List`, `Breadcrumb`, `Pagination`, `Navigation`, `SideNavigation` |
+| **Layout & structure** | `Accordion`, `Collapsible`, `Tabs`, `Table`, `Toolbar`, `ScrollArea`, `Separator`, `Card`, `List`, `StepList`, `Breadcrumb`, `Pagination`, `Navigation`, `SideNavigation` |
 | **Feedback & display** | `Toast`, `Message`, `Skeleton`, `ProgressBar`, `Pill`, `Kpi`, `EmptyState`, `Avatar`, `Logo`, `icons` |
 
 Under the hood: `src/components/` holds the components (`src/index.ts` is the public barrel), `src/styles/` holds the design tokens (reconciled from the OGCR Figma file), and `docs/design-system.md` is the authoritative spec — **when the spec and the code disagree, the spec wins.**

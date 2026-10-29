@@ -205,6 +205,10 @@
       "types": "./dist/components/Slider/index.d.ts",
       "import": "./dist/components/Slider/index.js"
     },
+    "./StepList": {
+      "types": "./dist/components/StepList/index.d.ts",
+      "import": "./dist/components/StepList/index.js"
+    },
     "./Switch": {
       "types": "./dist/components/Switch/index.d.ts",
       "import": "./dist/components/Switch/index.js"

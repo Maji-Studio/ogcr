@@ -1671,6 +1671,7 @@ Single-choice dropdown; trigger mirrors the Input field. **Wraps:** Base UI `Sel
 - **Anatomy:** `Trigger` (`role=combobox`) › `Value` + caret `Icon`; `Portal` › `Positioner` › `Popup` › `Item`/`ItemText`/`ItemIndicator`.
 - **Dimensions/tokens:** trigger `height: 48px`, `padding: 0 16px`, `--radius-l` — identical to Input; popup `min-width: var(--anchor-width)`, `max-height: min(var(--available-height), 320px)`, `--elevation-l`; caret rotates 180° on open.
 - **Behavior:** controlled or uncontrolled; the `combobox` trigger needs an accessible name from an external label, not its value.
+- **`multiple`:** `multiple` switches the value to `string[]` (`value`, `defaultValue`, `onValueChange(value: string[])`); the props are a discriminated union, so a string value with `multiple` is a type error. Rows swap the single-select check for a 20px checkbox (`--radius-4`, `--border-strong` outline, `--interaction-primary-default` fill with a check when selected); the popup stays open while rows toggle. Trigger label: the selected labels joined with `, ` up to `maxVisibleLabels?=2`, then `selectedCountLabel(count)?` (default `{n} selected` from `dsStrings.select.selectedCount`); empty shows the placeholder. `SelectOption.meta?: ReactNode` adds small trailing text (a count such as `4 parcels`) in single and multiple. Prototype `.pdrop .cb` is 18px; snapped to 20.
 
 ### 4.18 Combobox
 
@@ -1681,6 +1682,7 @@ Type-ahead autocomplete over a list of strings. **Wraps:** Base UI `Autocomplete
 - **Anatomy:** `Input` › `Portal` › `Positioner` › `Popup` › `Empty` + `List` › `Item`.
 - **Dimensions/tokens:** input matches Select/Input (`height: 48px`, `--radius-l`); popup `min-width: var(--anchor-width)`, `max-height: min(…, 320px)`, `--elevation-l`.
 - **Behavior:** filters `items` as you type; renders `emptyMessage` when nothing matches.
+- **`multiple`:** `multiple` switches to Base UI `Combobox` (single mode stays on `Autocomplete`, whose value is the input text) and the value to `string[]` (`value`, `defaultValue`, `onValueChange(value: string[])`; discriminated union). Selected items show as removable chips in the field (`Chips` › `Chip` + `ChipRemove`), the input sits after the chips, and the popup anchors to the whole field. Each chip's remove button is named `Remove {label}` (`removeLabel(label)?`, default from `dsStrings.combobox.removeLabel`). Rows use the same 20px checkbox as Select; the list stays open while items toggle and filters as you type. The field grows in height as chips wrap (`min-height: 48px`). Chip remove buttons are 24px, below the 40px target of §8, because they sit inside the field; the field itself and Backspace in the empty input also remove chips.
 
 ### 4.19 NumberField
 
@@ -1950,6 +1952,19 @@ What a list, table or panel shows when there is nothing in it yet, with the one 
 - **`panel`:** centred column, 1px dashed `--border-strong`, `--radius-12`, padding 48 / 24, gap 12. 48px round icon tile (`--surface-neutral`, `--icon-secondary`, 24px icon), title as a heading (`text-ms` semibold), description `text-s` secondary at max 44ch, action 4px below.
 - **`inline`:** compact dashed row, 1px dashed `--border-medium`, `--radius-12`, padding 12 / 16. One `text-s` sentence (title in primary medium, description in secondary) with the action right-aligned; wraps under the text at narrow widths. No heading, no icon.
 - **Copy:** says what is missing and the next step in plain words ("No parcels yet", "Draw a parcel"). Dropzone and a file pill are not part of this component; build them when an upload flow lands.
+
+### 4.44 StepList
+
+Ordered list of steps or tasks, each with one state circle. One vocabulary for the prototype's `.todos`, `.nsteps`, `.elig` and `.steps` lists. **Wraps:** native `<ol>` / `<li>`; interactive rows use the shared nav element (§4.12 contract).
+
+- **Exports:** `StepList`, `StepListItem`; types `StepListProps`, `StepListItemProps`, `StepListVariant`, `StepState`.
+- **`StepList` props:** `variant?: 'bordered' | 'plain' = 'bordered'`, `connector?: boolean = false`, plus `<ol>` attributes. `bordered`: `--surface-light` stack, 1px `--border-light`, `--radius-12`, dividers between rows (`.todos`). `plain`: no outer border, rows round on their own. `connector` draws a 2px dotted `--border-medium` line between circles (`.steps` look); plain variant only, ignored when bordered.
+- **`StepListItem` props:** `state: 'todo' | 'current' | 'done' | 'attention' | 'locked'`, `title: ReactNode`, `description?`, `tags?` (expect Pills), `trailing?` (right-aligned meta, kept non-interactive), `icon?` (replaces the state glyph with a neutral tile, the `.st.ico` look), `onClick?` / `href?` / `render?` (row becomes a button, link or your framework link), `stateLabel?` (hidden state text override), plus `<li>` attributes.
+- **Circle (28px; prototype 26 snapped up):** `todo` = empty ring, 1.5px `--border-strong`. `current` = `--interaction-primary-default` fill, arrow in `--surface-page`. `done` = `--surface-positive` fill, check in `--icon-positive`; title struck through in `--text-secondary`. `attention` = 1.5px `--border-warning-strong` ring, `--surface-warning` fill, warning glyph in `--icon-warning`. `locked` = `--surface-neutral` with a lock glyph; the row is muted and never interactive, even with `onClick`.
+- **Type:** title `text-ms` / 600 (prototype `.tt b`), description `text-s` `--text-secondary`, tags row 8px below. Row padding 16px (prototype 14, snapped), 12px in `plain`.
+- **Interaction:** interactive rows hover to `--surface-neutral` and take the shared focus ring; transition is off under `prefers-reduced-motion`.
+- **a11y:** the current item carries `aria-current="step"`. Every state is also announced as visually hidden text before the title (`To do`, `Current step`, `Done`, `Needs attention`, `Locked`; overridable per item with `stateLabel`, defaults in `dsStrings.stepList`), so colour is never the only signal. The marker is `aria-hidden`.
+- **Not covered:** the farmer app's horizontal SeasonStepper (dots in a row) is a different orientation and stays app-local.
 
 ---
 
