@@ -33,6 +33,7 @@ export function ComboboxMultiple({
   sideOffset = OVERLAY_SIDE_OFFSET,
   'aria-describedby': ariaDescribedby,
   'aria-invalid': ariaInvalid,
+  readOnly,
   ...rest
 }: ComboboxCommonProps & ComboboxMultipleProps) {
   const field = useField({
@@ -55,8 +56,11 @@ export function ComboboxMultiple({
       value={value}
       defaultValue={value === undefined ? defaultValue : undefined}
       onValueChange={onValueChange}
-      name={name}
+      // Base UI renders one hidden input per value and doesn't disable them, so a disabled
+      // field would still submit; dropping the name matches native disabled-control semantics.
+      name={disabled ? undefined : name}
       disabled={disabled}
+      readOnly={readOnly}
       required={required}
     >
       <BaseCombobox.Chips
@@ -79,16 +83,18 @@ export function ComboboxMultiple({
                 key={item}
                 data-slot="combobox-chip"
                 className={cn(
-                  'inline-flex items-center gap-4 h-32 pl-12 pr-4 rounded-8 bg-surface-neutral',
+                  'inline-flex items-center h-40 pl-12 rounded-8 bg-surface-neutral',
                   'font-standard font-medium text-s leading-[1.4] text-text-primary',
                 )}
               >
                 {item}
+                {!readOnly && !disabled && (
                 <BaseCombobox.ChipRemove
                   aria-label={removeLabel(item)}
                   data-slot="combobox-chip-remove"
                   className={cn(
-                    'inline-flex items-center justify-center w-24 h-24 rounded-full border-0 bg-transparent p-0',
+                    // 40x40 hit target (spec §8); the chip grows to 40px tall to hold it.
+                  'inline-flex items-center justify-center w-40 h-40 rounded-8 border-0 bg-transparent p-0',
                     'cursor-pointer text-icon-secondary outline-none transition-[background-color,box-shadow] duration-150',
                     'hover:bg-surface-light hover:text-icon-primary focus-visible:shadow-focus-primary',
                     '[&>svg]:w-16 [&>svg]:h-16',
@@ -96,6 +102,7 @@ export function ComboboxMultiple({
                 >
                   <XIcon />
                 </BaseCombobox.ChipRemove>
+                )}
               </BaseCombobox.Chip>
             ))
           }

@@ -112,5 +112,23 @@ describe('Combobox', () => {
       render(<Combobox multiple items={farms} label="Farms" />)
       expect(screen.getByLabelText('Farms')).toBeInTheDocument()
     })
+
+    it('offers no chip removal when read-only or disabled', () => {
+      const { rerender } = render(
+        <Combobox multiple readOnly items={farms} defaultValue={['Aldermoor Farm']} aria-label="Farms" />,
+      )
+      expect(screen.queryByRole('button', { name: 'Remove Aldermoor Farm' })).not.toBeInTheDocument()
+      rerender(<Combobox multiple disabled items={farms} defaultValue={['Aldermoor Farm']} aria-label="Farms" />)
+      expect(screen.queryByRole('button', { name: 'Remove Aldermoor Farm' })).not.toBeInTheDocument()
+    })
+
+    it('submits no values while disabled', () => {
+      const { container } = render(
+        <form>
+          <Combobox multiple disabled name="farms" items={farms} defaultValue={['Aldermoor Farm']} aria-label="Farms" />
+        </form>,
+      )
+      expect(new FormData(container.querySelector('form')!).getAll('farms')).toEqual([])
+    })
   })
 })

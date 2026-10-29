@@ -114,5 +114,14 @@ describe('Select', () => {
       await userEvent.click(getTrigger())
       expect(await screen.findByText('4 parcels')).toBeInTheDocument()
     })
+
+    it('submits no values while disabled', () => {
+      const { container } = render(
+        <form>
+          <Select multiple disabled name="crops" options={crops} defaultValue={['wheat']} aria-label="Crops" />
+        </form>,
+      )
+      expect(new FormData(container.querySelector('form')!).getAll('crops')).toEqual([])
+    })
   })
 })

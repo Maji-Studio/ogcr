@@ -256,7 +256,8 @@ export function Select(props: SelectProps) {
       value={value}
       defaultValue={value === undefined ? defaultValue : undefined}
       onValueChange={onValueChange}
-      name={name}
+      // Base UI's per-value hidden inputs aren't disabled; drop the name so a disabled field doesn't submit.
+      name={disabled ? undefined : name}
       disabled={disabled}
       required={required}
     >
