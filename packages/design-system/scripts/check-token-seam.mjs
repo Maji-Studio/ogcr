@@ -50,6 +50,10 @@ const palette = new Map(); // ds-name (e.g. "ds-surface-page", "dark:ds-surface-
       palette.set(prefix + m[1].slice(2), m[2].toLowerCase());
     }
   };
+  // Fail closed: a dark block we can't locate would let its hexes overwrite the light ones.
+  if (darkAt === -1 && /data-theme/.test(paletteSrc)) {
+    fail('palette.css mentions data-theme but no top-level `[data-theme="dark"] {` block was found; update the parser.');
+  }
   parse(darkAt === -1 ? paletteSrc : paletteSrc.slice(0, darkAt), '');
   if (darkAt !== -1) parse(paletteSrc.slice(darkAt), 'dark:');
 }

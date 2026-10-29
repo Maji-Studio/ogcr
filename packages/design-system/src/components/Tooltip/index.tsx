@@ -73,7 +73,7 @@ export function Tooltip({
             {...rest}
             data-slot="tooltip"
             className={cn(
-              'px-12 py-8 max-w-[260px] bg-surface-strong text-surface-light rounded-8 shadow-elevation-l',
+              'px-12 py-8 max-w-[260px] bg-surface-strong text-white rounded-8 shadow-elevation-l',
               'font-standard font-medium text-s leading-[1.4]',
               overlayMotionClassName,
               className,

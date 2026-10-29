@@ -30,7 +30,7 @@ export type AlertDialogProps = Omit<
 }
 
 const dangerConfirmClassName = cn(
-  'bg-border-negative-strong text-white',
+  'bg-border-negative-strong text-surface-light',
   'hover:not-disabled:bg-text-negative active:bg-text-negative',
 )
 

@@ -135,16 +135,18 @@
 }
 
 /* ============================================================
- * Dark theme — OPT-IN ONLY: set `data-theme="dark"` on <html> or any
- * wrapper. There is deliberately no prefers-color-scheme auto-switch.
+ * Dark theme — OPT-IN ONLY: set `data-theme="dark"` on <html>. Root
+ * level only: portalled overlays mount under <body>, and the focus
+ * shadows read `--color-*` aliases resolved on :root, so a dark wrapper
+ * inside a light page is NOT supported. There is deliberately no
+ * prefers-color-scheme auto-switch. `color-scheme: dark` lives in
+ * reset.css (`base` layer), where it can beat `html { color-scheme: light }`.
  * Values are Figma's `dark` mode, except the five marked "deviation":
  * those were darkened in code so text on them clears WCAG AA. Same
  * `theme` layer as :root (see global.css), same specificity-beats-:root
  * via the attribute selector. Primitives and z-index do not change.
  * ============================================================ */
 [data-theme="dark"] {
-  color-scheme: dark;
-
   /* --- Semantic: text ---------------------------------------- */
   --ds-text-primary: #f0f4f7;
   --ds-text-secondary: #d6d3d1;

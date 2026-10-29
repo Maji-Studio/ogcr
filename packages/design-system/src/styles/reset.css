@@ -16,8 +16,14 @@
 }
 
 html {
-  color-scheme: light; /* Default. Dark is opt-in via [data-theme="dark"] (palette.css),
-                          which sets color-scheme: dark; no OS auto-switch. */
+  color-scheme: light; /* Default; no OS auto-switch. */
+}
+
+/* Dark is opt-in via <html data-theme="dark"> (colours: palette.css).
+   Declared here, not in palette.css: the `base` layer outranks `theme`,
+   so a dark color-scheme in palette.css would lose to the rule above. */
+[data-theme="dark"] {
+  color-scheme: dark;
 }
 
 html,

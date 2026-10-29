@@ -251,13 +251,13 @@ Utility names drop the namespace prefix: `bg-surface-page`, `p-16`, `rounded-12`
 
 ### Theming: the `--ds-*` seam
 
-Every **color** token is a `var(--ds-*)` reference into a runtime palette; that palette is the only place a brand hex appears. Because the reference (not the hex) is baked into each utility, overriding a `--ds-*` custom property on any scoping element — `:root`, a wrapper `div`, a `[data-theme="dark"]` attribute — retints every utility and focus shadow that derives from it, with no rebuild. A build gate fails if any color utility re-bakes a literal.
+Every **color** token is a `var(--ds-*)` reference into a runtime palette; that palette is the only place a brand hex appears. Because the reference (not the hex) is baked into each utility, overriding a `--ds-*` custom property on any scoping element — `:root`, a wrapper `div` — retints every utility and focus shadow that derives from it, with no rebuild. A build gate fails if any color utility re-bakes a literal.
 
 Radius, spacing, border-width, font and elevation tokens stay literal by design (no brand-variance need yet); moving them onto the seam later is the same mechanical step.
 
 Adding a token is **two edits, not one**: declare it in the theme, and pin it in the shipped-utility safelist. A token added to the theme and forgotten in the safelist is a build failure, not a silent hole — see below for why.
 
-**Dark mode** is implemented as a second `--ds-*` block in `palette.css`, `[data-theme="dark"] { color-scheme: dark; … }`, in the same `theme` layer as `:root`. It is **opt-in only**: put `data-theme="dark"` on `<html>` or any wrapper. There is no `prefers-color-scheme` auto-switch yet, by the designer's choice. Components need no changes because every utility already references the seam. `html` defaults to `color-scheme: light` (`reset.css`). In Storybook, use the toolbar **Theme** switch.
+**Dark mode** is implemented as a second `--ds-*` block in `palette.css`, `[data-theme="dark"] { … }`, in the same `theme` layer as `:root` (its `color-scheme: dark` sits in `reset.css`, because the `base` layer outranks `theme`). It is **opt-in only** and **root level only**: put `data-theme="dark"` on `<html>`. A dark wrapper inside a light page is not supported: portalled overlays (Dialog, Select, Tooltip) mount under `<body>`, and the focus shadows read `--color-*` aliases resolved on `:root`. There is no `prefers-color-scheme` auto-switch yet, by the designer's choice. Components need no changes because every utility already references the seam. `html` defaults to `color-scheme: light` (`reset.css`). In Storybook, use the toolbar **Theme** switch.
 
 Values are Figma's `dark` mode, except five deliberate deviations where Figma's value fails WCAG AA for the text that sits on it. Figma should catch up:
 
