@@ -274,10 +274,11 @@
   --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
 
   /* Weights — values match Figma typography/font/style.
-     "bold" = 700 (Inter Bold). If you need 600 (Inter Semi Bold),
-     introduce a separate --font-weight-semibold token. */
+     "semibold" = 600 (Inter Semi Bold; Figma font/style/semibold, added
+     2026-10-29), "bold" = 700 (Inter Bold). */
   --font-weight-default: 400;
   --font-weight-medium: 500;
+  --font-weight-semibold: 600;
   --font-weight-bold: 700;
 
   /* Size primitives (rem). xs–5xl mirror Figma typography/font/size.
@@ -286,6 +287,7 @@
   --text-xxs: 0.75rem;     /* 12px — code-only */
   --text-xs: 0.625rem;     /* 10px */
   --text-s: 0.875rem;      /* 14px */
+  --text-ms: 1rem;         /* 16px — Figma font/size/ms (added 2026-10-29) */
   --text-m: 1.125rem;      /* 18px — Figma font/size/m. Was 1rem (16px),
                               the only wrong step in the ladder; --text-h4
                               and --text-body dereference this token and

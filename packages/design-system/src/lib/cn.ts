@@ -28,7 +28,7 @@ import { extendTailwindMerge } from "tailwind-merge";
  */
 const fontSizes = [
   // Size primitives (--text-xxs … --text-5xl)
-  "xxs", "xs", "s", "m", "l", "xl",
+  "xxs", "xs", "s", "ms", "m", "l", "xl",
   "2xl", "3xl", "4xl", "5xl",
   // Semantic multi-prop sizes (--text-h1 … --text-label-input)
   "h1", "h2", "h3", "h4",

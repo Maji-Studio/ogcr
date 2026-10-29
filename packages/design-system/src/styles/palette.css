@@ -8,7 +8,7 @@
  * are `var(--ds-*)` references, so Tailwind inlines the *reference*
  * (not a literal hex) into every color utility — which makes the
  * utilities runtime-themeable. Override any `--ds-*` on a scoping
- * element (`:root`, a wrapper `div`, `.dark`) and every utility and
+ * element (`:root`, a wrapper `div`, `[data-theme="dark"]`) and every utility and
  * focus-shadow that derives from it follows. See theme.css header
  * for the full token contract.
  *
@@ -28,7 +28,7 @@
  * stylesheet order. Before that it was unlayered and — because the DS
  * sheet loads last — silently beat every app-side override.
  *
- * Last reconciled with Figma variables: 2026-08-13.
+ * Last reconciled with Figma variables: 2026-10-29.
  * ============================================================ */
 
 :root {
@@ -49,7 +49,11 @@
   --ds-text-primary: #0f3655;
   --ds-text-secondary: #6a8196;
   --ds-text-neutral: #334155;
-  --ds-text-positive: #4f8263;
+  /* positive text/icon = brand-green/800 (#416c51), NOT the button green
+     #4f8263: that failed WCAG AA as text (4.46:1 on white, 3.77:1 on
+     surface-positive). #416c51 passes: 6.02:1 / 5.08:1. Figma updated to match
+     on 2026-10-29. interaction-primary-default stays #4f8263. */
+  --ds-text-positive: #416c51;
   --ds-text-negative: #b91c1c;
   --ds-text-warning: #c2410c;
   --ds-text-progress: #265277;
@@ -58,7 +62,7 @@
   --ds-icon-primary: #0f3655;
   --ds-icon-secondary: #6a8196;
   --ds-icon-neutral: #334155;
-  --ds-icon-positive: #4f8263;
+  --ds-icon-positive: #416c51;
   --ds-icon-negative: #b91c1c;
   --ds-icon-warning: #c2410c;
   --ds-icon-progress: #265277;
@@ -128,4 +132,81 @@
    * only parses the `#hex` --ds-* tokens, so these are ignored by it.) */
   --ds-z-overlay: 50;
   --ds-z-toast: 100;
+}
+
+/* ============================================================
+ * Dark theme — OPT-IN ONLY: set `data-theme="dark"` on <html>. Root
+ * level only: portalled overlays mount under <body>, and the focus
+ * shadows read `--color-*` aliases resolved on :root, so a dark wrapper
+ * inside a light page is NOT supported. There is deliberately no
+ * prefers-color-scheme auto-switch. `color-scheme: dark` lives in
+ * reset.css (`base` layer), where it can beat `html { color-scheme: light }`.
+ * Values are Figma's `dark` mode, except the five marked "deviation":
+ * those were darkened in code so text on them clears WCAG AA. Same
+ * `theme` layer as :root (see global.css), same specificity-beats-:root
+ * via the attribute selector. Primitives and z-index do not change.
+ * ============================================================ */
+[data-theme="dark"] {
+  /* --- Semantic: text ---------------------------------------- */
+  --ds-text-primary: #f0f4f7;
+  --ds-text-secondary: #d6d3d1;
+  --ds-text-neutral: #e2e8f0;
+  --ds-text-positive: #c5dfce;
+  --ds-text-negative: #fecaca;
+  --ds-text-warning: #fed7aa;
+  --ds-text-progress: #c3daed;
+
+  /* --- Semantic: icon ---------------------------------------- */
+  --ds-icon-primary: #f0f4f7;
+  --ds-icon-secondary: #d6d3d1;
+  --ds-icon-neutral: #e2e8f0;
+  --ds-icon-positive: #c5dfce;
+  --ds-icon-negative: #fecaca;
+  --ds-icon-warning: #fed7aa;
+  --ds-icon-progress: #c3daed;
+  --ds-icon-positive-light: #a8d0b6;
+  --ds-icon-negative-light: #fca5a5;
+  --ds-icon-warning-light: #fdba74;
+  --ds-icon-progress-light: #3f88c6;
+
+  /* --- Semantic: surface ------------------------------------- */
+  --ds-surface-page: #443321;
+  --ds-surface-light: #000000;
+  --ds-surface-strong: #59432e;
+  --ds-surface-neutral: #57534e;
+  --ds-surface-inverted: #f8f3ef;
+  /* Deviations from Figma dark: darkened so status text clears AA. */
+  --ds-surface-positive: #335641;  /* Figma: #5e9975 (text 2.36:1); darkened for AA */
+  --ds-surface-negative: #991b1b;  /* Figma: #dc2626 (3.34:1); darkened for AA */
+  --ds-surface-warning: #9a3412;   /* Figma: #ea580c (2.63:1); darkened for AA */
+  --ds-surface-progress: #265277;  /* Figma: #2f6695 (4.22:1); darkened for AA */
+
+  /* --- Semantic: border -------------------------------------- */
+  --ds-border-light: #57534e;
+  --ds-border-medium: #a8a29e;
+  --ds-border-strong: #e7e5e4;
+  --ds-border-high-contrast: #ffffff;
+  --ds-border-positive-light: #5e9975;
+  --ds-border-warning-light: #ea580c;
+  --ds-border-negative-light: #dc2626;
+  --ds-border-negative-strong: #fca5a5;
+  --ds-border-neutral-strong: #d6d3d1;
+  --ds-border-positive-strong: #c5dfce;
+  --ds-border-warning-strong: #fdba74;
+  /* Code-only (no Figma provenance): translucent white on dark. */
+  --ds-border-default: #ffffff14;
+
+  /* --- Semantic: interaction --------------------------------- */
+  --ds-interaction-primary-default: #a8d0b6;
+  --ds-interaction-primary-hover: #c5dfce;
+  --ds-interaction-primary-active: #c5dfce;
+  --ds-interaction-primary-focus: #416c51;
+  /* Deviation: Figma keeps #ffffff here, which puts near-white dark-mode
+     text on white (1.11:1). Transparent shows the dark surface instead. */
+  --ds-interaction-secondary-default: transparent;  /* Figma: #ffffff; changed for AA */
+  --ds-interaction-secondary-hover: #c3daed;
+  --ds-interaction-secondary-active: #c3daed;
+  --ds-interaction-secondary-focus: #1c3d59;
+  /* Code-only: Figma has no `tertiary` interaction tier. */
+  --ds-interaction-tertiary-active: #416c51;
 }
