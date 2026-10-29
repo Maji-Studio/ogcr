@@ -58,7 +58,7 @@ const POINT_STROKE_WIDTH = 2;
 const LABEL_MIN_ZOOM = 13;
 const LABEL_CLASS =
   "pointer-events-none inline-flex flex-col items-center whitespace-nowrap rounded-8 bg-surface-light px-8 py-4 text-center shadow-elevation-l";
-const LABEL_NAME_CLASS = "text-xxs font-bold text-text-primary";
+const LABEL_NAME_CLASS = "text-xxs font-semibold text-text-primary";
 const LABEL_DETAIL_CLASS = "text-xxs font-normal text-text-secondary";
 
 /** Bounding box of every coordinate in a collection, for fitBounds. */

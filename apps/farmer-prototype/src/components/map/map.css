@@ -26,20 +26,13 @@
   color: var(--ds-text-secondary);
 }
 
-/* Basemap switch (DS ToggleGroup in map-controls.tsx). Plain CSS on purpose: the app's Tailwind
-   build has no DS theme, so variant classes naming DS tokens are never generated. */
-.map-basemap-switch [data-slot="toggle-group-item"] {
-  height: auto;
-  padding: var(--spacing-6) var(--spacing-12);
-  border-radius: var(--radius-4);
-}
+/* Basemap switch (DS ToggleGroup, `appearance="segmented"`, in map-controls.tsx). The DS supplies
+   the tray and item geometry; only the pressed fill is restated here. The app's own Tailwind build
+   emits `.bg-transparent` / `.font-normal` into the unnested `utilities` layer, which outranks the
+   DS's `utilities.ogcr-ds` layer, so the DS `data-[pressed]:` rules never win. Plain CSS fixes it. */
 .map-basemap-switch [data-slot="toggle-group-item"][data-pressed] {
   background: var(--ds-surface-positive);
-  color: var(--ds-text-primary);
-}
-/* Drop the DS pressed shadow, but never the DS focus ring that shares box-shadow. */
-.map-basemap-switch [data-slot="toggle-group-item"][data-pressed]:not(:focus-visible) {
-  box-shadow: none;
+  font-weight: 500;
 }
 
 /* Popups — strip MapLibre's default chrome and use a DS card surface.

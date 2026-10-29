@@ -19,11 +19,12 @@ const BASEMAP_ITEMS: ToggleGroupItem[] = [
 ];
 
 /**
- * The DS segment ships a 36px-tall pill whose pressed state matches this light container, so the
- * items are restyled in map.css (`.map-basemap-switch`). The DS exposes no per-item classes.
+ * The DS `segmented` appearance supplies the light tray (background, padding, radius, border) and
+ * the pale-green pressed item (its fill is restated in map.css, see `.map-basemap-switch`). Only
+ * positioning, pointer events and elevation belong to the app.
  */
 const BASEMAP_SWITCH_CLASS =
-  "map-basemap-switch pointer-events-auto absolute right-24 top-24 gap-2 rounded-8 border-0 bg-surface-light p-4 shadow-elevation-l";
+  "map-basemap-switch pointer-events-auto absolute right-24 top-24 shadow-elevation-l";
 
 interface MapControlsProps {
   basemap: BasemapId;
@@ -46,6 +47,8 @@ export function MapControls({
     <div className="pointer-events-none absolute inset-0">
       <ToggleGroup
         aria-label="Basemap"
+        appearance="segmented"
+        size="m"
         items={BASEMAP_ITEMS}
         value={[basemap]}
         onValueChange={(next) => {
