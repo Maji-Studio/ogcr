@@ -98,8 +98,9 @@ const segment = cva(
       { appearance: 'default', size: 's', class: 'h-28 min-w-28 px-8 text-s' },
       { appearance: 'default', size: 'm', class: 'h-36 min-w-36 px-12 text-s' },
       /* Visual height keeps the prototype's dense look; a ::before stretches the hit area to 40px (§8). */
-      { appearance: ['segmented', 'chip'], size: 's', class: 'h-24 px-8 text-xxs before:absolute before:inset-x-0' },
-      { appearance: ['segmented', 'chip'], size: 'm', class: 'h-32 px-12 text-s before:absolute before:inset-x-0' },
+      /* min-w-40 keeps short or icon-only items at least 40px wide. */
+      { appearance: ['segmented', 'chip'], size: 's', class: 'h-24 min-w-40 px-8 text-xxs before:absolute before:inset-x-0' },
+      { appearance: ['segmented', 'chip'], size: 'm', class: 'h-32 min-w-40 px-12 text-s before:absolute before:inset-x-0' },
       /* ::before is positioned against the padding box, so the chip's 1px border needs 1px more reach. */
       { appearance: 'segmented', size: 's', class: 'before:-inset-y-8' },
       { appearance: 'segmented', size: 'm', class: 'before:-inset-y-4' },
@@ -115,10 +116,16 @@ const group = cva('', {
     appearance: {
       default: 'inline-flex items-center gap-2 p-2 rounded-12 bg-surface-neutral border border-border-light',
       segmented: 'inline-flex items-center gap-2 p-4 rounded-8 bg-surface-light border border-border-light',
-      chip: 'flex flex-wrap items-center gap-8',
+      chip: 'flex flex-wrap items-center gap-x-8',
     },
+    size: { s: '', m: '' },
   },
-  defaultVariants: { appearance: 'default' },
+  compoundVariants: [
+    /* Wrapped chip rows sit at least one hit area (42px) apart so expanded targets never overlap. */
+    { appearance: 'chip', size: 'm', class: 'gap-y-10' },
+    { appearance: 'chip', size: 's', class: 'gap-y-20' },
+  ],
+  defaultVariants: { appearance: 'default', size: 'm' },
 })
 
 export type ToggleGroupAppearance = NonNullable<VariantProps<typeof group>['appearance']>
@@ -190,7 +197,7 @@ export function ToggleGroup({
       data-slot="toggle-group"
       {...rest}
       data-appearance={appearance ?? 'default'}
-      className={cn(group({ appearance }), className)}
+      className={cn(group({ appearance, size }), className)}
     >
       {items.map((item) => (
         <BaseToggle

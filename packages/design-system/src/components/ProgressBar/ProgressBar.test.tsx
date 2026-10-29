@@ -99,4 +99,17 @@ describe('ProgressBar segments', () => {
     expect(screen.queryByRole('listitem')).toBeNull()
     expect(screen.getByRole('img', { name: '19 Antworten' })).toBeInTheDocument()
   })
+
+  it('keeps fractional totals to scale', () => {
+    const { container } = render(
+      <ProgressBar
+        segments={[
+          { value: 0.2, tone: 'positive', label: 'Measured' },
+          { value: 0.3, tone: 'neutral', label: 'Modelled' },
+        ]}
+      />,
+    )
+    const widths = [...container.querySelectorAll<HTMLElement>('[data-slot="progress-segment"]')].map((el) => el.style.width)
+    expect(widths).toEqual(['40%', '60%'])
+  })
 })

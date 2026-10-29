@@ -40,12 +40,10 @@ export type ProgressBarSegment = {
   label: string
 }
 
-export type ProgressBarProps = Omit<
+type ProgressBarCommonProps = Omit<
   ComponentPropsWithoutRef<'div'>,
   'children' | 'value'
 > & {
-  /** Single-fill value. Ignored when `segments` is given. */
-  value?: number | null
   label?: string
   labelIcon?: ReactNode
   showValue?: boolean
@@ -53,16 +51,29 @@ export type ProgressBarProps = Omit<
   min?: number
   /** Single fill: scale top (default 100). Segments: scale top, defaults to the sum of the segment values. */
   max?: number
-  /**
-   * Stacked bar: segments side by side, widths as a share of `max`. Renders a composite meter
-   * (`role="img"` named by `summary`), not a `progressbar`. `showValue` is ignored.
-   */
-  segments?: ProgressBarSegment[]
   /** Dot + label + value row under a stacked bar. Defaults to `true` when `segments` is given. */
   legend?: boolean
   /** Accessible name builder for the stacked bar. Defaults to the `dsStrings.progressBar` copy. */
   summary?: (parts: ReadonlyArray<{ label: string; value: number }>, total: number) => string
 }
+
+export type ProgressBarProps = ProgressBarCommonProps &
+  (
+    | {
+        /** Single fill. `null` = indeterminate. */
+        value: number | null
+        segments?: undefined
+      }
+    | {
+        value?: undefined
+        /**
+         * Stacked bar: segments side by side, widths as a share of `max`; anything past `max` is
+         * clipped. Renders a composite meter (`role="img"` named by `summary`), not a `progressbar`.
+         * `showValue` is ignored.
+         */
+        segments: ProgressBarSegment[]
+      }
+  )
 
 export function ProgressBar({
   value = null,
@@ -102,24 +113,24 @@ export function ProgressBar({
           </span>
         )}
         <div data-slot="progress-track" className="flex w-full h-10 bg-surface-neutral rounded-full overflow-hidden">
-          {shown.map((segment) => (
+          {shown.map((segment, index) => (
             <div
-              key={segment.label}
+              key={index}
               data-slot="progress-segment"
               data-tone={segment.tone}
               className={cn(
-                'h-full transition-[width] duration-200 ease-[cubic-bezier(0.2,0,0,1)] motion-reduce:transition-none',
+                'h-full shrink-0 transition-[width] duration-200 ease-[cubic-bezier(0.2,0,0,1)] motion-reduce:transition-none',
                 segmentFill({ tone: segment.tone }),
               )}
-              style={{ width: `${Math.min(100, (segment.value / Math.max(1, total)) * 100)}%` }}
+              style={{ width: `${total > 0 ? Math.min(100, (segment.value / total) * 100) : 0}%` }}
             />
           ))}
         </div>
         {legend && (
           <ul data-slot="progress-legend" className="flex flex-wrap gap-x-16 gap-y-4 m-0 p-0 list-none">
-            {segments.map((segment) => (
+            {segments.map((segment, index) => (
               <li
-                key={segment.label}
+                key={index}
                 className="inline-flex items-center gap-8 font-standard font-normal text-s leading-[1.4] text-text-secondary"
               >
                 <span
