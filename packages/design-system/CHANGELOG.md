@@ -1,5 +1,15 @@
 # @majistudio/ogcr-design-system
 
+## 1.2.0
+
+### Minor Changes
+
+- 6f1cadb: Add an opt-in dark theme (`data-theme="dark"` on `<html>`; no OS auto-switch) and a Storybook theme toggle.
+  `--text-positive` / `--icon-positive` darken to `#416c51` to pass WCAG AA as text (button green is unchanged).
+  Add the `text-ms` (16px) size step and `font-semibold` (600) weight.
+- 0dbd337: New components: `OptionCard` (radio or checkbox cards), `List` / `ListItem`, `EmptyState` and `StepList`.
+  New variants: `ToggleGroup` `appearance="segmented" | "chip"`, `Pill` `size="xs"` and `shape="round"`, `ProgressBar` `segments` with a legend, and `multiple` on `Select` and `Combobox`.
+
 ## 1.1.0
 
 ### Major Changes
