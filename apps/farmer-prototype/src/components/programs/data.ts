@@ -168,7 +168,7 @@ export function parcelFeatures(
     type: "FeatureCollection",
     features: program.parcels.map((parcel) => ({
       type: "Feature",
-      properties: { status, name: parcel.name },
+      properties: { status, name: parcel.name, detail: `${parcel.areaHa.toFixed(1)} ha` },
       geometry: {
         type: "Polygon",
         coordinates: [[...parcel.ring, parcel.ring[0]]],

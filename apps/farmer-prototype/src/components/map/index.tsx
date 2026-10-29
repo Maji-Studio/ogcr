@@ -12,11 +12,11 @@ export const MapView = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="flex h-full w-full items-center justify-center rounded-16 border border-border-medium bg-surface-light">
+      <div className="flex h-full w-full items-center justify-center rounded-16 bg-surface-neutral">
         <span className="text-body-s text-text-secondary">Loading map…</span>
       </div>
     ),
   },
 );
 
-export type { BaseMapProps } from "./base-map";
+export type { BaseMapProps, MapFeatureSelection } from "./base-map";

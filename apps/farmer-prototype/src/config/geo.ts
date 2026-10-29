@@ -3,7 +3,7 @@
  *
  * Both basemaps are key-free raster tile services, so the map needs no
  * environment variables. Satellite is the default ("priority") basemap; the
- * street basemap is the toggle alternative. All magic numbers for the map live
+ * minimal basemap is the toggle alternative. All magic numbers for the map live
  * here per the repo's no-magic-numbers rule.
  */
 
@@ -26,28 +26,18 @@ export const SATELLITE_ATTRIBUTION =
   "Esri, Maxar, Earthstar Geographics, and the GIS User Community";
 export const SATELLITE_MAX_ZOOM = 19;
 
-/** OpenStreetMap raster — free street basemap, no API key required. */
-export const STREET_TILE_URL = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
-export const STREET_ATTRIBUTION =
-  '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
-export const STREET_MAX_ZOOM = 19;
-
 /**
- * Raster paint treatment so each basemap sits calmly under brand-coloured
- * overlays — gently desaturated, with a touch of contrast. MapLibre paints to a
- * canvas (no CSS variables reach it), so these are numeric and basemap-specific:
- * satellite imagery wants a firmer hand than the already-muted street tiles.
+ * Esri Light Gray Canvas — the "minimal" basemap, key-free. The design prototype uses CARTO
+ * Positron, but CARTO now serves a watermark tile without an API key; this is the nearest
+ * key-free match. Real tiles stop at z16 (z17+ is a "not yet available" placeholder), so the
+ * source caps there and MapLibre overzooms the flat canvas for farm-level views.
  */
-export const SATELLITE_RASTER_TREATMENT = {
-  saturation: -0.22,
-  contrast: 0.06,
-  brightnessMin: 0.03,
-} as const;
-export const STREET_RASTER_TREATMENT = {
-  saturation: -0.32,
-  contrast: -0.04,
-  brightnessMin: 0,
-} as const;
+export const MINIMAL_TILE_URLS = [
+  "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+];
+export const MINIMAL_ATTRIBUTION =
+  "Esri, HERE, Garmin, © OpenStreetMap contributors, and the GIS User Community";
+export const MINIMAL_MAX_ZOOM = 16;
 
-export type BasemapId = "satellite" | "street";
+export type BasemapId = "satellite" | "minimal";
 export const DEFAULT_BASEMAP: BasemapId = "satellite";

@@ -15,7 +15,6 @@ const PUBLIC_ROUTES = [
   "/set-password",
   "/verify-email",
   "/unauthorized",
-  "/scope-3-prototype",
   "/api/auth",
 ];
 
