@@ -1,0 +1,65 @@
+/*
+ * MapView chrome: MapLibre's own markup restyled onto OGCR design-system tokens.
+ * Published as `@majistudio/ogcr-design-system/map.css`. Import it AFTER
+ * `maplibre-gl/dist/maplibre-gl.css` (both unlayered) so these rules win, and
+ * after the DS styles.css that defines the tokens. Every colour comes from the
+ * --ds-* palette, so the map chrome retints with the brand and the dark theme.
+ */
+
+/* Attribution: flush in the bottom-right corner under the zoom stack. It is
+   third-party text, kept at MapLibre's own 11px. */
+.maplibregl-ctrl-bottom-right .maplibregl-ctrl-attrib {
+  margin: 0;
+  padding: 0 var(--spacing-6);
+  background: color-mix(in srgb, var(--ds-surface-light) 80%, transparent);
+  border-radius: var(--radius-4) 0 0 0;
+  color: var(--ds-text-secondary);
+}
+.maplibregl-ctrl-attrib {
+  font-family: var(--font-standard);
+  font-size: 11px;
+}
+.maplibregl-ctrl-attrib a {
+  color: var(--ds-text-secondary);
+}
+
+/* Basemap switch (ToggleGroup, `appearance="segmented"`). The DS supplies the
+   tray and item geometry; the pressed fill and weight are restated here because
+   an app's own Tailwind can emit `.bg-transparent` / `.font-normal` into the
+   unnested `utilities` layer, which outranks the DS's `utilities.ogcr-ds` layer,
+   so the DS `data-[pressed]:` rules lose. Unlayered CSS fixes it. Remove once
+   the DS layer strategy changes. */
+.map-basemap-switch [data-slot="toggle-group-item"][data-pressed] {
+  background: var(--ds-surface-positive);
+  font-weight: 500;
+}
+
+/* Popups: strip MapLibre's default chrome and use a DS card surface.
+   In place for future data layers (markers, polygons). */
+.maplibregl-popup-content {
+  padding: var(--spacing-12) var(--spacing-12);
+  border: var(--border-width-s) solid var(--ds-border-medium);
+  border-radius: var(--radius-8);
+  background: var(--ds-surface-light);
+  color: var(--ds-text-primary);
+  box-shadow: var(--shadow-elevation-l);
+  font-family: var(--font-standard);
+}
+.maplibregl-popup-tip {
+  display: none;
+}
+.maplibregl-popup-close-button {
+  padding: var(--spacing-2) var(--spacing-8);
+  color: var(--ds-text-secondary);
+  font-size: var(--text-m);
+}
+.maplibregl-popup-close-button:hover {
+  background: transparent;
+  color: var(--ds-text-primary);
+}
+
+/* Brand focus ring on the keyboard-focused canvas. */
+.maplibregl-canvas:focus-visible {
+  outline: var(--border-width-l) solid var(--ds-interaction-primary-default);
+  outline-offset: calc(-1 * var(--border-width-l));
+}

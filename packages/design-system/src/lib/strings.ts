@@ -81,4 +81,15 @@ export const dsStrings = {
     segmentsSummary: (parts: ReadonlyArray<{ label: string; value: number }>, total: number) =>
       `${parts.map((part) => `${part.label} ${part.value}`).join(', ')} of ${total}`,
   },
+  map: {
+    /** aria-label for the basemap switch. */
+    basemapLabel: 'Basemap',
+    minimalLabel: 'Minimal',
+    satelliteLabel: 'Satellite',
+    zoomInLabel: 'Zoom in',
+    zoomOutLabel: 'Zoom out',
+    /** Shown when the browser cannot start WebGL. */
+    unavailableTitle: 'Map unavailable',
+    unavailableDescription: 'Your browser could not start the map renderer (WebGL).',
+  },
 } as const

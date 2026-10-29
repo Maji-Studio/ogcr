@@ -48,7 +48,7 @@ npm install @majistudio/ogcr-design-system react react-dom @base-ui/react
 yarn add @majistudio/ogcr-design-system react react-dom @base-ui/react
 ```
 
-> Only need the `Table` component? It also needs `@tanstack/react-table` — `pnpm add @tanstack/react-table`. Everything else works without it.
+> Only need the `Table` component? It also needs `@tanstack/react-table` — `pnpm add @tanstack/react-table`. `Map` needs `maplibre-gl` — `pnpm add maplibre-gl` — plus its two stylesheets (see below). Everything else works without them.
 
 ### 2. Import the stylesheet once
 
@@ -82,7 +82,7 @@ That's it — you're styled and on-brand. Browse every component (with live cont
 | --- | --- |
 | **Overlays** | `Dialog`, `AlertDialog`, `Popover`, `Select`, `Combobox`, `Tooltip`, `Menu`, `ContextMenu`, `Sidesheet` |
 | **Inputs & forms** | `Input`, `Textarea`, `NumberField`, `Checkbox`, `Radio`, `Switch`, `Slider`, `Toggle` / `ToggleGroup`, `OptionCard`, `Calendar`, `DatePicker`, `Form` |
-| **Layout & structure** | `Accordion`, `Collapsible`, `Tabs`, `Table`, `Toolbar`, `ScrollArea`, `Separator`, `Card`, `List`, `StepList`, `Breadcrumb`, `Pagination`, `Navigation`, `SideNavigation` |
+| **Layout & structure** | `Accordion`, `Collapsible`, `Tabs`, `Table`, `Map`, `MapLegend`, `Toolbar`, `ScrollArea`, `Separator`, `Card`, `List`, `StepList`, `Breadcrumb`, `Pagination`, `Navigation`, `SideNavigation` |
 | **Feedback & display** | `Toast`, `Message`, `Skeleton`, `ProgressBar`, `Pill`, `Kpi`, `EmptyState`, `Avatar`, `Logo`, `icons` |
 
 Under the hood: `src/components/` holds the components (`src/index.ts` is the public barrel), `src/styles/` holds the design tokens (reconciled from the OGCR Figma file), and `docs/design-system.md` is the authoritative spec — **when the spec and the code disagree, the spec wins.**
@@ -105,10 +105,11 @@ Both work. The barrel is convenient; deep imports give the smallest client bound
 <summary><strong>The fine print — SSR boundaries, the <code>Table</code> exception, and <code>cn()</code></strong></summary>
 
 - **`Table` is deep-import only.** It is intentionally **not** on the barrel — import it as `import { Table } from '@majistudio/ogcr-design-system/Table'`. It's the one component that pulls in `@tanstack/react-table`, so keeping it off the barrel means consumers who never render a table don't drag that peer into their dependency graph. `@tanstack/react-table` is an **optional** peer — install it only if you use `Table`, and the install won't warn otherwise.
+- **`Map` is deep-import only too.** `import { MapView } from '@majistudio/ogcr-design-system/Map'`, for the same reason (`maplibre-gl` is an optional peer, ~250 kB gzipped). Import `maplibre-gl/dist/maplibre-gl.css` and then `@majistudio/ogcr-design-system/map.css` alongside it, and load it client-only (`dynamic(..., { ssr: false })` in Next.js). `MapLegend` has no peer and is on the barrel.
 - **`'use client'` is built in.** Every entry — the barrel and each deep import — ships with a `'use client'` directive as its first line. In an RSC app (Next.js App Router, etc.) the components Just Work from a Server Component. For the smallest client boundary in a perf-sensitive RSC app, deep-import the specific components you render.
 - **`cn()` is exported and dependency-free.** The same `clsx` + `tailwind-merge` class-merge helper the components use is available as `import { cn } from '@majistudio/ogcr-design-system'`, or — with **no** `'use client'` directive and no React in its graph — as `import { cn } from '@majistudio/ogcr-design-system/cn'`. Use the `/cn` deep import to compose class names in a Server Component or other pure context.
 - **The stylesheet does not split.** `styles.css` is one file (~59 KB) regardless of how many components you use. Import it once.
-- **Peer dependencies:** `react` / `react-dom` (^19), `@base-ui/react` (^1), and `@tanstack/react-table` (^8, optional — only for `Table`). Icons (`@phosphor-icons/react`), `react-day-picker` (used by `Calendar` / `DatePicker`), and `cva` / `clsx` / `tailwind-merge` ship as regular dependencies, externalized so a single copy is deduped.
+- **Peer dependencies:** `react` / `react-dom` (^19), `@base-ui/react` (^1), `@tanstack/react-table` (^8, optional — only for `Table`), and `maplibre-gl` (^5, optional — only for `Map`). Icons (`@phosphor-icons/react`), `react-day-picker` (used by `Calendar` / `DatePicker`), and `cva` / `clsx` / `tailwind-merge` ship as regular dependencies, externalized so a single copy is deduped.
 - **Machine-readable indexes ship in the package** for tooling and LLMs: `@majistudio/ogcr-design-system/manifest.json` (every component's import path, exported symbols, and types path) and `@majistudio/ogcr-design-system/llms.txt` (one line per component with its import). Both are regenerated on every `build:lib`.
 
 </details>

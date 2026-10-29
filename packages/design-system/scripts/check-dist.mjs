@@ -5,8 +5,8 @@
 //      (every entry a consumer can import is a client boundary).
 //   2. dist/lib/cn.js EXISTS and does NOT start with `'use client'` (the cn() helper is pure and
 //      must stay importable from a Server Component).
-//   3. Table is NOT re-exported from dist/index.d.ts (it is deep-import-only so barrel consumers
-//      don't drag in the optional @tanstack/react-table peer).
+//   3. Table and Map are NOT re-exported from the barrel (deep-import-only so barrel consumers
+//      don't drag in the optional @tanstack/react-table / maplibre-gl peers).
 //   4. `pnpm pack --dry-run` succeeds and the tarball includes dist/index.js (the package is
 //      actually publishable and ships its entry).
 //   5. THE SHIPPED-STYLESHEET CONTRACT (added after the 2026-08 audit). dist/styles.css is
@@ -80,7 +80,21 @@ if (fs.existsSync(barrelDts)) {
     !/from\s+['"][^'"]*components\/Table['"]/.test(dts),
     'dist/index.d.ts re-exports ./components/Table — Table must be deep-import-only.',
   );
+  // Same for Map: it pulls in the optional maplibre-gl peer.
+  check(
+    !/from\s+['"][^'"]*components\/Map['"]/.test(dts),
+    'dist/index.d.ts re-exports ./components/Map — Map must be deep-import-only.',
+  );
 }
+const barrelJs = fs.existsSync(barrel) ? fs.readFileSync(barrel, 'utf8') : '';
+check(
+  !/maplibre-gl/.test(barrelJs),
+  'dist/index.js references maplibre-gl — the barrel must not pull in the Map peer.',
+);
+check(
+  fs.existsSync(path.join(dist, 'map.css')),
+  'dist/map.css missing — build:lib must copy src/components/Map/map.css for the ./map.css export.',
+);
 
 // --- 4. Package is publishable and ships its entry --------------------------------------------
 // pnpm-only repo: `pnpm pack --dry-run --json` returns `{ name, version, filename, files:[{path}] }`
@@ -236,7 +250,7 @@ if (failures.length) {
 }
 
 console.log(
-  `check:dist ✓ all entries carry 'use client', cn.js is pure, Table is deep-import-only, ` +
+  `check:dist ✓ all entries carry 'use client', cn.js is pure, Table + Map are deep-import-only, ` +
     `pnpm pack ${packedOk ? 'ships dist/index.js + styles.css' : 'ok'}; ` +
     `${colorCount} color tokens have utilities and ${varCount} token variables ship in styles.css ` +
     `(layered as utilities.ogcr-ds, --spacing pinned to 1px).`,
