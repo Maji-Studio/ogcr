@@ -213,6 +213,9 @@ export function BaseMap({
   // moving anything, and refitting on those would yank the camera back from wherever the user panned.
   const fittedExtentRef = useRef<string | null>(null);
   const [basemap, setBasemap] = useState<BasemapId>(initialBasemap);
+  // The basemap showing right now, for callbacks that outlive the render that queued them (the
+  // parcel layers are created on the map's first "load", which can land after a switch).
+  const basemapRef = useRef<BasemapId>(initialBasemap);
   const [failed, setFailed] = useState(false);
   const labelMarkersRef = useRef<maplibregl.Marker[]>([]);
 
@@ -235,9 +238,13 @@ export function BaseMap({
         minZoom: MAP_MIN_ZOOM,
         maxZoom: MAP_MAX_ZOOM,
         attributionControl: { compact: false },
+        // A flat farm map: no rotation or pitch from any input, so label collisions only change on zoom.
         dragRotate: false,
         pitchWithRotate: false,
+        touchPitch: false,
       });
+      map.touchZoomRotate.disableRotation();
+      map.keyboard.disableRotation();
     } catch {
       // No WebGL — degrade to a message instead of crashing the page.
       queueMicrotask(() => setFailed(true));
@@ -262,6 +269,7 @@ export function BaseMap({
   // Basemap toggle → cheap layer-visibility swap (no style reload), plus the outline ink that
   // has to contrast with whichever basemap is showing.
   useEffect(() => {
+    basemapRef.current = basemap;
     const map = mapRef.current;
     if (!map) return;
     const apply = () => {
@@ -317,7 +325,7 @@ export function BaseMap({
           source: PARCEL_SOURCE,
           filter: ["all", isPolygon, ["any", isSelected, ["!", isInactive]]],
           paint: {
-            "line-color": inkColor(basemap),
+            "line-color": inkColor(basemapRef.current),
             "line-width": stateNumber(LINE_WIDTH_SELECTED, LINE_WIDTH_INACTIVE, LINE_WIDTH_ACTIVE),
           },
         });
@@ -328,7 +336,7 @@ export function BaseMap({
           source: PARCEL_SOURCE,
           filter: ["all", isPolygon, ["!", isSelected], isInactive],
           paint: {
-            "line-color": inkColor(basemap),
+            "line-color": inkColor(basemapRef.current),
             "line-width": LINE_WIDTH_INACTIVE,
             "line-dasharray": INACTIVE_DASH_ARRAY,
           },
@@ -364,9 +372,6 @@ export function BaseMap({
 
     if (map.isStyleLoaded()) apply();
     else map.once("load", apply);
-    // basemap is read only to pick the ink when the layers are first added; the toggle effect
-    // re-inks them afterwards.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [features, fitToFeatures, fitPadding, fitMaxZoom]);
 
   // Parcel name cards: one DOM marker per named polygon, rebuilt whenever the features change and

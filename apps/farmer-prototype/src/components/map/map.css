@@ -36,6 +36,9 @@
 .map-basemap-switch [data-slot="toggle-group-item"][data-pressed] {
   background: var(--ds-surface-positive);
   color: var(--ds-text-primary);
+}
+/* Drop the DS pressed shadow, but never the DS focus ring that shares box-shadow. */
+.map-basemap-switch [data-slot="toggle-group-item"][data-pressed]:not(:focus-visible) {
   box-shadow: none;
 }
 
