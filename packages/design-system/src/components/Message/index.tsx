@@ -103,7 +103,7 @@ export function Message({
         <Button
           variant="outlined"
           onClick={onAction}
-          className="shrink-0 bg-transparent border-current text-inherit hover:not-disabled:bg-white/40"
+          className="shrink-0 bg-transparent border-current text-inherit hover:not-disabled:bg-white/40 in-data-[theme=dark]:hover:not-disabled:bg-surface-light/30"
         >
           {actionLabel}
         </Button>
@@ -114,7 +114,7 @@ export function Message({
           type="button"
           aria-label={dismissLabel}
           onClick={onDismiss}
-          className="inline-flex items-center justify-center w-40 h-40 shrink-0 bg-transparent border border-current rounded-12 cursor-pointer transition-colors duration-150 hover:bg-white/40 focus-visible:outline-none focus-visible:shadow-focus-primary [&>svg]:w-24 [&>svg]:h-24"
+          className="inline-flex items-center justify-center w-40 h-40 shrink-0 bg-transparent border border-current rounded-12 cursor-pointer transition-colors duration-150 hover:bg-white/40 in-data-[theme=dark]:hover:bg-surface-light/30 focus-visible:outline-none focus-visible:shadow-focus-primary [&>svg]:w-24 [&>svg]:h-24"
         >
           <XIcon />
         </button>
