@@ -70,3 +70,74 @@ export const WithLeadingIcon: Story = {
     </div>
   ),
 }
+
+const tones = ['neutral', 'positive', 'warning', 'negative', 'progress'] as const
+
+/** Size x shape x tone. `xs` is the dense status chip; `round` is fully round. */
+export const SizeShapeMatrix: Story = {
+  render: () => (
+    <div className="flex flex-col gap-16">
+      {(['m', 'xs'] as const).flatMap((size) =>
+        (['rounded', 'round'] as const).map((shape) => (
+          <div key={`${size}-${shape}`} className="flex flex-wrap items-center gap-12">
+            <span className="w-96 text-s text-text-secondary">
+              {size} {shape}
+            </span>
+            {tones.map((tone) => (
+              <Pill key={tone} size={size} shape={shape} tone={tone}>
+                {tone}
+              </Pill>
+            ))}
+          </div>
+        )),
+      )}
+    </div>
+  ),
+}
+
+export const SizeShapeWithDotAndIcon: Story = {
+  render: () => (
+    <div className="flex flex-col gap-16">
+      {(['m', 'xs'] as const).map((size) => (
+        <div key={size} className="flex flex-col gap-8">
+          <div className="flex flex-wrap items-center gap-8">
+            {tones.map((tone) => (
+              <Pill key={tone} dot size={size} shape="round" tone={tone}>
+                {tone}
+              </Pill>
+            ))}
+          </div>
+          <div className="flex flex-wrap items-center gap-8">
+            {tones.map((tone) => (
+              <Pill key={tone} leading={<CheckCircleIcon />} size={size} shape="round" tone={tone}>
+                {tone}
+              </Pill>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  ),
+}
+
+export const StatusRow: Story = {
+  render: () => (
+    <div className="flex flex-wrap items-center gap-8">
+      <Pill size="xs" shape="round" tone="positive" leading={<CheckCircleIcon />}>
+        Accepted
+      </Pill>
+      <Pill size="xs" shape="round" tone="neutral" dot>
+        Pending
+      </Pill>
+      <Pill size="xs" shape="round" tone="warning" dot>
+        Declined
+      </Pill>
+      <Pill size="xs" shape="round" tone="progress" dot>
+        Measured
+      </Pill>
+      <Pill size="xs" shape="round" tone="neutral">
+        Planned
+      </Pill>
+    </div>
+  ),
+}

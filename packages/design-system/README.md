@@ -2,14 +2,14 @@
 
 # OGCR Design System
 
-**42 ready-made, on-brand React components — install, import one stylesheet, ship.**
+**46 ready-made, on-brand React components — install, import one stylesheet, ship.**
 
 The component library, design tokens, and Tailwind v4 theme that every OGCR frontend builds on. The single source of truth other OGCR projects share — build on it instead of reinventing components or re-deriving tokens.
 
 [![npm version](https://img.shields.io/npm/v/@majistudio/ogcr-design-system?color=2e7d32&label=npm)](https://www.npmjs.com/package/@majistudio/ogcr-design-system)
 [![license](https://img.shields.io/npm/l/@majistudio/ogcr-design-system?color=2e7d32)](./LICENSE)
 [![React 19](https://img.shields.io/badge/React-19-2e7d32)](https://react.dev)
-[![components](https://img.shields.io/badge/components-42-2e7d32)](https://ogcr-design-system.vercel.app/storybook/)
+[![components](https://img.shields.io/badge/components-45-2e7d32)](https://ogcr-design-system.vercel.app/storybook/)
 
 [**Demo app**](https://ogcr-design-system.vercel.app/) · [**Storybook**](https://ogcr-design-system.vercel.app/storybook/) · [**Spec**](docs/design-system.md) · [**Quick start**](#quick-start) · [**Contributing**](#contributing--local-development)
 
@@ -20,7 +20,7 @@ The component library, design tokens, and Tailwind v4 theme that every OGCR fron
 ## Contents
 
 - [Quick start](#quick-start) — install, import, render a button
-- [What's included](#whats-included) — all 42 components, grouped
+- [What's included](#whats-included) — all 46 components, grouped
 - [Two ways to import](#two-ways-to-import) — barrel vs. deep imports
 - [Theming](#theming) — runtime-themeable color tokens
 - [Contributing / local development](#contributing--local-development) — commands & conventions
@@ -76,14 +76,14 @@ That's it — you're styled and on-brand. Browse every component (with live cont
 
 ## What's included
 
-42 components built on [Base UI](https://base-ui.com) behavior primitives, styled with Tailwind v4 tokens and [CVA](https://cva.style) variants:
+46 components built on [Base UI](https://base-ui.com) behavior primitives, styled with Tailwind v4 tokens and [CVA](https://cva.style) variants:
 
 | Group | Components |
 | --- | --- |
 | **Overlays** | `Dialog`, `AlertDialog`, `Popover`, `Select`, `Combobox`, `Tooltip`, `Menu`, `ContextMenu`, `Sidesheet` |
-| **Inputs & forms** | `Input`, `Textarea`, `NumberField`, `Checkbox`, `Radio`, `Switch`, `Slider`, `Toggle` / `ToggleGroup`, `Calendar`, `DatePicker`, `Form` |
-| **Layout & structure** | `Accordion`, `Collapsible`, `Tabs`, `Table`, `Toolbar`, `ScrollArea`, `Separator`, `Card`, `Breadcrumb`, `Pagination`, `Navigation`, `SideNavigation` |
-| **Feedback & display** | `Toast`, `Message`, `Skeleton`, `ProgressBar`, `Pill`, `Kpi`, `Avatar`, `Logo`, `icons` |
+| **Inputs & forms** | `Input`, `Textarea`, `NumberField`, `Checkbox`, `Radio`, `Switch`, `Slider`, `Toggle` / `ToggleGroup`, `OptionCard`, `Calendar`, `DatePicker`, `Form` |
+| **Layout & structure** | `Accordion`, `Collapsible`, `Tabs`, `Table`, `Toolbar`, `ScrollArea`, `Separator`, `Card`, `List`, `StepList`, `Breadcrumb`, `Pagination`, `Navigation`, `SideNavigation` |
+| **Feedback & display** | `Toast`, `Message`, `Skeleton`, `ProgressBar`, `Pill`, `Kpi`, `EmptyState`, `Avatar`, `Logo`, `icons` |
 
 Under the hood: `src/components/` holds the components (`src/index.ts` is the public barrel), `src/styles/` holds the design tokens (reconciled from the OGCR Figma file), and `docs/design-system.md` is the authoritative spec — **when the spec and the code disagree, the spec wins.**
 

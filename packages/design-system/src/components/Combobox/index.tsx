@@ -4,21 +4,19 @@ import { OVERLAY_SIDE_OFFSET, overlayPopupClassName } from '../../lib/overlay'
 import { useField, type FieldAriaInvalid } from '../../lib/field'
 import { dsStrings } from '../../lib/strings'
 import { cn } from '../../lib/cn'
+import { ComboboxMultiple } from './multiple'
 
 export type ComboboxSide = 'top' | 'right' | 'bottom' | 'left'
 export type ComboboxAlign = 'start' | 'center' | 'end'
 
 // `...rest`/`ref` forward to the input (the styleable surface that carries
-// `data-slot`/`className`); the search/value props drive `Autocomplete.Root`.
-export type ComboboxProps = Omit<
+// `data-slot`/`className`); the search/value props drive the Base UI root.
+export type ComboboxCommonProps = Omit<
   ComponentProps<typeof Autocomplete.Input>,
-  'value' | 'defaultValue' | 'onValueChange' | 'children' | 'className' | 'disabled'
+  'value' | 'defaultValue' | 'onValueChange' | 'children' | 'className' | 'disabled' | 'multiple'
 > & {
   /** Options to search through. The chosen string becomes the value. */
   items: string[]
-  value?: string
-  defaultValue?: string
-  onValueChange?: (value: string) => void
   placeholder?: string
   /** Shown inside the popup when no option matches the query. */
   emptyMessage?: string
@@ -42,7 +40,32 @@ export type ComboboxProps = Omit<
   'aria-invalid'?: boolean | 'true' | 'false'
 }
 
-export function Combobox({
+export type ComboboxSingleProps = {
+  multiple?: false
+  value?: string
+  defaultValue?: string
+  onValueChange?: (value: string) => void
+}
+
+export type ComboboxMultipleProps = {
+  /** Several items can be chosen; they show as removable chips and the menu stays open. */
+  multiple: true
+  value?: string[]
+  defaultValue?: string[]
+  onValueChange?: (value: string[]) => void
+  /** aria-label for each chip's remove button. */
+  removeLabel?: (label: string) => string
+}
+
+// `multiple` discriminates the value shape: a string (free text input, Autocomplete)
+// or string[] (selected chips, Base UI Combobox).
+export type ComboboxProps = ComboboxCommonProps & (ComboboxSingleProps | ComboboxMultipleProps)
+
+export function Combobox(props: ComboboxProps) {
+  return props.multiple ? <ComboboxMultiple {...props} /> : <ComboboxSingle {...props} />
+}
+
+function ComboboxSingle({
   items,
   value,
   defaultValue,
@@ -64,7 +87,7 @@ export function Combobox({
   'aria-describedby': ariaDescribedby,
   'aria-invalid': ariaInvalid,
   ...rest
-}: ComboboxProps) {
+}: ComboboxCommonProps & ComboboxSingleProps) {
   const field = useField({
     id,
     label,

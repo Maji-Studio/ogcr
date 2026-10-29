@@ -52,4 +52,76 @@ describe('Select', () => {
     expect(describedBy).toBeTruthy()
     expect(document.getElementById(describedBy!)).toHaveTextContent('Pick a status')
   })
+
+  describe('multiple', () => {
+    const crops = [
+      { value: 'wheat', label: 'Wheat' },
+      { value: 'barley', label: 'Barley' },
+      { value: 'maize', label: 'Maize' },
+    ]
+
+    it('shows the placeholder while nothing is selected', () => {
+      render(<Select multiple options={crops} placeholder="Select crops" aria-label="Crops" />)
+      expect(getTrigger()).toHaveTextContent('Select crops')
+    })
+
+    it('toggles several options, keeps the menu open and reports an array', async () => {
+      const onValueChange = vi.fn()
+      render(<Select multiple options={crops} aria-label="Crops" onValueChange={onValueChange} />)
+      await userEvent.click(getTrigger())
+      await userEvent.click(await screen.findByRole('option', { name: 'Wheat' }))
+      await userEvent.click(await screen.findByRole('option', { name: 'Maize' }))
+      expect(onValueChange).toHaveBeenLastCalledWith(['wheat', 'maize'], expect.anything())
+      expect(screen.getByRole('listbox')).toBeInTheDocument()
+      expect(screen.getByRole('option', { name: 'Wheat' })).toHaveAttribute('aria-selected', 'true')
+      expect(screen.getByRole('option', { name: 'Barley' })).toHaveAttribute('aria-selected', 'false')
+      expect(getTrigger()).toHaveTextContent('Wheat, Maize')
+    })
+
+    it('deselects an option on a second click', async () => {
+      const onValueChange = vi.fn()
+      render(
+        <Select multiple options={crops} defaultValue={['wheat']} aria-label="Crops" onValueChange={onValueChange} />,
+      )
+      await userEvent.click(getTrigger())
+      await userEvent.click(await screen.findByRole('option', { name: 'Wheat' }))
+      expect(onValueChange).toHaveBeenLastCalledWith([], expect.anything())
+    })
+
+    it('collapses to a count past the label threshold', () => {
+      render(<Select multiple options={crops} defaultValue={['wheat', 'barley', 'maize']} aria-label="Crops" />)
+      expect(getTrigger()).toHaveTextContent('3 selected')
+    })
+
+    it('honours maxVisibleLabels and selectedCountLabel', () => {
+      render(
+        <Select
+          multiple
+          options={crops}
+          defaultValue={['wheat', 'barley']}
+          maxVisibleLabels={1}
+          selectedCountLabel={(n) => `${n} Kulturen`}
+          aria-label="Crops"
+        />,
+      )
+      expect(getTrigger()).toHaveTextContent('2 Kulturen')
+    })
+
+    it('renders an item meta', async () => {
+      render(
+        <Select multiple options={[{ value: 'wheat', label: 'Wheat', meta: '4 parcels' }]} aria-label="Crops" />,
+      )
+      await userEvent.click(getTrigger())
+      expect(await screen.findByText('4 parcels')).toBeInTheDocument()
+    })
+
+    it('submits no values while disabled', () => {
+      const { container } = render(
+        <form>
+          <Select multiple disabled name="crops" options={crops} defaultValue={['wheat']} aria-label="Crops" />
+        </form>,
+      )
+      expect(new FormData(container.querySelector('form')!).getAll('crops')).toEqual([])
+    })
+  })
 })

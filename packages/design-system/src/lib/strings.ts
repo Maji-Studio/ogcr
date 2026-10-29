@@ -40,10 +40,22 @@ export const dsStrings = {
   },
   select: {
     placeholder: 'Select…',
+    /** Trigger label for `multiple` once the selection passes the label threshold. */
+    selectedCount: (count: number) => `${count} selected`,
   },
   combobox: {
     placeholder: 'Search…',
     emptyMessage: 'No matches found.',
+    /** aria-label for a selected chip's remove button (`multiple`). */
+    removeLabel: (label: string) => `Remove ${label}`,
+  },
+  stepList: {
+    /** Visually hidden state text, so state is never colour alone. */
+    todo: 'To do',
+    current: 'Current step',
+    done: 'Done',
+    attention: 'Needs attention',
+    locked: 'Locked',
   },
   datePicker: {
     placeholder: 'Select date',
@@ -63,5 +75,10 @@ export const dsStrings = {
     nextLabel: 'Next page',
     /** aria-label for a numbered page button. */
     pageLabel: (page: number) => `Page ${page}`,
+  },
+  progressBar: {
+    /** Accessible name for a segmented bar, e.g. "Accepted 12, Pending 5, Declined 2 of 19". */
+    segmentsSummary: (parts: ReadonlyArray<{ label: string; value: number }>, total: number) =>
+      `${parts.map((part) => `${part.label} ${part.value}`).join(', ')} of ${total}`,
   },
 } as const

@@ -39,4 +39,96 @@ describe('Combobox', () => {
     expect(describedBy).toBeTruthy()
     expect(document.getElementById(describedBy!)).toHaveTextContent('Start typing to search')
   })
+
+  describe('multiple', () => {
+    const farms = ['Aldermoor Farm', 'Brookside Barton', 'Dunmere Estate']
+
+    it('renders defaults as chips with accessible remove buttons', () => {
+      render(
+        <Combobox multiple items={farms} defaultValue={['Aldermoor Farm', 'Dunmere Estate']} aria-label="Farms" />,
+      )
+      expect(screen.getByRole('button', { name: 'Remove Aldermoor Farm' })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Remove Dunmere Estate' })).toBeInTheDocument()
+    })
+
+    it('selects several items, keeps the list open and reports an array', async () => {
+      const onValueChange = vi.fn()
+      render(<Combobox multiple items={farms} placeholder="Search farms" onValueChange={onValueChange} />)
+      await userEvent.click(screen.getByPlaceholderText('Search farms'))
+      await userEvent.click(await screen.findByRole('option', { name: 'Aldermoor Farm' }))
+      await userEvent.click(await screen.findByRole('option', { name: 'Dunmere Estate' }))
+      expect(onValueChange).toHaveBeenLastCalledWith(['Aldermoor Farm', 'Dunmere Estate'], expect.anything())
+      expect(screen.getByRole('listbox')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Remove Aldermoor Farm' })).toBeInTheDocument()
+    })
+
+    it('removes a chip with its remove button', async () => {
+      const onValueChange = vi.fn()
+      render(
+        <Combobox
+          multiple
+          items={farms}
+          defaultValue={['Aldermoor Farm', 'Dunmere Estate']}
+          aria-label="Farms"
+          onValueChange={onValueChange}
+        />,
+      )
+      await userEvent.click(screen.getByRole('button', { name: 'Remove Aldermoor Farm' }))
+      expect(onValueChange).toHaveBeenLastCalledWith(['Dunmere Estate'], expect.anything())
+      expect(screen.queryByRole('button', { name: 'Remove Aldermoor Farm' })).not.toBeInTheDocument()
+    })
+
+    it('removes the last chip with Backspace in the empty input', async () => {
+      render(
+        <Combobox multiple items={farms} defaultValue={['Aldermoor Farm', 'Dunmere Estate']} placeholder="Search farms" />,
+      )
+      await userEvent.click(screen.getByPlaceholderText('Search farms'))
+      await userEvent.keyboard('{Backspace}')
+      const chips = Array.from(document.querySelectorAll('[data-slot="combobox-chip"]'))
+      expect(chips.map((chip) => chip.textContent)).toEqual(['Aldermoor Farm'])
+    })
+
+    it('filters while typing', async () => {
+      render(<Combobox multiple items={farms} placeholder="Search farms" />)
+      await userEvent.type(screen.getByPlaceholderText('Search farms'), 'Dun')
+      expect(await screen.findByRole('option', { name: 'Dunmere Estate' })).toBeInTheDocument()
+      expect(screen.queryByRole('option', { name: 'Brookside Barton' })).not.toBeInTheDocument()
+    })
+
+    it('overrides the remove label', () => {
+      render(
+        <Combobox
+          multiple
+          items={farms}
+          defaultValue={['Aldermoor Farm']}
+          removeLabel={(l) => `${l} entfernen`}
+          aria-label="Farms"
+        />,
+      )
+      expect(screen.getByRole('button', { name: 'Aldermoor Farm entfernen' })).toBeInTheDocument()
+    })
+
+    it('associates a label with the input', () => {
+      render(<Combobox multiple items={farms} label="Farms" />)
+      expect(screen.getByLabelText('Farms')).toBeInTheDocument()
+    })
+
+    it('offers no chip removal when read-only or disabled', () => {
+      const { rerender } = render(
+        <Combobox multiple readOnly items={farms} defaultValue={['Aldermoor Farm']} aria-label="Farms" />,
+      )
+      expect(screen.queryByRole('button', { name: 'Remove Aldermoor Farm' })).not.toBeInTheDocument()
+      rerender(<Combobox multiple disabled items={farms} defaultValue={['Aldermoor Farm']} aria-label="Farms" />)
+      expect(screen.queryByRole('button', { name: 'Remove Aldermoor Farm' })).not.toBeInTheDocument()
+    })
+
+    it('submits no values while disabled', () => {
+      const { container } = render(
+        <form>
+          <Combobox multiple disabled name="farms" items={farms} defaultValue={['Aldermoor Farm']} aria-label="Farms" />
+        </form>,
+      )
+      expect(new FormData(container.querySelector('form')!).getAll('farms')).toEqual([])
+    })
+  })
 })

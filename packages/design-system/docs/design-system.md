@@ -818,6 +818,7 @@ Behavior:
 - `progress` is the blue in-flight / informational ramp — distinct from `neutral`, which is the "no state" grey. Pill tone is the canonical tone list: KPI's tone set is a superset of it, and KPI sources its status chip straight from Pill so the two cannot drift.
 - `dot` tints itself with `currentColor`, i.e. the tone's own text color. When the dot needs some *other* color (a domain state palette that deliberately diverges from the tone), pass `leading` instead — it takes precedence over `dot` and accepts any node.
 - Both leading elements are `aria-hidden`; the pill's meaning must be in its text.
+- **`size`** `m` (default) | `xs`: `xs` is the dense status chip (`text-xxs`, `gap-4`, `px-8 py-2`, 12px leading icon, 6px dot). **`shape`** `rounded` (default, `rounded-8`) | `round` (`rounded-full`). All five tones, `dot` and `leading` work at every size and shape. Defaults render exactly as before. Status rows (Accepted / Pending / Declined / Measured / Planned) use `size="xs" shape="round"`. Exports `PillSize`, `PillShape`.
 - The root carries `data-tone` for styling hooks and testing.
 
 ### 4.7 ProgressBar
@@ -882,6 +883,8 @@ Behavior:
 - **`blue` is `--icon-progress` (`#265277`), not `--icon-positive`.** This spec used to say `--icon-positive`, which is `#4f8263` — the same green as `--interaction-primary-default`, so the `blue` variant would have rendered identically to `default`. `progress` is the deliberate blue token; the variant name is kept as `blue` for back-compat.
 - `value: null` renders the indeterminate ARIA state; the fill still clamps to 0.
 - **Naming precedence:** when a visible `label` is rendered, it is wired as the bar's `aria-labelledby`, which takes precedence over any `aria-label`. So `aria-label` only names the bar when there is no visible label — don't rely on it to override one.
+- **Segments (stacked bar):** `segments?: { value: number; tone: 'positive' | 'neutral' | 'warning' | 'negative' | 'progress'; label: string }[]` renders a 10px track (`--surface-neutral`, round) with segments side by side, widths as a share of `max` (default: the sum of the values; zero-value segments are skipped; anything past `max` is clipped, never rescaled). Segment tones are status colours only: accepted = `positive` (`--icon-positive`), pending = `neutral` (`--border-strong`), declined = `warning` (`--icon-warning`). `legend?` (default `true` with segments) adds a row of dot + label + value under the bar. `tone` and `showValue` are ignored in this mode, and the types forbid `value` alongside `segments` (without `segments`, `value: number | null` stays required).
+- **Segments a11y:** a stacked bar is a composite meter, so the root is `role="img"` (not `progressbar`), named from every segment, e.g. "Accepted 12, Pending 5, Declined 2 of 19" (`label` is prefixed when given; `aria-label` wins). The default copy lives in `dsStrings.progressBar.segmentsSummary` and is overridable per instance through `summary`. The legend sits inside the image and is not announced twice. Width changes do not animate under `prefers-reduced-motion`.
 
 ### 4.8 ContextMenu
 
@@ -1671,6 +1674,7 @@ Single-choice dropdown; trigger mirrors the Input field. **Wraps:** Base UI `Sel
 - **Anatomy:** `Trigger` (`role=combobox`) › `Value` + caret `Icon`; `Portal` › `Positioner` › `Popup` › `Item`/`ItemText`/`ItemIndicator`.
 - **Dimensions/tokens:** trigger `height: 48px`, `padding: 0 16px`, `--radius-l` — identical to Input; popup `min-width: var(--anchor-width)`, `max-height: min(var(--available-height), 320px)`, `--elevation-l`; caret rotates 180° on open.
 - **Behavior:** controlled or uncontrolled; the `combobox` trigger needs an accessible name from an external label, not its value.
+- **`multiple`:** `multiple` switches the value to `string[]` (`value`, `defaultValue`, `onValueChange(value: string[])`); the props are a discriminated union, so a string value with `multiple` is a type error. Rows swap the single-select check for a 20px checkbox (`--radius-4`, `--border-strong` outline, `--interaction-primary-default` fill with a check when selected); the popup stays open while rows toggle. Trigger label: the selected labels joined with `, ` up to `maxVisibleLabels?=2`, then `selectedCountLabel(count)?` (default `{n} selected` from `dsStrings.select.selectedCount`); empty shows the placeholder. `SelectOption.meta?: ReactNode` adds small trailing text (a count such as `4 parcels`) in single and multiple. Prototype `.pdrop .cb` is 18px; snapped to 20.
 
 ### 4.18 Combobox
 
@@ -1681,6 +1685,7 @@ Type-ahead autocomplete over a list of strings. **Wraps:** Base UI `Autocomplete
 - **Anatomy:** `Input` › `Portal` › `Positioner` › `Popup` › `Empty` + `List` › `Item`.
 - **Dimensions/tokens:** input matches Select/Input (`height: 48px`, `--radius-l`); popup `min-width: var(--anchor-width)`, `max-height: min(…, 320px)`, `--elevation-l`.
 - **Behavior:** filters `items` as you type; renders `emptyMessage` when nothing matches.
+- **`multiple`:** `multiple` switches to Base UI `Combobox` (single mode stays on `Autocomplete`, whose value is the input text) and the value to `string[]` (`value`, `defaultValue`, `onValueChange(value: string[])`; discriminated union). Selected items show as removable chips in the field (`Chips` › `Chip` + `ChipRemove`), the input sits after the chips, and the popup anchors to the whole field. Each chip's remove button is named `Remove {label}` (`removeLabel(label)?`, default from `dsStrings.combobox.removeLabel`). Rows use the same 20px checkbox as Select; the list stays open while items toggle and filters as you type. The field grows in height as chips wrap (`min-height: 48px`). Chips are 40px tall so each remove button meets the 40×40 target of §8; Backspace in the empty input also removes the last chip. `readOnly` and `disabled` hide the remove buttons, and a disabled field submits no values (like a native disabled control).
 
 ### 4.19 NumberField
 
@@ -1707,11 +1712,16 @@ Single-value range control. **Wraps:** Base UI `Slider`.
 
 Two-state pressable button, standalone or grouped. **Wraps:** Base UI `Toggle` / `ToggleGroup`.
 
-- **Exports:** `Toggle`, `ToggleGroup`; types `ToggleSize`, `ToggleProps`, `ToggleGroupItem`, `ToggleGroupProps`.
+- **Exports:** `Toggle`, `ToggleGroup`; types `ToggleSize`, `ToggleProps`, `ToggleGroupItem`, `ToggleGroupProps`, `ToggleGroupAppearance`.
 - **Toggle props:** `pressed?`, `defaultPressed?`, `onPressedChange?(pressed: boolean)`, `value?`, `size?='m'` (`s | m`), `disabled?`, `aria-label?`.
 - **Group props:** `items: ToggleGroupItem[]`, `value?: string[]`, `defaultValue?`, `onValueChange?(value: string[])`, `multiple?=false`, `size?`, `disabled?`, `aria-label?`, **plus any Base UI `ToggleGroup` prop** (rest and `ref` are forwarded to the group element, after our defaults, so injected props win). `ToggleGroupItem = { value; label?; icon?; disabled?; 'aria-label'? }`.
 - **Dimensions/tokens:** Toggle `s`=32 / `m`=40 px tall, `--radius-m` items; group is `role=toolbar`, `--radius-l`, `--surface-neutral`; pressed Toggle → `--interaction-primary-focus`, pressed segment → `--surface-light` + `--shadow-control-pressed`.
 - **Behavior:** standalone is on/off; group is single-select unless `multiple`; value carried as a string array. The group deliberately overrides Base UI's default `role="group"` with `role="toolbar"`: Base UI also emits `aria-orientation`, which ARIA permits on `toolbar` but not on `group`, and the roving-focus keyboard model already matches a toolbar.
+- **`appearance`** (group): `default` (today's neutral tray) | `segmented` | `chip`. `ToggleGroupItem` also takes `leading?: ReactNode` (generic icon or glyph; wins over `icon`; never a colour swatch, since categories use icons).
+  - `segmented` (prototype `.seg2`): inline tray `--surface-light`, 1px `--border-light`, `rounded-8`, `p-4`, `gap-2`; items `rounded-4` (prototype 6px snapped to the concentric radius), `text-s`, `--text-secondary`; pressed `--surface-positive` + `--text-primary` + `font-medium`, which stays visible on the light tray (the default pressed `--surface-light` vanishes there). `size="s"` is the dense row look (24px tall, `text-xxs`, `px-8`).
+  - `chip` (prototype `.fchip`, `.timewin`, `.schips`): wrapping row (`gap-8`), items fully round with 1px `--border-medium`, `text-s`, `px-12`; pressed `--surface-positive` + `--border-positive-light` + `font-medium`. Works with `multiple`. `size="s"`: 24px tall, `text-xxs`.
+  - Both support `multiple`, single selection, `disabled` items and roving arrow-key focus. Visual height is 32px (24px for `s`); an invisible `::before` extends the hit area to at least 40px tall (§8) and items are at least 40px wide, so the look is unchanged. Wrapped chip rows sit 42px apart or more (`gap-y-10` for `m`, `gap-y-20` for `s`) so neighbouring hit areas never overlap.
+  - **OGCR rule: a segmented control holds at most 3 options; above that use a dropdown (`Select`).** Not enforced in code. Chips are for filters and may be many.
 - **Toolbar projection:** the open prop/ref forwarding above is what makes `<ToolbarButton render={<ToggleGroup … />} />` (§4.39) work — Base UI hands the projected element its roving-focus wiring (`tabIndex`, key handlers, `data-*`, `ref`) as ordinary props, and a wrapper with a closed prop set would swallow them.
 
 ### 4.22 Switch
@@ -1919,6 +1929,50 @@ The app-shell sidebar: a collapsible desktop rail with nested sections, badges a
   - Selecting an item on mobile closes the drawer. `collapsed` is forced off in the mobile layout.
   - The user chip is a button named `Account · {name}`; it renders the Avatar alone when collapsed.
   - Rows and the user chip take a 2px `--interaction-primary-default` focus outline at 2px offset (an outline reads better against a tinted row than the halo ring); the chrome buttons — collapse toggle, hamburger, drawer close — use the shared `--focus-primary` ring.
+
+### 4.41 OptionCard
+
+A whole card that is one choice in a set: a radio as a card, or with `multiple` a checkbox as a card. For the picks that deserve weight ("Who are you?", "How do you want to add parcels?"). Prototype origin: `.choice`, `.whoopt`, `.mopt`. **Wraps:** Base UI `RadioGroup` + `Radio`, or `CheckboxGroup` + `Checkbox` when `multiple`.
+
+- **Exports:** `OptionCardGroup`, `OptionCard`; types `OptionCardGroupProps`, `OptionCardProps`, `OptionCardColumns`, `OptionCardLayout`, `OptionCardLeadingTone`, `OptionCardIndicatorPosition`.
+- **`OptionCardGroup` props:** `value` / `defaultValue` / `onValueChange` (`string`, or `string[]` when `multiple`), `multiple?=false`, `columns?: 1 | 2 | 3 = 1`, `disabled?`, `name?` (single only), native `aria-label` / `aria-labelledby`, `className`, `...rest` on the group `div`. A grid with 16px gap; `columns` applies from the `sm` breakpoint (640), below it the grid is always one column (so 390 stacks).
+- **`OptionCard` props:** `value`, `title: ReactNode`, `description?`, `leading?` (icon in a tinted tile, `aria-hidden`), `leadingTone?='neutral'` (`neutral | positive | progress`, level only), `tag?` (a `Pill`), `indicator?` (radio dot or checkbox; default **true for `horizontal`, false for `vertical`**), `indicatorPosition?='end'` (`start | end`; `start` puts it before the title, the compact `.mopt` look), `layout?='horizontal'` (`horizontal | vertical`), `disabled?`, `className`, `...rest` on the card.
+- **Look:** `--surface-light`, `--border-width-m` (1.5px) `--border-light`, `--radius-12`, padding 16 (24 vertical), gap 16. Hover `--border-strong`. **On:** `--interaction-primary-default` border plus the pale 3px `--interaction-primary-focus` ring (the prototype halo, a token ring, no literal shadow). Leading tile 48 (64 vertical), `--radius-12`, icon 24 (28 vertical); title `text-ms` semibold, description `text-s` secondary. Indicator 20px, 1.5px `--border-strong`, on = `--interaction-primary-default` border with a 10px dot (radio) or a filled box with a check (checkbox, `--radius-4`).
+- **Behavior and a11y:** the card element is the Base UI radio/checkbox (`role=radio` / `checkbox`), so the whole card is the hit target. Arrow keys move and select in a radio group, Space toggles in a checkbox group. Accessible name = the title (`aria-labelledby`), description via `aria-describedby`. Keyboard focus swaps the pale ring for `--shadow-focus-primary`. Disabled: 50% opacity, `not-allowed`, no hover.
+- **Rule:** use OptionCard for choices that need a title and a line of copy. For short labels use ToggleGroup, and a segmented control holds at most 3 options.
+
+### 4.42 List
+
+A bordered stack of rows: leading, title + secondary line, trailing value, trailing action. Prototype origin: `.plist` / `.prow`, `.shs-row`. Plain semantic HTML, no Base UI primitive.
+
+- **Exports:** `List`, `ListItem`; types `ListProps`, `ListItemProps`, `ListVariant`, `ListItemHighlight`.
+- **`List` props:** `variant?='bordered'` (`bordered | plain`), `className`, `...rest` on the `<ul>`. `bordered` = `--surface-light`, 1px `--border-light`, `--radius-12`, overflow hidden. `plain` = no frame, same dividers (the borderless stack inside a Sidesheet). Rows are divided by a 1px `--border-light` top rule, none on the first.
+- **`ListItem` props (`<li>`):** `leading?` (icon, `Avatar`, `Checkbox`, any node), `title`, `description?`, `trailing?` (tabular numbers, `text-s`), `action?` (separate control), `muted?` (title in secondary), `strikethrough?` (struck title and description, 60% opacity on the content, `--surface-neutral` row, **action stays full strength**), `selected?` (`--interaction-primary-focus` row, `aria-current="true"` on the row control), `highlight?` (`'warning'`: `--surface-warning` row), `onClick?`, `href?`, `render?` (Navigation `NavRender`, e.g. a router link), `chevron?` (default on when `href` is set), `className`, `...rest` on the `<li>`.
+- **Dimensions:** row padding 16, gap 16, title `text-ms` medium, description `text-s` secondary, trailing `text-s` primary, chevron 16px `--icon-secondary`. Row control gets a 2px inset focus outline (a ring would be clipped by the list's `overflow: hidden`).
+- **Behavior:** element choice follows Navigation (§4.12): `href` → `<a>`, `render` → your element, `onClick` only → `<button type="button">`, none → plain `div`. The button/link fills the row; hover tints the row `--surface-neutral`. `action` is a **sibling** of that control inside the `<li>`, never nested in it, so it is separately focusable and clickable (Tab order: row, then action). Give icon-only actions an `aria-label`.
+
+### 4.43 EmptyState
+
+What a list, table or panel shows when there is nothing in it yet, with the one next step. Prototype origin: `.byempty`, `.empty`, `.pkimp`. Plain markup.
+
+- **Exports:** `EmptyState`; types `EmptyStateProps`, `EmptyStateVariant`, `EmptyStateHeadingLevel`.
+- **Props:** `variant?='panel'` (`panel | inline`), `icon?` (panel only, `aria-hidden`), `title`, `description?`, `action?` (usually a `Button`), `headingLevel?=3` (`2 | 3 | 4`, panel only), `className`, `...rest` on the root `div`.
+- **`panel`:** centred column, 1px dashed `--border-strong`, `--radius-12`, padding 48 / 24, gap 12. 48px round icon tile (`--surface-neutral`, `--icon-secondary`, 24px icon), title as a heading (`text-ms` semibold), description `text-s` secondary at max 44ch, action 4px below.
+- **`inline`:** compact dashed row, 1px dashed `--border-medium`, `--radius-12`, padding 12 / 16. One `text-s` sentence (title in primary medium, description in secondary) with the action right-aligned; wraps under the text at narrow widths. No heading, no icon.
+- **Copy:** says what is missing and the next step in plain words ("No parcels yet", "Draw a parcel"). Dropzone and a file pill are not part of this component; build them when an upload flow lands.
+
+### 4.44 StepList
+
+Ordered list of steps or tasks, each with one state circle. One vocabulary for the prototype's `.todos`, `.nsteps`, `.elig` and `.steps` lists. **Wraps:** native `<ol>` / `<li>`; interactive rows use the shared nav element (§4.12 contract).
+
+- **Exports:** `StepList`, `StepListItem`; types `StepListProps`, `StepListItemProps`, `StepListVariant`, `StepState`.
+- **`StepList` props:** `variant?: 'bordered' | 'plain' = 'bordered'`, `connector?: boolean = false`, plus `<ol>` attributes. `bordered`: `--surface-light` stack, 1px `--border-light`, `--radius-12`, dividers between rows (`.todos`). `plain`: no outer border, rows round on their own. `connector` draws a 2px dotted `--border-medium` line between circles (`.steps` look); plain variant only, ignored when bordered.
+- **`StepListItem` props:** `state: 'todo' | 'current' | 'done' | 'attention' | 'locked'`, `title: ReactNode`, `description?`, `tags?` (expect Pills), `trailing?` (right-aligned meta, kept non-interactive), `icon?` (replaces the state glyph with a neutral tile, the `.st.ico` look), `onClick?` / `href?` / `render?` (row becomes a button, link or your framework link), `stateLabel?` (hidden state text override), plus `<li>` attributes.
+- **Circle (28px; prototype 26 snapped up):** `todo` = empty ring, 1.5px `--border-strong`. `current` = `--interaction-primary-default` fill, arrow in `--surface-page`. `done` = `--surface-positive` fill, check in `--icon-positive`; title struck through in `--text-secondary`. `attention` = 1.5px `--border-warning-strong` ring, `--surface-warning` fill, warning glyph in `--icon-warning`. `locked` = `--surface-neutral` with a lock glyph; the row is muted and never interactive, even with `onClick`.
+- **Type:** title `text-ms` / 600 (prototype `.tt b`), description `text-s` `--text-secondary`, tags row 8px below. Row padding 16px (prototype 14, snapped), 12px in `plain`.
+- **Interaction:** interactive rows hover to `--surface-neutral` and take the shared focus ring; transition is off under `prefers-reduced-motion`.
+- **a11y:** the current item carries `aria-current="step"`. Every state is also announced as visually hidden text before the title (`To do`, `Current step`, `Done`, `Needs attention`, `Locked`; overridable per item with `stateLabel`, defaults in `dsStrings.stepList`), so colour is never the only signal. The marker is `aria-hidden`.
+- **Not covered:** the farmer app's horizontal SeasonStepper (dots in a row) is a different orientation and stays app-local.
 
 ---
 
