@@ -181,7 +181,7 @@ list.
 
 Shared across all projects in `~/.claude/model-selection.md` (imported by the global `~/.claude/CLAUDE.md`; source: `shared-agent-skills/policies/model-selection.md`). Change it with the `update-model-policy` skill, not here.
 
-Project notes: copy follows `apps/farmer-prototype/docs/ux-writing.md`; UI and styling work uses the frontend-design skill.
+Project note: copy follows `ux-writing.md`.
 
 ## Agent Skills
 
