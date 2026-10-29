@@ -6,13 +6,16 @@
  */
 
 import { useState } from "react";
-import { Card, TooltipProvider } from "@majistudio/ogcr-design-system";
+import {
+  Card,
+  MapLegend,
+  TooltipProvider,
+  type MapLegendItem,
+} from "@majistudio/ogcr-design-system";
 import { MapView, type MapFeatureSelection } from "@/components/map";
-import { MapLegend, type MapLegendItem } from "@/components/map/map-legend";
 import { farm, findParcel } from "@/components/farmer/data/farm";
 import { ParcelDetail } from "@/components/farmer/parcel-detail";
 import { TIER_META } from "@/components/farmer/shared";
-import { DEFAULT_BASEMAP, MAP_DEFAULT_CENTER, MAP_DEFAULT_ZOOM } from "@/config/geo";
 import {
   closeUpCentre,
   playgroundFeatures,
@@ -37,7 +40,8 @@ const FIT_MAX_ZOOM = 17;
 const EMPTY_ZOOM = 14;
 
 const DEFAULT_SETTINGS: PlaygroundSettings = {
-  basemap: DEFAULT_BASEMAP,
+  // MapView's own default. Not imported: a runtime import of /Map would load MapLibre eagerly.
+  basemap: "satellite",
   preset: "farm",
   programStatus: "enrolled",
   selectedId: null,
@@ -66,19 +70,22 @@ function legendFor(id: LegendId): { title: string; items: MapLegendItem[] } | nu
   return { title: "Your fields", items: [PROGRAM_LEGEND[id]] };
 }
 
-function cameraFor(settings: PlaygroundSettings) {
-  const fit = settings.viewport === "fit";
-  if (fit && settings.preset === "none") return { fit, center: farm.center, zoom: EMPTY_ZOOM };
-  const center =
-    settings.viewport === "fit"
-      ? MAP_DEFAULT_CENTER
-      : closeUpCentre(settings.preset, settings.programStatus);
-  const zoom: Record<ViewportId, number> = {
-    fit: MAP_DEFAULT_ZOOM,
-    close: CLOSE_ZOOM,
-    wide: WIDE_ZOOM,
+function cameraFor(
+  settings: PlaygroundSettings,
+): { fit: boolean; center?: [number, number]; zoom?: number } {
+  if (settings.viewport === "fit") {
+    // Fitting moves the camera, so the start camera is MapView's default; with no parcels to fit,
+    // frame the farm instead.
+    return settings.preset === "none"
+      ? { fit: true, center: farm.center, zoom: EMPTY_ZOOM }
+      : { fit: true };
+  }
+  const zoom: Record<Exclude<ViewportId, "fit">, number> = { close: CLOSE_ZOOM, wide: WIDE_ZOOM };
+  return {
+    fit: false,
+    center: closeUpCentre(settings.preset, settings.programStatus),
+    zoom: zoom[settings.viewport],
   };
-  return { fit, center, zoom: zoom[settings.viewport] };
 }
 
 export function MapPlayground() {
