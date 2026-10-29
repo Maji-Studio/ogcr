@@ -47,14 +47,15 @@ into the shipped palette. Nobody should "fix" the code to match.
 
 Each is fully specified on the Figma side and structurally ready in code. None was in scope.
 
-### 2.1 Dark mode
+### 2.1 Dark mode — done (2026-10-29)
 
-Figma defines a complete second mode (`dark`) for **all 47 product semantic colors**;
-`palette.css` declares a single `:root` block. The architecture is ready — the `--ds-*` seam
-exists, every color utility references it rather than baking a hex, and the palette now rides
-`@layer theme` so an app-side override wins. Implementing it is a mechanical
-`@media (prefers-color-scheme: dark)` + `[data-theme="dark"]` block over the same 47 names.
-`reset.css` also hard-codes `color-scheme: light` — flip that in the same change.
+Implemented as an opt-in `[data-theme="dark"]` block in `palette.css` (no
+`prefers-color-scheme` auto-switch, by decision) over the same `--ds-*` names, with
+`color-scheme: dark`; `reset.css` keeps `color-scheme: light` as the default. Storybook has a
+toolbar Theme switch. Five values deviate from Figma's `dark` mode to clear WCAG AA:
+`surface-positive` `#335641` (Figma `#5e9975`), `surface-negative` `#991b1b` (`#dc2626`),
+`surface-warning` `#9a3412` (`#ea580c`), `surface-progress` `#265277` (`#2f6695`), and
+`interaction-secondary-default` `transparent` (`#ffffff`). Details and rationale: `design-system.md` §1.
 
 ### 2.2 Responsive typography ladder (4 modes)
 

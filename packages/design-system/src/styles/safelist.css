@@ -91,10 +91,10 @@
 @source inline("border-w-{s,m,l}");
 
 /* --- Typography ---------------------------------------------------- */
-@source inline("text-{xxs,xs,s,m,l,xl,2xl,3xl,4xl,5xl}");
+@source inline("text-{xxs,xs,s,ms,m,l,xl,2xl,3xl,4xl,5xl}");
 @source inline("text-{h1,h2,h3,h4,body,body-s,body-l,lead,quote,label-button,label-navigation,label-input}");
 @source inline("font-{standard,display,mono}");
-@source inline("font-{default,medium,bold}");
+@source inline("font-{default,medium,semibold,bold}");
 
 /* --- Effects ------------------------------------------------------- */
 @source inline("shadow-{elevation-l,control,control-pressed}");

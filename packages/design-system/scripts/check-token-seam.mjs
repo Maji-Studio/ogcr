@@ -7,7 +7,7 @@
 // (frozen). If anyone re-bakes a color token to a literal in theme.css, the matching utility body
 // regains a hex and loses its `var(--ds-…)` — this script catches that and fails the build.
 //
-// HOW: palette.css is the single source of the 49 hexes. We then scan the built stylesheet's
+// HOW: palette.css is the single source of the hexes (light + dark blocks). We then scan the built stylesheet's
 // CLASS-selector utility rules (not :root/:host, not preflight, not the palette block) and assert
 //   (negative) no color-utility body bakes one of the 49 palette hexes, and
 //   (positive) a set of widely-used color tokens resolve through `var(--ds-…)`, and
@@ -38,9 +38,20 @@ if (!fs.existsSync(cssPath)) {
 
 // --- 1. Parse palette.css for the authoritative {name → hex} set ------------------------------
 const paletteSrc = fs.readFileSync(palettePath, 'utf8');
-const palette = new Map(); // ds-name (e.g. "ds-surface-page") → lowercased hex
-for (const m of paletteSrc.matchAll(/(--ds-[a-z0-9-]+)\s*:\s*(#[0-9a-fA-F]{3,8})\s*;/g)) {
-  palette.set(m[1].slice(2), m[2].toLowerCase());
+// palette.css holds the light `:root` block plus the opt-in `[data-theme="dark"]` block. Both are
+// authoritative: a color utility must not bake a hex from EITHER. Dark definitions are keyed with a
+// `dark:` prefix so they don't overwrite the light value of the same name. Non-hex values
+// (`transparent`, `var(...)`) don't match and are ignored.
+const palette = new Map(); // ds-name (e.g. "ds-surface-page", "dark:ds-surface-page") → lowercased hex
+{
+  const darkAt = paletteSrc.search(/^\[data-theme="dark"\]\s*\{/m);
+  const parse = (src, prefix) => {
+    for (const m of src.matchAll(/(--ds-[a-z0-9-]+)\s*:\s*(#[0-9a-fA-F]{3,8})\s*;/g)) {
+      palette.set(prefix + m[1].slice(2), m[2].toLowerCase());
+    }
+  };
+  parse(darkAt === -1 ? paletteSrc : paletteSrc.slice(0, darkAt), '');
+  if (darkAt !== -1) parse(paletteSrc.slice(darkAt), 'dark:');
 }
 if (palette.size === 0) fail('parsed 0 --ds-* definitions from palette.css — parser or file broke.');
 

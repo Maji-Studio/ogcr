@@ -35,7 +35,7 @@ CSS custom properties, scoped to `:root`. All component CSS below assumes these.
   --text-primary: #0f3655;
   --text-secondary: #6a8196;
   --text-neutral: #334155;
-  --text-positive: #4f8263;
+  --text-positive: #416c51;      /* brand-green/800; was #4f8263 (failed AA as text) */
   --text-negative: #b91c1c;
   --text-warning: #c2410c;
   --text-progress: #265277;
@@ -44,7 +44,7 @@ CSS custom properties, scoped to `:root`. All component CSS below assumes these.
   --icon-primary: #0f3655;
   --icon-secondary: #6a8196;
   --icon-neutral: #334155;
-  --icon-positive: #4f8263;
+  --icon-positive: #416c51;
   --icon-negative: #b91c1c;
   --icon-warning: #c2410c;
   --icon-progress: #265277;
@@ -166,11 +166,19 @@ Token rules:
 - `radius-l` is **12px** here (Figma sometimes labels 16). Code wins.
 - `--text-secondary` on `--surface-light` is borderline WCAG AA (~4.5:1). Audit small text.
 - No motion tokens beyond `--motion-fast` / `--motion-base`. Hover/state ≤150ms; layout/size ≤200ms; never >300ms in-place feedback.
-- The **`progress` family** (`text` / `icon` / `surface` / `icon-progress-light`) is the blue "in flight / informational" ramp. It is *not* interchangeable with `positive`: `--icon-positive` is `#4f8263`, the same green as `--interaction-primary-default`, so anything that wants blue must say `progress`.
+- The **`progress` family** (`text` / `icon` / `surface` / `icon-progress-light`) is the blue "in flight / informational" ramp. It is *not* interchangeable with `positive`: `--icon-positive` is green (`#416c51`, a darker step of the `--interaction-primary-default` brand green), so anything that wants blue must say `progress`.
+
+### Positive green — text vs. button (changed 2026-10-29)
+
+`--text-positive` and `--icon-positive` are `#416c51` (brand-green/800), **not** the button green `#4f8263`. The old value failed WCAG AA as text: 4.46:1 on white and 3.77:1 on `--surface-positive`. `#416c51` passes at 6.02:1 and 5.08:1. Figma was updated the same day. `--interaction-primary-default` stays `#4f8263`.
 
 ### Size ladder — the one value that moved
 
 `--font-size-m` is **18px** (Figma `font/size/m`). It used to be 16px, the only wrong step in the whole ladder, and both `--text-h4` and `--text-body` dereference it — so **body copy and h4 grew 2px system-wide.** Expect reflow when adopting. Everything else on the ladder (10 / 14 / 20 / 24 / 32 / 40 / 48 / 64) was already correct.
+
+`--text-ms` (**16px**, Figma `font/size/ms`, added 2026-10-29) sits between `s` and `m` for the cases that used to want the old 16px `m`. It is a size primitive only: body copy stays 18px and no semantic style points at it. `cn()` knows `text-ms` is a font size, so `cn('text-ms text-text-primary')` keeps both.
+
+Weights: `--font-weight-semibold` (**600**, Figma `font/style/semibold`) joins default 400 / medium 500 / bold 700; use `font-semibold`.
 
 ### Focus rings — an approved deviation from Figma
 
@@ -243,13 +251,23 @@ Utility names drop the namespace prefix: `bg-surface-page`, `p-16`, `rounded-12`
 
 ### Theming: the `--ds-*` seam
 
-Every **color** token is a `var(--ds-*)` reference into a runtime palette; that palette is the only place a brand hex appears. Because the reference (not the hex) is baked into each utility, overriding a `--ds-*` custom property on any scoping element — `:root`, a wrapper `div`, a `.dark` class — retints every utility and focus shadow that derives from it, with no rebuild. A build gate fails if any color utility re-bakes a literal.
+Every **color** token is a `var(--ds-*)` reference into a runtime palette; that palette is the only place a brand hex appears. Because the reference (not the hex) is baked into each utility, overriding a `--ds-*` custom property on any scoping element — `:root`, a wrapper `div`, a `[data-theme="dark"]` attribute — retints every utility and focus shadow that derives from it, with no rebuild. A build gate fails if any color utility re-bakes a literal.
 
 Radius, spacing, border-width, font and elevation tokens stay literal by design (no brand-variance need yet); moving them onto the seam later is the same mechanical step.
 
 Adding a token is **two edits, not one**: declare it in the theme, and pin it in the shipped-utility safelist. A token added to the theme and forgotten in the safelist is a build failure, not a silent hole — see below for why.
 
-A **dark palette is not implemented.** Figma fully specifies a second mode for all 47 product semantic colors; the architecture is ready for it and the values are recorded in `docs/audit-follow-ups-2026-08.md`.
+**Dark mode** is implemented as a second `--ds-*` block in `palette.css`, `[data-theme="dark"] { color-scheme: dark; … }`, in the same `theme` layer as `:root`. It is **opt-in only**: put `data-theme="dark"` on `<html>` or any wrapper. There is no `prefers-color-scheme` auto-switch yet, by the designer's choice. Components need no changes because every utility already references the seam. `html` defaults to `color-scheme: light` (`reset.css`). In Storybook, use the toolbar **Theme** switch.
+
+Values are Figma's `dark` mode, except five deliberate deviations where Figma's value fails WCAG AA for the text that sits on it. Figma should catch up:
+
+| token | Figma dark | code dark | why |
+| --- | --- | --- | --- |
+| `--surface-positive` | `#5e9975` | `#335641` | text on it was 2.36:1 |
+| `--surface-negative` | `#dc2626` | `#991b1b` | 3.34:1 |
+| `--surface-warning` | `#ea580c` | `#9a3412` | 2.63:1 |
+| `--surface-progress` | `#2f6695` | `#265277` | 4.22:1 |
+| `--interaction-secondary-default` | `#ffffff` | `transparent` | near-white text on white, 1.11:1 |
 
 ### Consuming the shipped stylesheet
 

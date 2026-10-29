@@ -2,6 +2,33 @@ import type { Preview } from '@storybook/react-vite'
 import '../src/styles/global.css'
 
 const preview: Preview = {
+  // Toolbar theme switch. Dark is opt-in via `data-theme="dark"` on <html>
+  // (palette.css); there is no OS auto-switch, so the toggle is the only way
+  // to see dark in Storybook. In docs mode several stories share one iframe,
+  // so the attribute goes on <html> rather than on a per-story wrapper.
+  globalTypes: {
+    theme: {
+      description: 'Colour theme',
+      toolbar: {
+        title: 'Theme',
+        icon: 'circlehollow',
+        items: [
+          { value: 'light', title: 'Light', icon: 'sun' },
+          { value: 'dark', title: 'Dark', icon: 'moon' },
+        ],
+        dynamicTitle: true,
+      },
+    },
+  },
+  initialGlobals: { theme: 'light' },
+  decorators: [
+    (Story, context) => {
+      const theme = context.globals.theme === 'dark' ? 'dark' : 'light'
+      document.documentElement.dataset.theme = theme
+      return <Story />
+    },
+  ],
+
   parameters: {
     options: {
       // Pin the Overview welcome page first, then the conceptual groups.

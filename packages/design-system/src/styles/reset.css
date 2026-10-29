@@ -16,7 +16,8 @@
 }
 
 html {
-  color-scheme: light; /* Light-only: no dark mode is implemented */
+  color-scheme: light; /* Default. Dark is opt-in via [data-theme="dark"] (palette.css),
+                          which sets color-scheme: dark; no OS auto-switch. */
 }
 
 html,
