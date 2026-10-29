@@ -1920,6 +1920,37 @@ The app-shell sidebar: a collapsible desktop rail with nested sections, badges a
   - The user chip is a button named `Account · {name}`; it renders the Avatar alone when collapsed.
   - Rows and the user chip take a 2px `--interaction-primary-default` focus outline at 2px offset (an outline reads better against a tinted row than the halo ring); the chrome buttons — collapse toggle, hamburger, drawer close — use the shared `--focus-primary` ring.
 
+### 4.41 OptionCard
+
+A whole card that is one choice in a set: a radio as a card, or with `multiple` a checkbox as a card. For the picks that deserve weight ("Who are you?", "How do you want to add parcels?"). Prototype origin: `.choice`, `.whoopt`, `.mopt`. **Wraps:** Base UI `RadioGroup` + `Radio`, or `CheckboxGroup` + `Checkbox` when `multiple`.
+
+- **Exports:** `OptionCardGroup`, `OptionCard`; types `OptionCardGroupProps`, `OptionCardProps`, `OptionCardColumns`, `OptionCardLayout`, `OptionCardLeadingTone`, `OptionCardIndicatorPosition`.
+- **`OptionCardGroup` props:** `value` / `defaultValue` / `onValueChange` (`string`, or `string[]` when `multiple`), `multiple?=false`, `columns?: 1 | 2 | 3 = 1`, `disabled?`, `name?` (single only), native `aria-label` / `aria-labelledby`, `className`, `...rest` on the group `div`. A grid with 16px gap; `columns` applies from the `sm` breakpoint (640), below it the grid is always one column (so 390 stacks).
+- **`OptionCard` props:** `value`, `title: ReactNode`, `description?`, `leading?` (icon in a tinted tile, `aria-hidden`), `leadingTone?='neutral'` (`neutral | positive | progress`, level only), `tag?` (a `Pill`), `indicator?` (radio dot or checkbox; default **true for `horizontal`, false for `vertical`**), `indicatorPosition?='end'` (`start | end`; `start` puts it before the title, the compact `.mopt` look), `layout?='horizontal'` (`horizontal | vertical`), `disabled?`, `className`, `...rest` on the card.
+- **Look:** `--surface-light`, `--border-width-m` (1.5px) `--border-light`, `--radius-12`, padding 16 (24 vertical), gap 16. Hover `--border-strong`. **On:** `--interaction-primary-default` border plus the pale 3px `--interaction-primary-focus` ring (the prototype halo, a token ring, no literal shadow). Leading tile 48 (64 vertical), `--radius-12`, icon 24 (28 vertical); title `text-ms` semibold, description `text-s` secondary. Indicator 20px, 1.5px `--border-strong`, on = `--interaction-primary-default` border with a 10px dot (radio) or a filled box with a check (checkbox, `--radius-4`).
+- **Behavior and a11y:** the card element is the Base UI radio/checkbox (`role=radio` / `checkbox`), so the whole card is the hit target. Arrow keys move and select in a radio group, Space toggles in a checkbox group. Accessible name = the title (`aria-labelledby`), description via `aria-describedby`. Keyboard focus swaps the pale ring for `--shadow-focus-primary`. Disabled: 50% opacity, `not-allowed`, no hover.
+- **Rule:** use OptionCard for choices that need a title and a line of copy. For short labels use ToggleGroup, and a segmented control holds at most 3 options.
+
+### 4.42 List
+
+A bordered stack of rows: leading, title + secondary line, trailing value, trailing action. Prototype origin: `.plist` / `.prow`, `.shs-row`. Plain semantic HTML, no Base UI primitive.
+
+- **Exports:** `List`, `ListItem`; types `ListProps`, `ListItemProps`, `ListVariant`, `ListItemHighlight`.
+- **`List` props:** `variant?='bordered'` (`bordered | plain`), `className`, `...rest` on the `<ul>`. `bordered` = `--surface-light`, 1px `--border-light`, `--radius-12`, overflow hidden. `plain` = no frame, same dividers (the borderless stack inside a Sidesheet). Rows are divided by a 1px `--border-light` top rule, none on the first.
+- **`ListItem` props (`<li>`):** `leading?` (icon, `Avatar`, `Checkbox`, any node), `title`, `description?`, `trailing?` (tabular numbers, `text-s`), `action?` (separate control), `muted?` (title in secondary), `strikethrough?` (struck title and description, 60% opacity on the content, `--surface-neutral` row, **action stays full strength**), `selected?` (`--interaction-primary-focus` row, `aria-current="true"` on the row control), `highlight?` (`'warning'`: `--surface-warning` row), `onClick?`, `href?`, `render?` (Navigation `NavRender`, e.g. a router link), `chevron?` (default on when `href` is set), `className`, `...rest` on the `<li>`.
+- **Dimensions:** row padding 16, gap 16, title `text-ms` medium, description `text-s` secondary, trailing `text-s` primary, chevron 16px `--icon-secondary`. Row control gets a 2px inset focus outline (a ring would be clipped by the list's `overflow: hidden`).
+- **Behavior:** element choice follows Navigation (§4.12): `href` → `<a>`, `render` → your element, `onClick` only → `<button type="button">`, none → plain `div`. The button/link fills the row; hover tints the row `--surface-neutral`. `action` is a **sibling** of that control inside the `<li>`, never nested in it, so it is separately focusable and clickable (Tab order: row, then action). Give icon-only actions an `aria-label`.
+
+### 4.43 EmptyState
+
+What a list, table or panel shows when there is nothing in it yet, with the one next step. Prototype origin: `.byempty`, `.empty`, `.pkimp`. Plain markup.
+
+- **Exports:** `EmptyState`; types `EmptyStateProps`, `EmptyStateVariant`, `EmptyStateHeadingLevel`.
+- **Props:** `variant?='panel'` (`panel | inline`), `icon?` (panel only, `aria-hidden`), `title`, `description?`, `action?` (usually a `Button`), `headingLevel?=3` (`2 | 3 | 4`, panel only), `className`, `...rest` on the root `div`.
+- **`panel`:** centred column, 1px dashed `--border-strong`, `--radius-12`, padding 48 / 24, gap 12. 48px round icon tile (`--surface-neutral`, `--icon-secondary`, 24px icon), title as a heading (`text-ms` semibold), description `text-s` secondary at max 44ch, action 4px below.
+- **`inline`:** compact dashed row, 1px dashed `--border-medium`, `--radius-12`, padding 12 / 16. One `text-s` sentence (title in primary medium, description in secondary) with the action right-aligned; wraps under the text at narrow widths. No heading, no icon.
+- **Copy:** says what is missing and the next step in plain words ("No parcels yet", "Draw a parcel"). Dropzone and a file pill are not part of this component; build them when an upload flow lands.
+
 ---
 
 ## 5. Iconography
