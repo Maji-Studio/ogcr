@@ -40,10 +40,22 @@ export const dsStrings = {
   },
   select: {
     placeholder: 'Select…',
+    /** Trigger label for `multiple` once the selection passes the label threshold. */
+    selectedCount: (count: number) => `${count} selected`,
   },
   combobox: {
     placeholder: 'Search…',
     emptyMessage: 'No matches found.',
+    /** aria-label for a selected chip's remove button (`multiple`). */
+    removeLabel: (label: string) => `Remove ${label}`,
+  },
+  stepList: {
+    /** Visually hidden state text, so state is never colour alone. */
+    todo: 'To do',
+    current: 'Current step',
+    done: 'Done',
+    attention: 'Needs attention',
+    locked: 'Locked',
   },
   datePicker: {
     placeholder: 'Select date',

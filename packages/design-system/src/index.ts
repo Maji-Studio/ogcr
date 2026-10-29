@@ -32,6 +32,7 @@ export * from './components/SideNavigation'
 export * from './components/Sidesheet'
 export * from './components/Skeleton'
 export * from './components/Slider'
+export * from './components/StepList'
 export * from './components/Switch'
 // Table is intentionally NOT re-exported from the barrel: it is the only component that pulls in
 // @tanstack/react-table (an optional peer). Deep-import it instead — `@majistudio/ogcr-design-system/Table` —
