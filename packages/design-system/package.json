@@ -109,6 +109,10 @@
       "types": "./dist/components/Dialog/index.d.ts",
       "import": "./dist/components/Dialog/index.js"
     },
+    "./EmptyState": {
+      "types": "./dist/components/EmptyState/index.d.ts",
+      "import": "./dist/components/EmptyState/index.js"
+    },
     "./Form": {
       "types": "./dist/components/Form/index.d.ts",
       "import": "./dist/components/Form/index.js"
@@ -124,6 +128,10 @@
     "./Kpi": {
       "types": "./dist/components/Kpi/index.d.ts",
       "import": "./dist/components/Kpi/index.js"
+    },
+    "./List": {
+      "types": "./dist/components/List/index.d.ts",
+      "import": "./dist/components/List/index.js"
     },
     "./Logo": {
       "types": "./dist/components/Logo/index.d.ts",
@@ -144,6 +152,10 @@
     "./NumberField": {
       "types": "./dist/components/NumberField/index.d.ts",
       "import": "./dist/components/NumberField/index.js"
+    },
+    "./OptionCard": {
+      "types": "./dist/components/OptionCard/index.d.ts",
+      "import": "./dist/components/OptionCard/index.js"
     },
     "./Pagination": {
       "types": "./dist/components/Pagination/index.d.ts",
