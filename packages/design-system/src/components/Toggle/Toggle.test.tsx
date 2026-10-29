@@ -88,3 +88,33 @@ describe('ToggleGroup', () => {
     expect(group).toHaveAttribute('data-projected', 'toolbar')
   })
 })
+
+describe.each(['segmented', 'chip'] as const)('ToggleGroup appearance=%s', (appearance) => {
+  const items = [
+    { value: 'a', label: 'Minimal' },
+    { value: 'b', label: 'Satellite', leading: <svg data-testid="lead" /> },
+  ]
+
+  it('selects a single option and swaps the pressed one', async () => {
+    render(<ToggleGroup appearance={appearance} aria-label="Basemap" defaultValue={['a']} items={items} />)
+    expect(screen.getByRole('button', { name: 'Minimal' })).toHaveAttribute('aria-pressed', 'true')
+    await userEvent.click(screen.getByRole('button', { name: 'Satellite' }))
+    expect(screen.getByRole('button', { name: 'Minimal' })).toHaveAttribute('aria-pressed', 'false')
+    expect(screen.getByRole('button', { name: 'Satellite' })).toHaveAttribute('aria-pressed', 'true')
+  })
+
+  it('supports multiple selection', async () => {
+    render(<ToggleGroup appearance={appearance} multiple aria-label="Basemap" defaultValue={['a']} items={items} />)
+    await userEvent.click(screen.getByRole('button', { name: 'Satellite' }))
+    expect(screen.getByRole('button', { name: 'Minimal' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', { name: 'Satellite' })).toHaveAttribute('aria-pressed', 'true')
+  })
+
+  it('renders a leading node hidden from assistive tech and moves focus with the arrow keys', async () => {
+    render(<ToggleGroup appearance={appearance} aria-label="Basemap" items={items} />)
+    expect(screen.getByTestId('lead').closest('[aria-hidden="true"]')).not.toBeNull()
+    screen.getByRole('button', { name: 'Minimal' }).focus()
+    await userEvent.keyboard('{ArrowRight}')
+    expect(screen.getByRole('button', { name: 'Satellite' })).toHaveFocus()
+  })
+})

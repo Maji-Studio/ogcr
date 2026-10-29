@@ -2,6 +2,7 @@ import type { ComponentPropsWithoutRef, ReactNode } from 'react'
 import { Progress } from '@base-ui/react/progress'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '../../lib/cn'
+import { dsStrings } from '../../lib/strings'
 
 const fill = cva('h-full rounded-8 transition-[width] duration-200 ease-[cubic-bezier(0.2,0,0,1)]', {
   variants: {
@@ -17,32 +18,127 @@ const fill = cva('h-full rounded-8 transition-[width] duration-200 ease-[cubic-b
 
 export type ProgressBarTone = NonNullable<VariantProps<typeof fill>['tone']>
 
+/** Status tones for stacked segments: accepted = positive, pending = neutral, declined = warning. */
+const segmentFill = cva('', {
+  variants: {
+    tone: {
+      positive: 'bg-icon-positive',
+      neutral: 'bg-border-strong',
+      warning: 'bg-icon-warning',
+      negative: 'bg-icon-negative',
+      progress: 'bg-icon-progress',
+    },
+  },
+  defaultVariants: { tone: 'neutral' },
+})
+
+export type ProgressBarSegmentTone = NonNullable<VariantProps<typeof segmentFill>['tone']>
+
+export type ProgressBarSegment = {
+  value: number
+  tone: ProgressBarSegmentTone
+  label: string
+}
+
 export type ProgressBarProps = Omit<
   ComponentPropsWithoutRef<'div'>,
   'children' | 'value'
 > & {
-  value: number | null
+  /** Single-fill value. Ignored when `segments` is given. */
+  value?: number | null
   label?: string
   labelIcon?: ReactNode
   showValue?: boolean
   tone?: ProgressBarTone
   min?: number
+  /** Single fill: scale top (default 100). Segments: scale top, defaults to the sum of the segment values. */
   max?: number
+  /**
+   * Stacked bar: segments side by side, widths as a share of `max`. Renders a composite meter
+   * (`role="img"` named by `summary`), not a `progressbar`. `showValue` is ignored.
+   */
+  segments?: ProgressBarSegment[]
+  /** Dot + label + value row under a stacked bar. Defaults to `true` when `segments` is given. */
+  legend?: boolean
+  /** Accessible name builder for the stacked bar. Defaults to the `dsStrings.progressBar` copy. */
+  summary?: (parts: ReadonlyArray<{ label: string; value: number }>, total: number) => string
 }
 
 export function ProgressBar({
-  value,
+  value = null,
   label,
   labelIcon,
   showValue = true,
   tone = 'default',
   min = 0,
-  max = 100,
+  max,
+  segments,
+  legend = true,
+  summary = dsStrings.progressBar.segmentsSummary,
   className,
   ...rest
 }: ProgressBarProps) {
+  if (segments) {
+    const total = max ?? segments.reduce((sum, segment) => sum + segment.value, 0)
+    const shown = segments.filter((segment) => segment.value > 0)
+    const name = rest['aria-label'] ?? [label, summary(segments, total)].filter(Boolean).join(': ')
+    return (
+      <div
+        {...rest}
+        role="img"
+        aria-label={name}
+        data-slot="progress"
+        data-variant="segments"
+        className={cn('flex flex-col gap-4 w-full', className)}
+      >
+        {label && (
+          <span className="inline-flex items-center gap-8 font-standard font-normal text-s leading-[1.4] text-text-secondary">
+            {label}
+            {labelIcon && (
+              <span aria-hidden="true" className="inline-flex w-20 h-20 text-icon-secondary [&>svg]:w-full [&>svg]:h-full">
+                {labelIcon}
+              </span>
+            )}
+          </span>
+        )}
+        <div data-slot="progress-track" className="flex w-full h-10 bg-surface-neutral rounded-full overflow-hidden">
+          {shown.map((segment) => (
+            <div
+              key={segment.label}
+              data-slot="progress-segment"
+              data-tone={segment.tone}
+              className={cn(
+                'h-full transition-[width] duration-200 ease-[cubic-bezier(0.2,0,0,1)] motion-reduce:transition-none',
+                segmentFill({ tone: segment.tone }),
+              )}
+              style={{ width: `${Math.min(100, (segment.value / Math.max(1, total)) * 100)}%` }}
+            />
+          ))}
+        </div>
+        {legend && (
+          <ul data-slot="progress-legend" className="flex flex-wrap gap-x-16 gap-y-4 m-0 p-0 list-none">
+            {segments.map((segment) => (
+              <li
+                key={segment.label}
+                className="inline-flex items-center gap-8 font-standard font-normal text-s leading-[1.4] text-text-secondary"
+              >
+                <span
+                  aria-hidden="true"
+                  className={cn('inline-block w-10 h-10 shrink-0 rounded-full', segmentFill({ tone: segment.tone }))}
+                />
+                {segment.label}
+                <span className="font-medium text-text-primary">{segment.value}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    )
+  }
+
+  const upper = max ?? 100
   const numericValue = value ?? 0
-  const range = Math.max(1, max - min)
+  const range = Math.max(1, upper - min)
   const percent = Math.max(0, Math.min(100, ((numericValue - min) / range) * 100))
 
   return (
@@ -50,7 +146,7 @@ export function ProgressBar({
       {...rest}
       value={value}
       min={min}
-      max={max}
+      max={upper}
       aria-label={rest['aria-label'] ?? label}
       data-slot="progress"
       className={cn('flex flex-col gap-4 w-full', className)}

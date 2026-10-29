@@ -76,4 +76,9 @@ export const dsStrings = {
     /** aria-label for a numbered page button. */
     pageLabel: (page: number) => `Page ${page}`,
   },
+  progressBar: {
+    /** Accessible name for a segmented bar, e.g. "Accepted 12, Pending 5, Declined 2 of 19". */
+    segmentsSummary: (parts: ReadonlyArray<{ label: string; value: number }>, total: number) =>
+      `${parts.map((part) => `${part.label} ${part.value}`).join(', ')} of ${total}`,
+  },
 } as const

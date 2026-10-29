@@ -62,31 +62,76 @@ export function Toggle({
 
 const segment = cva(
   [
-    'inline-flex items-center justify-center gap-8 shrink-0 rounded-8 border-0 bg-transparent cursor-pointer select-none outline-none',
-    'font-standard font-medium leading-none text-s text-text-secondary',
-    'transition-[color,background-color,box-shadow] duration-150',
+    'inline-flex items-center justify-center gap-8 shrink-0 bg-transparent cursor-pointer select-none outline-none',
+    'font-standard leading-none text-text-secondary',
+    'transition-[color,background-color,box-shadow,border-color] duration-150',
     'hover:text-text-primary',
-    /* allow-literal-color: TODO replace with the `shadow-control-pressed` token (theme.css). */
-    'data-[pressed]:bg-surface-light data-[pressed]:text-text-primary data-[pressed]:shadow-[0_1px_2px_rgba(68,51,33,0.12)]',
     'focus-visible:shadow-focus-primary',
     'data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed data-[disabled]:hover:text-text-secondary',
     '[&>svg]:w-20 [&>svg]:h-20',
   ],
   {
     variants: {
+      appearance: {
+        default: [
+          'rounded-8 border-0 font-medium',
+          /* allow-literal-color: TODO replace with the `shadow-control-pressed` token (theme.css). */
+          'data-[pressed]:bg-surface-light data-[pressed]:text-text-primary data-[pressed]:shadow-[0_1px_2px_rgba(68,51,33,0.12)]',
+        ],
+        /* Prototype `.seg2`: radius 6 snaps to rounded-4 (concentric with the rounded-8 shell + 4px padding). */
+        segmented: [
+          'relative rounded-4 border-0 font-normal',
+          'data-[pressed]:bg-surface-positive data-[pressed]:text-text-primary data-[pressed]:font-medium',
+        ],
+        /* Prototype `.fchip` / `.timewin button` / `.schips button`. */
+        chip: [
+          'relative rounded-full border border-solid border-border-medium font-normal',
+          'data-[pressed]:bg-surface-positive data-[pressed]:border-border-positive-light data-[pressed]:text-text-primary data-[pressed]:font-medium',
+        ],
+      },
       size: {
-        s: 'h-28 min-w-28 px-8',
-        m: 'h-36 min-w-36 px-12',
+        s: '',
+        m: '',
       },
     },
-    defaultVariants: { size: 'm' },
+    compoundVariants: [
+      { appearance: 'default', size: 's', class: 'h-28 min-w-28 px-8 text-s' },
+      { appearance: 'default', size: 'm', class: 'h-36 min-w-36 px-12 text-s' },
+      /* Visual height keeps the prototype's dense look; a ::before stretches the hit area to 40px (§8). */
+      { appearance: ['segmented', 'chip'], size: 's', class: 'h-24 px-8 text-xxs before:absolute before:inset-x-0' },
+      { appearance: ['segmented', 'chip'], size: 'm', class: 'h-32 px-12 text-s before:absolute before:inset-x-0' },
+      /* ::before is positioned against the padding box, so the chip's 1px border needs 1px more reach. */
+      { appearance: 'segmented', size: 's', class: 'before:-inset-y-8' },
+      { appearance: 'segmented', size: 'm', class: 'before:-inset-y-4' },
+      { appearance: 'chip', size: 's', class: 'before:-inset-y-10' },
+      { appearance: 'chip', size: 'm', class: 'before:-inset-y-6' },
+    ],
+    defaultVariants: { appearance: 'default', size: 'm' },
   },
 )
+
+const group = cva('', {
+  variants: {
+    appearance: {
+      default: 'inline-flex items-center gap-2 p-2 rounded-12 bg-surface-neutral border border-border-light',
+      segmented: 'inline-flex items-center gap-2 p-4 rounded-8 bg-surface-light border border-border-light',
+      chip: 'flex flex-wrap items-center gap-8',
+    },
+  },
+  defaultVariants: { appearance: 'default' },
+})
+
+export type ToggleGroupAppearance = NonNullable<VariantProps<typeof group>['appearance']>
 
 export type ToggleGroupItem = {
   value: string
   label?: ReactNode
   icon?: ReactNode
+  /**
+   * Generic leading node (icon, glyph) before the label. Takes precedence over `icon`.
+   * Categories use icons, never colour swatches.
+   */
+  leading?: ReactNode
   disabled?: boolean
   'aria-label'?: string
 }
@@ -110,6 +155,11 @@ export type ToggleGroupProps = Omit<
   multiple?: boolean
   disabled?: boolean
   size?: ToggleSize
+  /**
+   * `default` is the neutral tray. `segmented` is the light inline segmented control (OGCR: at
+   * most 3 options, use a dropdown above that). `chip` is a wrapping row of round filter chips.
+   */
+  appearance?: ToggleGroupAppearance
   className?: string
 }
 
@@ -121,6 +171,7 @@ export function ToggleGroup({
   multiple = false,
   disabled,
   size,
+  appearance,
   className,
   ...rest
 }: ToggleGroupProps) {
@@ -138,10 +189,8 @@ export function ToggleGroup({
       role="toolbar"
       data-slot="toggle-group"
       {...rest}
-      className={cn(
-        'inline-flex items-center gap-2 p-2 rounded-12 bg-surface-neutral border border-border-light',
-        className,
-      )}
+      data-appearance={appearance ?? 'default'}
+      className={cn(group({ appearance }), className)}
     >
       {items.map((item) => (
         <BaseToggle
@@ -150,11 +199,11 @@ export function ToggleGroup({
           disabled={item.disabled}
           aria-label={item['aria-label']}
           data-slot="toggle-group-item"
-          className={segment({ size })}
+          className={segment({ size, appearance })}
         >
-          {item.icon && (
+          {(item.leading ?? item.icon) && (
             <span aria-hidden="true" className="inline-flex w-20 h-20 [&>svg]:w-full [&>svg]:h-full">
-              {item.icon}
+              {item.leading ?? item.icon}
             </span>
           )}
           {item.label}
