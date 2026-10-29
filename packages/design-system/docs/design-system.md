@@ -818,6 +818,7 @@ Behavior:
 - `progress` is the blue in-flight / informational ramp — distinct from `neutral`, which is the "no state" grey. Pill tone is the canonical tone list: KPI's tone set is a superset of it, and KPI sources its status chip straight from Pill so the two cannot drift.
 - `dot` tints itself with `currentColor`, i.e. the tone's own text color. When the dot needs some *other* color (a domain state palette that deliberately diverges from the tone), pass `leading` instead — it takes precedence over `dot` and accepts any node.
 - Both leading elements are `aria-hidden`; the pill's meaning must be in its text.
+- **`size`** `m` (default) | `xs`: `xs` is the dense status chip (`text-xxs`, `gap-4`, `px-8 py-2`, 12px leading icon, 6px dot). **`shape`** `rounded` (default, `rounded-8`) | `round` (`rounded-full`). All five tones, `dot` and `leading` work at every size and shape. Defaults render exactly as before. Status rows (Accepted / Pending / Declined / Measured / Planned) use `size="xs" shape="round"`. Exports `PillSize`, `PillShape`.
 - The root carries `data-tone` for styling hooks and testing.
 
 ### 4.7 ProgressBar
@@ -882,6 +883,8 @@ Behavior:
 - **`blue` is `--icon-progress` (`#265277`), not `--icon-positive`.** This spec used to say `--icon-positive`, which is `#4f8263` — the same green as `--interaction-primary-default`, so the `blue` variant would have rendered identically to `default`. `progress` is the deliberate blue token; the variant name is kept as `blue` for back-compat.
 - `value: null` renders the indeterminate ARIA state; the fill still clamps to 0.
 - **Naming precedence:** when a visible `label` is rendered, it is wired as the bar's `aria-labelledby`, which takes precedence over any `aria-label`. So `aria-label` only names the bar when there is no visible label — don't rely on it to override one.
+- **Segments (stacked bar):** `segments?: { value: number; tone: 'positive' | 'neutral' | 'warning' | 'negative' | 'progress'; label: string }[]` renders a 10px track (`--surface-neutral`, round) with segments side by side, widths as a share of `max` (default: the sum of the values; zero-value segments are skipped). Segment tones are status colours only: accepted = `positive` (`--icon-positive`), pending = `neutral` (`--border-strong`), declined = `warning` (`--icon-warning`). `legend?` (default `true` with segments) adds a row of dot + label + value under the bar. `value`, `tone` and `showValue` are ignored in this mode.
+- **Segments a11y:** a stacked bar is a composite meter, so the root is `role="img"` (not `progressbar`), named from every segment, e.g. "Accepted 12, Pending 5, Declined 2 of 19" (`label` is prefixed when given; `aria-label` wins). The default copy lives in `dsStrings.progressBar.segmentsSummary` and is overridable per instance through `summary`. The legend sits inside the image and is not announced twice. Width changes do not animate under `prefers-reduced-motion`.
 
 ### 4.8 ContextMenu
 
@@ -1707,11 +1710,16 @@ Single-value range control. **Wraps:** Base UI `Slider`.
 
 Two-state pressable button, standalone or grouped. **Wraps:** Base UI `Toggle` / `ToggleGroup`.
 
-- **Exports:** `Toggle`, `ToggleGroup`; types `ToggleSize`, `ToggleProps`, `ToggleGroupItem`, `ToggleGroupProps`.
+- **Exports:** `Toggle`, `ToggleGroup`; types `ToggleSize`, `ToggleProps`, `ToggleGroupItem`, `ToggleGroupProps`, `ToggleGroupAppearance`.
 - **Toggle props:** `pressed?`, `defaultPressed?`, `onPressedChange?(pressed: boolean)`, `value?`, `size?='m'` (`s | m`), `disabled?`, `aria-label?`.
 - **Group props:** `items: ToggleGroupItem[]`, `value?: string[]`, `defaultValue?`, `onValueChange?(value: string[])`, `multiple?=false`, `size?`, `disabled?`, `aria-label?`, **plus any Base UI `ToggleGroup` prop** (rest and `ref` are forwarded to the group element, after our defaults, so injected props win). `ToggleGroupItem = { value; label?; icon?; disabled?; 'aria-label'? }`.
 - **Dimensions/tokens:** Toggle `s`=32 / `m`=40 px tall, `--radius-m` items; group is `role=toolbar`, `--radius-l`, `--surface-neutral`; pressed Toggle → `--interaction-primary-focus`, pressed segment → `--surface-light` + `--shadow-control-pressed`.
 - **Behavior:** standalone is on/off; group is single-select unless `multiple`; value carried as a string array. The group deliberately overrides Base UI's default `role="group"` with `role="toolbar"`: Base UI also emits `aria-orientation`, which ARIA permits on `toolbar` but not on `group`, and the roving-focus keyboard model already matches a toolbar.
+- **`appearance`** (group): `default` (today's neutral tray) | `segmented` | `chip`. `ToggleGroupItem` also takes `leading?: ReactNode` (generic icon or glyph; wins over `icon`; never a colour swatch, since categories use icons).
+  - `segmented` (prototype `.seg2`): inline tray `--surface-light`, 1px `--border-light`, `rounded-8`, `p-4`, `gap-2`; items `rounded-4` (prototype 6px snapped to the concentric radius), `text-s`, `--text-secondary`; pressed `--surface-positive` + `--text-primary` + `font-medium`, which stays visible on the light tray (the default pressed `--surface-light` vanishes there). `size="s"` is the dense row look (24px tall, `text-xxs`, `px-8`).
+  - `chip` (prototype `.fchip`, `.timewin`, `.schips`): wrapping row (`gap-8`), items fully round with 1px `--border-medium`, `text-s`, `px-12`; pressed `--surface-positive` + `--border-positive-light` + `font-medium`. Works with `multiple`. `size="s"`: 24px tall, `text-xxs`.
+  - Both support `multiple`, single selection, `disabled` items and roving arrow-key focus. Visual height is 32px (24px for `s`); an invisible `::before` extends the hit area to at least 40px (§8), so the look is unchanged.
+  - **OGCR rule: a segmented control holds at most 3 options; above that use a dropdown (`Select`).** Not enforced in code. Chips are for filters and may be many.
 - **Toolbar projection:** the open prop/ref forwarding above is what makes `<ToolbarButton render={<ToggleGroup … />} />` (§4.39) work — Base UI hands the projected element its roving-focus wiring (`tabIndex`, key handlers, `data-*`, `ref`) as ordinary props, and a wrapper with a closed prop set would swallow them.
 
 ### 4.22 Switch

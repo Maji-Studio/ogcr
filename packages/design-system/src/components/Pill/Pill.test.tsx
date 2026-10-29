@@ -46,4 +46,20 @@ describe('Pill', () => {
     render(<Pill className="uppercase">Loud</Pill>)
     expect(screen.getByText('Loud').className).toContain('uppercase')
   })
+
+  it('renders xs and round with dot and leading icon, keeping them hidden from assistive tech', () => {
+    render(
+      <>
+        <Pill size="xs" shape="round" tone="warning" dot>
+          Declined
+        </Pill>
+        <Pill size="xs" shape="round" tone="positive" leading={<svg data-testid="icon" />}>
+          Accepted
+        </Pill>
+      </>,
+    )
+    expect(screen.getByText('Declined')).toHaveAttribute('data-tone', 'warning')
+    expect(screen.getByText('Declined').querySelector('[data-slot="pill-dot"]')).toHaveAttribute('aria-hidden', 'true')
+    expect(screen.getByTestId('icon').closest('[aria-hidden="true"]')).not.toBeNull()
+  })
 })

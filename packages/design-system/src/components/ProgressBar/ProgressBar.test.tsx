@@ -73,3 +73,30 @@ describe('ProgressBar', () => {
     expect(root).toHaveClass('flex')
   })
 })
+
+describe('ProgressBar segments', () => {
+  const segments = [
+    { value: 12, tone: 'positive', label: 'Accepted' },
+    { value: 5, tone: 'neutral', label: 'Pending' },
+    { value: 2, tone: 'warning', label: 'Declined' },
+  ] as const
+
+  it('is a named image, not a progressbar, summarising every segment', () => {
+    render(<ProgressBar segments={[...segments]} />)
+    expect(screen.queryByRole('progressbar')).toBeNull()
+    expect(screen.getByRole('img', { name: 'Accepted 12, Pending 5, Declined 2 of 19' })).toBeInTheDocument()
+  })
+
+  it('sizes segments as a share of the total and lists a legend by default', () => {
+    const { container } = render(<ProgressBar segments={[...segments]} max={20} />)
+    const widths = [...container.querySelectorAll<HTMLElement>('[data-slot="progress-segment"]')].map((el) => el.style.width)
+    expect(widths).toEqual(['60%', '25%', '10%'])
+    expect(screen.getAllByRole('listitem')).toHaveLength(3)
+  })
+
+  it('hides the legend on request and accepts a custom summary', () => {
+    render(<ProgressBar segments={[...segments]} legend={false} summary={(_, total) => `${total} Antworten`} />)
+    expect(screen.queryByRole('listitem')).toBeNull()
+    expect(screen.getByRole('img', { name: '19 Antworten' })).toBeInTheDocument()
+  })
+})
