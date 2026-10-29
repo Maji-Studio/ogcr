@@ -118,10 +118,14 @@ export function MapView({
   const fittedExtentRef = useRef<string | null>(null)
   const [ownBasemap, setOwnBasemap] = useState<BasemapId>(initialBasemap)
   const basemap = basemapProp ?? ownBasemap
-  // The basemap showing right now, for callbacks that outlive the render that queued them (the
-  // parcel layers are created on the map's first "load", which can land after a switch).
+  // The basemap showing right now, so the parcel layers pick up the right outline ink without the
+  // parcel effect re-running on every basemap switch.
   const basemapRef = useRef<BasemapId>(initialBasemap)
   const [failed, setFailed] = useState(false)
+  // True from the map's first "load". Layer and source calls are safe from then on, even while
+  // tiles stream in; isStyleLoaded() is not a usable gate because it stays false during tile loads
+  // and "load" fires only once, so a deferred update could be dropped.
+  const [ready, setReady] = useState(false)
 
   // Create the map once. Imperative DOM/WebGL init is a sanctioned effect; camera and basemap
   // props are read here as initial values only.
@@ -152,6 +156,7 @@ export function MapView({
       return
     }
     mapRef.current = map
+    map.once('load', () => setReady(true))
 
     // Keep the canvas sized to its (flex / resizable) container.
     const resizeObserver = new ResizeObserver(() => map.resize())
@@ -161,6 +166,7 @@ export function MapView({
       resizeObserver.disconnect()
       map.remove()
       mapRef.current = null
+      setReady(false)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -169,38 +175,29 @@ export function MapView({
   useEffect(() => {
     basemapRef.current = basemap
     const map = mapRef.current
-    if (!map) return
-    const apply = () => {
-      showBasemap(map, basemap)
-      setParcelInk(map, basemap)
-    }
-    if (map.isStyleLoaded()) apply()
-    else map.once('styledata', apply)
-  }, [basemap])
+    if (!map || !ready) return
+    showBasemap(map, basemap)
+    setParcelInk(map, basemap)
+  }, [basemap, ready])
 
   // Parcel overlay: add the source and layers once, then just setData on every change.
   useEffect(() => {
     const map = mapRef.current
-    if (!map || !features) return
+    if (!map || !ready || !features) return
 
-    const apply = () => {
-      const existing = map.getSource(PARCEL_SOURCE)
-      if (existing) (existing as maplibregl.GeoJSONSource).setData(features)
-      else addParcelLayers(map, features, basemapRef.current)
+    const existing = map.getSource(PARCEL_SOURCE)
+    if (existing) (existing as maplibregl.GeoJSONSource).setData(features)
+    else addParcelLayers(map, features, basemapRef.current)
 
-      if (fitToFeatures && features.features.length > 0) {
-        const bounds = featureBounds(features)
-        const extent = JSON.stringify(bounds.toArray())
-        if (extent !== fittedExtentRef.current) {
-          fittedExtentRef.current = extent
-          map.fitBounds(bounds, { padding: fitPadding, duration: 0, maxZoom: fitMaxZoom })
-        }
+    if (fitToFeatures && features.features.length > 0) {
+      const bounds = featureBounds(features)
+      const extent = JSON.stringify(bounds.toArray())
+      if (extent !== fittedExtentRef.current) {
+        fittedExtentRef.current = extent
+        map.fitBounds(bounds, { padding: fitPadding, duration: 0, maxZoom: fitMaxZoom })
       }
     }
-
-    if (map.isStyleLoaded()) apply()
-    else map.once('load', apply)
-  }, [features, fitToFeatures, fitPadding, fitMaxZoom])
+  }, [features, fitToFeatures, fitPadding, fitMaxZoom, ready])
 
   // Parcel name cards, rebuilt whenever the features change.
   useEffect(() => {
