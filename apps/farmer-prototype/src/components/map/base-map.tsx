@@ -105,6 +105,14 @@ export interface BaseMapProps {
    * or null when the click landed on bare basemap — so a caller can clear its selection.
    */
   onSelectFeature?: (properties: MapFeatureSelection) => void;
+  /** Controlled basemap. When set it wins over the map's own switch, which then reports through `onBasemapChange`. */
+  basemap?: BasemapId;
+  /** Called when the on-map basemap switch is used. */
+  onBasemapChange?: (basemap: BasemapId) => void;
+  /** Show the basemap switch and zoom buttons. Defaults to true. */
+  showControls?: boolean;
+  /** Show the parcel name cards at close zoom. Defaults to true. */
+  showLabels?: boolean;
 }
 
 /**
@@ -206,13 +214,18 @@ export function BaseMap({
   fitPadding = 48,
   fitMaxZoom = FIT_MAX_ZOOM,
   onSelectFeature,
+  basemap: basemapProp,
+  onBasemapChange,
+  showControls = true,
+  showLabels = true,
 }: BaseMapProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   // The extent the camera was last fitted to. Selection changes rewrite the feature data without
   // moving anything, and refitting on those would yank the camera back from wherever the user panned.
   const fittedExtentRef = useRef<string | null>(null);
-  const [basemap, setBasemap] = useState<BasemapId>(initialBasemap);
+  const [ownBasemap, setOwnBasemap] = useState<BasemapId>(initialBasemap);
+  const basemap = basemapProp ?? ownBasemap;
   // The basemap showing right now, for callbacks that outlive the render that queued them (the
   // parcel layers are created on the map's first "load", which can land after a switch).
   const basemapRef = useRef<BasemapId>(initialBasemap);
@@ -378,7 +391,7 @@ export function BaseMap({
   // hidden below LABEL_MIN_ZOOM.
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !features) return;
+    if (!map || !features || !showLabels) return;
 
     const markers: maplibregl.Marker[] = [];
     for (const feature of features.features) {
@@ -429,7 +442,7 @@ export function BaseMap({
       markers.forEach((marker) => marker.remove());
       labelMarkersRef.current = [];
     };
-  }, [features]);
+  }, [features, showLabels]);
 
   // Click-to-select. Registered separately from the layer setup so the handler can change without
   // tearing the source down, and guarded on getLayer() because the style may still be loading.
@@ -492,12 +505,17 @@ export function BaseMap({
       {/* h-full (not absolute inset-0): MapLibre forces position:relative on its
           container, which would collapse an absolutely-positioned box to 0px. */}
       <div ref={containerRef} className="h-full w-full" />
-      <MapControls
-        basemap={basemap}
-        onZoomIn={() => zoomBy(MAP_ZOOM_STEP)}
-        onZoomOut={() => zoomBy(-MAP_ZOOM_STEP)}
-        onBasemapChange={setBasemap}
-      />
+      {showControls && (
+        <MapControls
+          basemap={basemap}
+          onZoomIn={() => zoomBy(MAP_ZOOM_STEP)}
+          onZoomOut={() => zoomBy(-MAP_ZOOM_STEP)}
+          onBasemapChange={(next) => {
+            setOwnBasemap(next);
+            onBasemapChange?.(next);
+          }}
+        />
+      )}
     </div>
   );
 }
