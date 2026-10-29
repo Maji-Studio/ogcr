@@ -1,13 +1,11 @@
 import type { StyleSpecification } from "maplibre-gl";
 import {
+  MINIMAL_ATTRIBUTION,
+  MINIMAL_MAX_ZOOM,
+  MINIMAL_TILE_URLS,
   SATELLITE_ATTRIBUTION,
   SATELLITE_MAX_ZOOM,
-  SATELLITE_RASTER_TREATMENT,
   SATELLITE_TILE_URL,
-  STREET_ATTRIBUTION,
-  STREET_MAX_ZOOM,
-  STREET_RASTER_TREATMENT,
-  STREET_TILE_URL,
   TILE_SIZE,
   type BasemapId,
 } from "@/config/geo";
@@ -18,9 +16,9 @@ import {
  */
 export const BACKGROUND_LAYER = "ogcr-background";
 export const SATELLITE_SOURCE = "ogcr-satellite";
-export const STREET_SOURCE = "ogcr-street";
+export const MINIMAL_SOURCE = "ogcr-minimal";
 export const SATELLITE_LAYER = "ogcr-satellite-layer";
-export const STREET_LAYER = "ogcr-street-layer";
+export const MINIMAL_LAYER = "ogcr-minimal-layer";
 
 /**
  * One MapLibre style holding BOTH raster basemaps. Switching basemap is then a
@@ -44,12 +42,12 @@ export function buildMapStyle(
         maxzoom: SATELLITE_MAX_ZOOM,
         attribution: SATELLITE_ATTRIBUTION,
       },
-      [STREET_SOURCE]: {
+      [MINIMAL_SOURCE]: {
         type: "raster",
-        tiles: [STREET_TILE_URL],
+        tiles: MINIMAL_TILE_URLS,
         tileSize: TILE_SIZE,
-        maxzoom: STREET_MAX_ZOOM,
-        attribution: STREET_ATTRIBUTION,
+        maxzoom: MINIMAL_MAX_ZOOM,
+        attribution: MINIMAL_ATTRIBUTION,
       },
     },
     layers: [
@@ -63,22 +61,12 @@ export function buildMapStyle(
         type: "raster",
         source: SATELLITE_SOURCE,
         layout: { visibility: active === "satellite" ? "visible" : "none" },
-        paint: {
-          "raster-saturation": SATELLITE_RASTER_TREATMENT.saturation,
-          "raster-contrast": SATELLITE_RASTER_TREATMENT.contrast,
-          "raster-brightness-min": SATELLITE_RASTER_TREATMENT.brightnessMin,
-        },
       },
       {
-        id: STREET_LAYER,
+        id: MINIMAL_LAYER,
         type: "raster",
-        source: STREET_SOURCE,
-        layout: { visibility: active === "street" ? "visible" : "none" },
-        paint: {
-          "raster-saturation": STREET_RASTER_TREATMENT.saturation,
-          "raster-contrast": STREET_RASTER_TREATMENT.contrast,
-          "raster-brightness-min": STREET_RASTER_TREATMENT.brightnessMin,
-        },
+        source: MINIMAL_SOURCE,
+        layout: { visibility: active === "minimal" ? "visible" : "none" },
       },
     ],
   };

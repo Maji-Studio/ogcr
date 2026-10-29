@@ -12,7 +12,7 @@
  */
 
 import type { Feature, FeatureCollection, Polygon } from "geojson";
-import { parcels, type FarmerParcel, type PotentialTier } from "./farm";
+import { formatArea, parcels, type FarmerParcel, type PotentialTier } from "./farm";
 
 /** Metres per degree at Plattling (48.79° N). */
 const M_PER_DEG_LAT = 111_320;
@@ -35,6 +35,8 @@ export interface ParcelFeatureProperties {
   /** Consumed by the map's colour ramp. */
   status: PotentialTier;
   area: number;
+  /** Second line of the on-map name card, e.g. "6.8 ha". */
+  detail: string;
   selected: boolean;
   [key: string]: unknown;
 }
@@ -115,6 +117,7 @@ export function lindenhofParcelFeatures(
       name: parcel.name,
       status: parcel.tier,
       area: parcel.area,
+      detail: `${formatArea(parcel.area)} ha`,
       selected: parcel.id === selectedId,
     },
   }));

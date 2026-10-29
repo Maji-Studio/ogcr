@@ -18,7 +18,7 @@ export default async function MapPage({ params }: MapPageProps) {
         <h1 className="text-h1 text-text-primary">Map</h1>
         <p className="text-body text-text-secondary">
           Satellite imagery themed to the OGCR design system. Use the control on
-          the map to switch to street view.
+          the map to switch to the minimal basemap.
         </p>
       </div>
       <div className={MAP_CONTAINER_CLASS}>

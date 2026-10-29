@@ -1,6 +1,7 @@
 "use client";
 
 import { MapView } from "@/components/map";
+import { MapLegend } from "@/components/map/map-legend";
 import { parcelFeatures, type ParcelMapStatus, type Program } from "./data";
 
 interface ProgramMapProps {
@@ -32,19 +33,7 @@ export function ProgramMap({ program, parcelStatus }: ProgramMapProps) {
         fitToFeatures
         fitPadding={64}
       />
-      <div className="absolute bottom-16 left-16 flex flex-col gap-8 rounded-12 border border-border-medium bg-surface-light px-12 py-8">
-        <span className="text-body-s font-medium text-text-primary">
-          Your fields
-        </span>
-        <span className="flex items-center gap-8 text-body-s text-text-secondary">
-          <span
-            aria-hidden="true"
-            className="inline-block h-12 w-12 rounded-4"
-            style={{ background: `var(${legend.token})` }}
-          />
-          {legend.label}
-        </span>
-      </div>
+      <MapLegend title="Your fields" items={[legend]} />
     </div>
   );
 }

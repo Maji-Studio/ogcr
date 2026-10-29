@@ -6,16 +6,26 @@
  */
 
 import { MapView, type MapFeatureSelection } from "@/components/map";
+import { MapLegend } from "@/components/map/map-legend";
 import { farm } from "./data/farm";
 import { lindenhofParcelFeatures } from "./data/geometry";
-import { TIER_META, TierSwatch } from "./shared";
+import { TIER_META } from "./shared";
 import type { PotentialTier } from "./data/farm";
 
 /** Close enough to read individual field boundaries; the whole farm is only ~400 m across. */
 const FARM_ZOOM = 16;
 const FIT_PADDING = 56;
 
-const LEGEND_TIERS: PotentialTier[] = ["high", "medium", "ineligible"];
+/** Swatch tokens mirror base-map's statusColor() for the same tiers. */
+const LEGEND_TIERS: { tier: PotentialTier; token: string }[] = [
+  { tier: "high", token: "--ds-orange-500" },
+  { tier: "medium", token: "--ds-amber-300" },
+  { tier: "ineligible", token: "--ds-border-strong" },
+];
+const LEGEND_ITEMS = LEGEND_TIERS.map(({ tier, token }) => ({
+  label: TIER_META[tier].label,
+  token,
+}));
 
 interface ParcelMapProps {
   selectedId: string | null;
@@ -45,29 +55,7 @@ export function ParcelMap({ selectedId, onSelect, className }: ParcelMapProps) {
           fitMaxZoom={FARM_ZOOM + 1}
           onSelectFeature={handleSelectFeature}
         />
-        <Legend />
-      </div>
-    </div>
-  );
-}
-
-/**
- * Reading key, not a control. It sits top-left, the one corner the map does not already use for
- * its zoom buttons, basemap toggle or tile attribution.
- */
-function Legend() {
-  return (
-    <div className="pointer-events-none absolute inset-0 z-10">
-      <div className="absolute left-12 top-12 flex flex-col gap-8 rounded-12 border border-border-medium bg-surface-light px-12 py-8 shadow-elevation-l">
-        <p className="text-body-s font-medium text-text-primary">Carbon potential</p>
-        <ul className="flex flex-col gap-4">
-          {LEGEND_TIERS.map((tier) => (
-            <li key={tier} className="flex items-center gap-8 text-body-s text-text-secondary">
-              <TierSwatch tier={tier} />
-              {TIER_META[tier].label}
-            </li>
-          ))}
-        </ul>
+        <MapLegend title="Carbon potential" items={LEGEND_ITEMS} />
       </div>
     </div>
   );

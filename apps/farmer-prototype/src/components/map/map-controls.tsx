@@ -2,23 +2,34 @@
 
 import type { ReactNode } from "react";
 import {
-  CornersOutIcon,
-  GlobeIcon,
-  MapIcon,
   MinusIcon,
   PlusIcon,
+  ToggleGroup,
+  type ToggleGroupItem,
 } from "@majistudio/ogcr-design-system";
 import { cn } from "@/lib/utils";
 import type { BasemapId } from "@/config/geo";
 
 const ICON_SIZE = 18;
 
+/** Segment order is the visual order: Minimal, then Satellite. */
+const BASEMAP_ITEMS: ToggleGroupItem[] = [
+  { value: "minimal", label: "Minimal" },
+  { value: "satellite", label: "Satellite" },
+];
+
+/**
+ * The DS segment ships a 36px-tall pill whose pressed state matches this light container, so the
+ * items are restyled in map.css (`.map-basemap-switch`). The DS exposes no per-item classes.
+ */
+const BASEMAP_SWITCH_CLASS =
+  "map-basemap-switch pointer-events-auto absolute right-24 top-24 gap-2 rounded-8 border-0 bg-surface-light p-4 shadow-elevation-l";
+
 interface MapControlsProps {
   basemap: BasemapId;
   onZoomIn: () => void;
   onZoomOut: () => void;
-  onReset: () => void;
-  onToggleBasemap: () => void;
+  onBasemapChange: (basemap: BasemapId) => void;
 }
 
 /**
@@ -29,39 +40,30 @@ export function MapControls({
   basemap,
   onZoomIn,
   onZoomOut,
-  onReset,
-  onToggleBasemap,
+  onBasemapChange,
 }: MapControlsProps) {
-  // The toggle shows the basemap you'd switch TO.
-  const toStreet = basemap === "satellite";
-
   return (
     <div className="pointer-events-none absolute inset-0">
-      <div className="pointer-events-auto absolute right-[12px] top-[12px] flex flex-col overflow-hidden rounded-12 border border-border-medium bg-surface-light shadow-elevation-l">
+      <ToggleGroup
+        aria-label="Basemap"
+        items={BASEMAP_ITEMS}
+        value={[basemap]}
+        onValueChange={(next) => {
+          // A pressed segment cannot be un-pressed: one basemap is always showing.
+          const picked = next[0];
+          if (picked === "minimal" || picked === "satellite") onBasemapChange(picked);
+        }}
+        className={BASEMAP_SWITCH_CLASS}
+      />
+
+      <div className="pointer-events-auto absolute bottom-24 right-24 max-sm:bottom-40 flex flex-col overflow-hidden rounded-8 bg-surface-light shadow-elevation-l">
         <ControlButton label="Zoom in" onClick={onZoomIn}>
           <PlusIcon size={ICON_SIZE} weight="bold" />
         </ControlButton>
         <ControlButton label="Zoom out" onClick={onZoomOut} divided>
           <MinusIcon size={ICON_SIZE} weight="bold" />
         </ControlButton>
-        <ControlButton label="Reset view" onClick={onReset} divided>
-          <CornersOutIcon size={ICON_SIZE} />
-        </ControlButton>
       </div>
-
-      <button
-        type="button"
-        onClick={onToggleBasemap}
-        aria-label={toStreet ? "Show street map" : "Show satellite imagery"}
-        className="pointer-events-auto absolute bottom-[12px] left-[12px] flex items-center gap-8 rounded-12 border border-border-medium bg-surface-light px-12 py-8 text-body-s text-text-primary shadow-elevation-l transition-colors hover:bg-surface-neutral"
-      >
-        {toStreet ? (
-          <MapIcon size={ICON_SIZE} />
-        ) : (
-          <GlobeIcon size={ICON_SIZE} />
-        )}
-        <span>{toStreet ? "Street" : "Satellite"}</span>
-      </button>
     </div>
   );
 }
@@ -85,8 +87,8 @@ function ControlButton({
       aria-label={label}
       onClick={onClick}
       className={cn(
-        "flex h-40 w-40 items-center justify-center text-text-primary transition-colors hover:bg-surface-neutral",
-        divided && "border-t border-border-medium",
+        "flex h-44 w-44 items-center justify-center text-text-primary transition-colors hover:bg-surface-neutral",
+        divided && "border-t border-border-light",
       )}
     >
       {children}

@@ -5,21 +5,38 @@
  * chrome retints automatically if the brand palette is overridden.
  */
 
-/* Attribution pill (compact). */
-.maplibregl-ctrl-attrib.maplibregl-compact {
-  background: color-mix(in srgb, var(--ds-surface-light) 90%, transparent);
-  border-radius: 12px;
+:root {
+  /* MapLibre chrome sizing: the attribution is third-party text, kept at MapLibre's own 11px. */
+  --map-attrib-font-size: 11px;
+}
+
+/* Attribution: flush in the bottom-right corner under the zoom stack, like Leaflet's. */
+.maplibregl-ctrl-bottom-right .maplibregl-ctrl-attrib {
+  margin: 0;
+  padding: 0 6px;
+  background: color-mix(in srgb, var(--ds-surface-light) 80%, transparent);
+  border-radius: 4px 0 0 0;
   color: var(--ds-text-secondary);
 }
 .maplibregl-ctrl-attrib {
   font-family: var(--font-standard);
-  font-size: 11px;
+  font-size: var(--map-attrib-font-size);
 }
 .maplibregl-ctrl-attrib a {
   color: var(--ds-text-secondary);
 }
-.maplibregl-ctrl-attrib-button {
-  background-color: var(--ds-surface-light);
+
+/* Basemap switch (DS ToggleGroup in map-controls.tsx). Plain CSS on purpose: the app's Tailwind
+   build has no DS theme, so variant classes naming DS tokens are never generated. */
+.map-basemap-switch [data-slot="toggle-group-item"] {
+  height: auto;
+  padding: var(--spacing-6) var(--spacing-12);
+  border-radius: var(--radius-4);
+}
+.map-basemap-switch [data-slot="toggle-group-item"][data-pressed] {
+  background: var(--ds-surface-positive);
+  color: var(--ds-text-primary);
+  box-shadow: none;
 }
 
 /* Popups — strip MapLibre's default chrome and use a DS card surface.
@@ -27,12 +44,10 @@
 .maplibregl-popup-content {
   padding: 12px 14px;
   border: 1px solid var(--ds-border-medium);
-  border-radius: 12px;
+  border-radius: var(--radius-8);
   background: var(--ds-surface-light);
   color: var(--ds-text-primary);
-  box-shadow:
-    0 0 2px 0 rgba(68, 51, 33, 0.08),
-    0 8px 16px 0 rgba(68, 51, 33, 0.16);
+  box-shadow: var(--shadow-elevation-l);
   font-family: var(--font-standard);
 }
 .maplibregl-popup-tip {
