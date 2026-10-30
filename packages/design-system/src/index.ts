@@ -18,6 +18,10 @@ export * from './components/Input'
 export * from './components/Kpi'
 export * from './components/List'
 export * from './components/Logo'
+// Map (MapView) is NOT re-exported either: it pulls in the optional maplibre-gl peer (~250 kB
+// gzipped). Deep-import it — `@majistudio/ogcr-design-system/Map` — like Table below. MapLegend
+// has no peer, so it stays on the barrel.
+export * from './components/MapLegend'
 export * from './components/Menu'
 export * from './components/Message'
 export * from './components/Navigation'

@@ -79,6 +79,9 @@ const exportsMap = {
   // the `/styles.css` sibling.
   './theme': './dist/theme.css',
   './theme.css': './dist/theme.css',
+  // MapView's MapLibre chrome restyle (src/components/Map/map.css, copied verbatim by build:lib).
+  // Plain unlayered CSS on DS tokens, imported after maplibre-gl.css so it wins.
+  './map.css': './dist/map.css',
   './manifest.json': './dist/manifest.json',
   './llms.txt': './dist/llms.txt',
   // Dependency-free deep import of the cn() class-merge helper. Built as its own entry
@@ -120,7 +123,7 @@ fs.writeFileSync(path.join(root, 'dist', 'manifest.json'), `${JSON.stringify(man
 const lines = [
   `# ${pkg.name}`,
   '',
-  `> ${pkg.description} ${components.length} components on Base UI primitives, Tailwind v4 tokens, and CVA variants. Import the stylesheet once with \`import '${pkg.name}/styles.css'\`, then import components from the barrel (\`import { Button } from '${pkg.name}'\`) or deep-import a single one (\`import { Button } from '${pkg.name}/Button'\`). Peer deps: react/react-dom ^19, @base-ui/react ^1, @tanstack/react-table ^8 (only for Table).`,
+  `> ${pkg.description} ${components.length} components on Base UI primitives, Tailwind v4 tokens, and CVA variants. Import the stylesheet once with \`import '${pkg.name}/styles.css'\`, then import components from the barrel (\`import { Button } from '${pkg.name}'\`) or deep-import a single one (\`import { Button } from '${pkg.name}/Button'\`). Peer deps: react/react-dom ^19, @base-ui/react ^1, @tanstack/react-table ^8 (only for Table), maplibre-gl ^5 (only for Map, which also needs \`import 'maplibre-gl/dist/maplibre-gl.css'\` then \`import '${pkg.name}/map.css'\`).`,
   '',
   '## Components',
   '',

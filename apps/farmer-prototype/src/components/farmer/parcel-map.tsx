@@ -6,7 +6,7 @@
  */
 
 import { MapView, type MapFeatureSelection } from "@/components/map";
-import { MapLegend } from "@/components/map/map-legend";
+import { MapLegend } from "@majistudio/ogcr-design-system";
 import { farm } from "./data/farm";
 import { lindenhofParcelFeatures } from "./data/geometry";
 import { TIER_META } from "./shared";

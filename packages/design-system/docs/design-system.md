@@ -1974,6 +1974,32 @@ Ordered list of steps or tasks, each with one state circle. One vocabulary for t
 - **a11y:** the current item carries `aria-current="step"`. Every state is also announced as visually hidden text before the title (`To do`, `Current step`, `Done`, `Needs attention`, `Locked`; overridable per item with `stateLabel`, defaults in `dsStrings.stepList`), so colour is never the only signal. The marker is `aria-hidden`.
 - **Not covered:** the farmer app's horizontal SeasonStepper (dots in a row) is a different orientation and stays app-local.
 
+### 4.45 Map
+
+The parcel map: a MapLibre canvas on two key-free raster basemaps with parcels painted from palette tokens and DS controls instead of MapLibre's. Origin: the farmer app's map (`/farmer`, program pages, `/playground/map`), moved here so the styling has one home. Storybook **Components/Map → Styling reference** renders every rule below from the exported constants.
+
+- **Import:** deep-import only, `@majistudio/ogcr-design-system/Map` (like Table, it pulls in a peer). Needs the optional peer `maplibre-gl` (^5) and two unlayered stylesheets in this order: `maplibre-gl/dist/maplibre-gl.css`, then `@majistudio/ogcr-design-system/map.css`. Client-only (DOM + WebGL): in Next.js load it with `dynamic(..., { ssr: false })`.
+- **Exports:** `MapView`; constants `PARCEL_STATUS_TOKENS`, `PARCEL_FILL_OPACITY`, `PARCEL_LINE_WIDTH`, `INACTIVE_STATUSES`, `LABEL_MIN_ZOOM`, `DEFAULT_BASEMAP`, `MAP_DEFAULT_CENTER`, `MAP_DEFAULT_ZOOM`; types `MapViewProps`, `BasemapId`, `ParcelStatus`, `MapFeatureSelection`.
+- **Props:** `features?` (GeoJSON `FeatureCollection`), `fitToFeatures?` / `fitPadding?=48` / `fitMaxZoom?=15`, `center?` / `zoom?` / `initialBasemap?='satellite'` (read once, on mount), `basemap?` + `onBasemapChange?` (controlled), `onSelectFeature?` (properties of the clicked polygon, or `null` on bare map), `showControls?=true`, `showLabels?=true`, copy props (defaults in `dsStrings.map`), `className`, `...rest` on the root `div`.
+- **Frame:** `--radius-16`, `--elevation-l`, `--surface-neutral` behind the tiles and in tile gaps. Size it with `className`; the canvas fills it and follows resizes.
+- **Basemaps:** Satellite (Esri World Imagery, default) and Minimal (Esri Light Gray Canvas, real tiles to z16). The switch is a `ToggleGroup` `appearance="segmented"` top right (24 inset); zoom is a 48px button stack bottom right; attribution sits flush in the corner below at 11px. No rotation or pitch from any input.
+- **Parcel colour = status** (`status` property): campaign `enrolled` `--interaction-primary-default`, `awaiting` (shown as "Included") `--orange-500`, `dropped` ("Withdrawn") `--border-strong`; carbon potential `high` `--orange-500`, `medium` `--amber-300`, `ineligible` `--border-strong`. Unknown status falls back to `--interaction-primary-default`.
+- **Parcel state:** active = fill 72%, solid 2.5px outline, name card; selected (`selected: true`) = fill 85%, solid 4px outline, card placed first so it is never thinned out; inactive (`dropped`, `ineligible`) = fill 18%, 1.5px outline dashed 4px, no card.
+- **Outline ink:** `--white` over Satellite, `--text-primary` over Minimal; it switches with the basemap.
+- **Name cards:** from zoom 13, at the polygon's area centroid: `--surface-light`, `--radius-8`, `--elevation-l`, padding 4 / 8; `name` in `text-xxs` semibold primary, `detail` (e.g. area) in `text-xxs` secondary. Overlapping cards are hidden on every zoom.
+- **Locator dots:** Point features draw a dot in the status colour with a 2px white ring, radius 7 → 9 between zoom 9 and 13, fading out from 12.5 to 14 as the fields become legible. Use them for the supply-shed view.
+- **No WebGL:** the root renders `role="status"` with "Map unavailable" and a one-line reason instead of crashing.
+- **Known workaround:** `map.css` restates the switch's pressed fill and weight in plain CSS, because an app's own Tailwind utilities outrank the DS's `utilities.ogcr-ds` sub-layer. Remove it when that layer strategy changes.
+
+### 4.46 MapLegend
+
+The reading key for a map. Separate from Map so a page can render it without the `maplibre-gl` peer; on the barrel.
+
+- **Exports:** `MapLegend`; types `MapLegendProps`, `MapLegendItem`.
+- **Props:** `title`, `items` (`{ label, token }`, where `token` is a `--ds-*` custom property; use the `PARCEL_STATUS_TOKENS` values so swatches match the paint), `className`, `...rest` on the root `div`.
+- **Look:** pinned bottom-left of its positioned parent (24 inset, 40 from the bottom below `sm` to clear the wrapped attribution), `--surface-light`, `--radius-8`, `--elevation-l`, padding 10 / 12. Title `text-xxs` medium primary; rows `text-xxs` secondary with a 10px round swatch, gap 6.
+- **Behavior:** `pointer-events: none`, so it never blocks panning. Colour is the only key here, so keep labels explicit ("Enrolled", "High potential").
+
 ---
 
 ## 5. Iconography

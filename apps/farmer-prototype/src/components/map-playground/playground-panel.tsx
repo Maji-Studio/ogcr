@@ -13,7 +13,7 @@ import {
   type SelectOption,
   type ToggleGroupItem,
 } from "@majistudio/ogcr-design-system";
-import type { BasemapId } from "@/config/geo";
+import type { BasemapId } from "@/components/map";
 import type { ParcelMapStatus } from "@/components/programs/data";
 import {
   STATUS_LABEL,

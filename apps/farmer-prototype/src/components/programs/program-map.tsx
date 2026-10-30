@@ -1,7 +1,7 @@
 "use client";
 
 import { MapView } from "@/components/map";
-import { MapLegend } from "@/components/map/map-legend";
+import { MapLegend } from "@majistudio/ogcr-design-system";
 import { parcelFeatures, type ParcelMapStatus, type Program } from "./data";
 
 interface ProgramMapProps {

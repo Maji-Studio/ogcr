@@ -51,6 +51,7 @@
     "./styles.css": "./dist/styles.css",
     "./theme": "./dist/theme.css",
     "./theme.css": "./dist/theme.css",
+    "./map.css": "./dist/map.css",
     "./manifest.json": "./dist/manifest.json",
     "./llms.txt": "./dist/llms.txt",
     "./cn": {
@@ -136,6 +137,14 @@
     "./Logo": {
       "types": "./dist/components/Logo/index.d.ts",
       "import": "./dist/components/Logo/index.js"
+    },
+    "./Map": {
+      "types": "./dist/components/Map/index.d.ts",
+      "import": "./dist/components/Map/index.js"
+    },
+    "./MapLegend": {
+      "types": "./dist/components/MapLegend/index.d.ts",
+      "import": "./dist/components/MapLegend/index.js"
     },
     "./Menu": {
       "types": "./dist/components/Menu/index.d.ts",
@@ -245,7 +254,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "build:lib": "vite build --config vite.lib.config.ts && rm -f dist/styles.js dist/styles.js.map && node scripts/generate-lib-meta.mjs && node scripts/build-theme-export.mjs && node scripts/inject-use-client.mjs && pnpm run check:merge && pnpm run check:spacing && pnpm run check:colors && pnpm run check:tokens && pnpm run check:dist",
+    "build:lib": "vite build --config vite.lib.config.ts && rm -f dist/styles.js dist/styles.js.map && cp src/components/Map/map.css dist/map.css && node scripts/generate-lib-meta.mjs && node scripts/build-theme-export.mjs && node scripts/inject-use-client.mjs && pnpm run check:merge && pnpm run check:spacing && pnpm run check:colors && pnpm run check:tokens && pnpm run check:dist",
     "prepublishOnly": "pnpm run build:lib",
     "check:merge": "node scripts/check-merge-config.mjs",
     "check:spacing": "node scripts/check-spacing-scale.mjs",
@@ -266,16 +275,21 @@
   "peerDependencies": {
     "@base-ui/react": "^1.5.0",
     "@tanstack/react-table": "^8",
+    "maplibre-gl": "^5",
     "react": "^19",
     "react-dom": "^19"
   },
   "peerDependenciesMeta": {
     "@tanstack/react-table": {
       "optional": true
+    },
+    "maplibre-gl": {
+      "optional": true
     }
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",
+    "@types/geojson": "^7946.0.16",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "react-day-picker": "^9.14.0",
@@ -312,6 +326,7 @@
     "eslint-plugin-storybook": "^10.4.1",
     "globals": "^17.5.0",
     "jsdom": "^29.1.1",
+    "maplibre-gl": "^5.24.0",
     "playwright": "^1.60.0",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",

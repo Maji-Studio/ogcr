@@ -36,7 +36,7 @@ const componentEntries = Object.fromEntries(
 //   - index.d.ts   bundled type declarations (mirrors the src tree, root barrel re-exports)
 //   - styles.css   Tailwind v4 utilities + reset + design tokens (the ./styles.css export)
 //
-// React, react-dom, Base UI and TanStack Table are peerDependencies; cva/clsx/tailwind-merge
+// React, react-dom, Base UI, TanStack Table and maplibre-gl are peerDependencies; cva/clsx/tailwind-merge
 // and @phosphor-icons/react are runtime dependencies. All are externalized so the consumer's
 // bundler dedupes a single copy (and tree-shakes the icon set) rather than inlining ours. The
 // app/dev/test build lives in vite.config.ts and is untouched by this config.
@@ -93,6 +93,7 @@ export default defineConfig({
         /^@tanstack\/react-table($|\/)/,
         /^@phosphor-icons\/react($|\/)/,
         /^react-day-picker($|\/)/,
+        /^maplibre-gl($|\/)/,
         'class-variance-authority',
         'clsx',
         'tailwind-merge',
