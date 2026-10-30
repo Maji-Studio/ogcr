@@ -534,6 +534,19 @@ export const SECTIONS: SectionMeta[] = [
       { dt: 'States', dd: 'default · error · disabled · clearable' },
     ],
   },
+  {
+    id: 'map',
+    num: '41',
+    kicker: 'Module',
+    title: 'Map',
+    lede: 'Farm parcels on a satellite or minimal basemap, coloured by status from the palette tokens. A selected field gets a heavier outline, withdrawn and ineligible fields fade back, and name cards appear as you zoom in. The legend sits in the corner and never blocks panning.',
+    figmaNode: '—',
+    spec: [
+      { dt: 'Engine', dd: 'MapLibre GL · optional peer' },
+      { dt: 'Basemaps', dd: 'satellite · minimal' },
+      { dt: 'Import', dd: '/Map deep import · map.css' },
+    ],
+  },
 ]
 
 const SECTION_BY_ID = Object.fromEntries(SECTIONS.map((s) => [s.id, s])) as Record<string, SectionMeta>

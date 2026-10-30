@@ -53,6 +53,8 @@ export default defineConfig({
         'src/**/*.stories.tsx',
         'src/**/*.test.ts',
         'src/**/*.test.tsx',
+        // Sample data shared by stories and the demo page (e.g. Map/map-fixtures.ts).
+        'src/**/*-fixtures.ts',
         'src/App.tsx',
         // The demo page was split out of App.tsx into src/demo/*; it is a Storybook/preview
         // surface, never part of the published API, so it must not emit .d.ts into dist/.
