@@ -1,8 +1,8 @@
 {
   "name": "@majistudio/ogcr-design-system",
-  "description": "OGCR design system — React 19 components, design tokens, and Tailwind v4 theme bridge.",
+  "description": "OGCR design system: React 19 components, design tokens, a Tailwind v4 theme bridge and a MapLibre parcel map.",
   "private": false,
-  "version": "1.2.0",
+  "version": "1.3.0",
   "type": "module",
   "license": "MIT",
   "author": "Maji Studio",
@@ -26,7 +26,9 @@
     "tailwind",
     "tailwindcss",
     "base-ui",
-    "design-tokens"
+    "design-tokens",
+    "map",
+    "maplibre"
   ],
   "engines": {
     "node": ">=20.19"

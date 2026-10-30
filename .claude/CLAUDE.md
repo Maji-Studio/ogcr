@@ -34,7 +34,7 @@ ogcr/                      pnpm workspace (turbo)
   .agents/skills/          reusable dev-workflow skills (surfaced via .claude/skills/ symlinks)
 ```
 
-- **Design system** — 42 component modules on Vite + React 19 + TS, **Base UI** primitives (plus
+- **Design system** — 48 component modules on Vite + React 19 + TS, **Base UI** primitives (plus
   react-day-picker v9 for `Calendar`/`DatePicker`), Tailwind v4 tokens, CVA + `cn()`. This monorepo
   is its **sole source of truth**: it publishes to npm from here via Changesets (`.changeset/` at
   the workspace root; the former standalone repo is archived). Migration record: `PLAN.md`.
