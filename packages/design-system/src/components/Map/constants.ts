@@ -30,8 +30,8 @@ export const SATELLITE_MAX_ZOOM = 19
  */
 export const MINIMAL_STYLE_URL = 'https://tiles.openfreemap.org/styles/positron'
 /**
- * How long to wait for that style, and then again for its sources' tile index, before keeping
- * Minimal on the fallback below for good (ms).
+ * How long to wait for that style, then for its sources' tile index, then for its first tile once
+ * one is requested, before keeping Minimal on the fallback below for good (ms).
  */
 export const MINIMAL_STYLE_TIMEOUT_MS = 10_000
 /** Positron tiles that may fail, before any has loaded, until Minimal goes back to the fallback. */

@@ -146,9 +146,11 @@ type SourceEvent = { sourceId?: string; tile?: unknown }
  * Decide when the Positron layers may take over Minimal, and when they must give it back:
  * - `onReady` once every Positron source has its tile index (TileJSON). If that hasn't happened
  *   within `MINIMAL_STYLE_TIMEOUT_MS`, or a source fails as a whole first, Minimal stays on Esri.
- * - `onFail` after taking over, when a source fails as a whole, or when
- *   `POSITRON_TILE_ERROR_LIMIT` tiles fail before any Positron tile has loaded. Single failing
- *   tiles after that are ignored.
+ * - `onFail` after taking over, when a source fails as a whole, when `POSITRON_TILE_ERROR_LIMIT`
+ *   tiles fail before any Positron tile has loaded, or when no tile has loaded within
+ *   `MINIMAL_STYLE_TIMEOUT_MS` of the first tile request (tiles that hang). Hidden layers request
+ *   no tiles, so that clock starts only once Minimal is on screen. Single failing tiles after the
+ *   first load are ignored.
  * Returns a cleanup that removes the listeners.
  */
 export function watchPositron(
@@ -159,12 +161,15 @@ export function watchPositron(
   let state: 'waiting' | 'live' | 'done' = 'waiting'
   let tileLoaded = false
   let tileErrors = 0
+  let tileTimer: ReturnType<typeof setTimeout> | undefined
   const pending = new Set(sourceIds.filter((id) => !map.getSource(id)?.loaded()))
 
   const stop = () => {
     state = 'done'
     clearTimeout(timer)
+    clearTimeout(tileTimer)
     map.off('sourcedata', handleData)
+    map.off('sourcedataloading', handleLoading)
     map.off('error', handleError)
   }
   const goLive = () => {
@@ -179,11 +184,21 @@ export function watchPositron(
   }
   const handleData = (event: MapSourceDataEvent) => {
     if (!sourceIds.includes(event.sourceId)) return
-    if (event.tile) tileLoaded = true
+    if (event.tile) {
+      tileLoaded = true
+      clearTimeout(tileTimer)
+    }
     if (state === 'waiting' && event.sourceDataType === 'metadata') {
       pending.delete(event.sourceId)
       if (pending.size === 0) goLive()
     }
+  }
+  const handleLoading = (event: MapSourceDataEvent) => {
+    if (!sourceIds.includes(event.sourceId) || !event.tile) return
+    if (state !== 'live' || tileLoaded || tileTimer !== undefined) return
+    tileTimer = setTimeout(() => {
+      if (!tileLoaded) fail()
+    }, MINIMAL_STYLE_TIMEOUT_MS)
   }
   const handleError = (event: MapLibreErrorEvent) => {
     const { sourceId, tile } = event as MapLibreErrorEvent & SourceEvent
@@ -196,6 +211,7 @@ export function watchPositron(
     if (state === 'waiting') stop()
   }, MINIMAL_STYLE_TIMEOUT_MS)
   map.on('sourcedata', handleData)
+  map.on('sourcedataloading', handleLoading)
   map.on('error', handleError)
   if (pending.size === 0) goLive()
   return stop

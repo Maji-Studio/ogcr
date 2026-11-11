@@ -220,4 +220,30 @@ describe('watchPositron', () => {
     }
     expect(onFail).not.toHaveBeenCalled()
   })
+
+  it('gives Minimal back when its first tiles hang', () => {
+    const { map, fire, handlers } = eventedMap(['openmaptiles'])
+    watchPositron(map, ['openmaptiles'], { onReady, onFail })
+    // No tile requested yet (Satellite on screen): no clock runs.
+    vi.advanceTimersByTime(MINIMAL_STYLE_TIMEOUT_MS * 2)
+    fire('sourcedataloading', { sourceId: 'ogcr-satellite', tile: {} })
+    vi.advanceTimersByTime(MINIMAL_STYLE_TIMEOUT_MS)
+    expect(onFail).not.toHaveBeenCalled()
+
+    fire('sourcedataloading', { sourceId: 'openmaptiles', tile: {} })
+    vi.advanceTimersByTime(MINIMAL_STYLE_TIMEOUT_MS - 1)
+    expect(onFail).not.toHaveBeenCalled()
+    vi.advanceTimersByTime(1)
+    expect(onFail).toHaveBeenCalledOnce()
+    expect(handlers.sourcedataloading.size).toBe(0)
+  })
+
+  it('keeps Positron when its first tile loads in time', () => {
+    const { map, fire } = eventedMap(['openmaptiles'])
+    watchPositron(map, ['openmaptiles'], { onReady, onFail })
+    fire('sourcedataloading', { sourceId: 'openmaptiles', tile: {} })
+    fire('sourcedata', { sourceId: 'openmaptiles', tile: {} })
+    vi.advanceTimersByTime(MINIMAL_STYLE_TIMEOUT_MS * 2)
+    expect(onFail).not.toHaveBeenCalled()
+  })
 })
