@@ -111,27 +111,33 @@ export async function loadMinimalStyle(signal: AbortSignal): Promise<StyleSpecif
  * parcel layer). Layers the style itself hides are skipped; layers already on the map are kept, so
  * a second call is harmless. Returns the ids of the Positron layers to toggle as Minimal. MapLibre
  * reports an invalid layer or source through its "error" event and skips it, so a bad style can
- * cost Minimal some layers but never stops the map.
+ * cost Minimal some layers but never stops the map; a style it throws on returns no layers.
  */
 export function addPositron(map: MapLibreMap, positron: StyleSpecification): string[] {
-  if (positron.glyphs) map.setGlyphs(positron.glyphs)
-  if (typeof positron.sprite === 'string') map.setSprite(positron.sprite)
-  else positron.sprite?.forEach(({ id, url }) => map.addSprite(id, url))
-  for (const [id, source] of Object.entries(positron.sources)) {
-    if (!map.getSource(id)) map.addSource(id, source)
-  }
-  const added: string[] = []
-  for (const layer of positron.layers) {
-    if (layer.layout?.visibility === 'none') continue
-    if (!map.getLayer(layer.id)) {
-      map.addLayer(
-        { ...layer, layout: { ...layer.layout, visibility: 'none' } } as LayerSpecification,
-        SATELLITE_LAYER,
-      )
+  try {
+    if (positron.glyphs) map.setGlyphs(positron.glyphs)
+    if (typeof positron.sprite === 'string') map.setSprite(positron.sprite)
+    else positron.sprite?.forEach(({ id, url }) => map.addSprite(id, url))
+    for (const [id, source] of Object.entries(positron.sources)) {
+      if (!map.getSource(id)) map.addSource(id, source)
     }
-    if (map.getLayer(layer.id)) added.push(layer.id)
+    const added: string[] = []
+    for (const layer of positron.layers) {
+      if (layer.layout?.visibility === 'none') continue
+      if (!map.getLayer(layer.id)) {
+        map.addLayer(
+          { ...layer, layout: { ...layer.layout, visibility: 'none' } } as LayerSpecification,
+          SATELLITE_LAYER,
+        )
+      }
+      if (map.getLayer(layer.id)) added.push(layer.id)
+    }
+    return added
+  } catch {
+    // A style malformed in a way MapLibre throws on (a sprite that is a number, say). Whatever
+    // got added stays hidden, and Minimal keeps the Esri raster.
+    return []
   }
-  return added
 }
 
 type SourceEvent = { sourceId?: string; tile?: unknown }

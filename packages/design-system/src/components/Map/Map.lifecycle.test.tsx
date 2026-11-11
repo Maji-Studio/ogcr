@@ -122,4 +122,17 @@ describe('MapView basemaps', () => {
     expect(map.visibility('water')).toBe('none')
     expect(map.visibility(MINIMAL_LAYER)).toBe('visible')
   })
+
+  it('keeps the map up on Esri when the Positron style is malformed', async () => {
+    const { container } = render(<MapView initialBasemap="satellite" showControls={false} />)
+    const map = maps.at(-1)!
+    act(() => map.fire('style.load'))
+
+    await act(async () => resolveFetch({ ...positron, sprite: 42 } as unknown as StyleSpecification))
+    act(() => map.fire('sourcedata', { sourceId: 'openmaptiles', sourceDataType: 'metadata' }))
+    expect(container.firstChild).not.toBeNull()
+    expect(map.visibility(SATELLITE_LAYER)).toBe('visible')
+    expect(map.visibility(MINIMAL_LAYER)).toBe('none')
+    expect(map.getLayer('water')).toBeUndefined()
+  })
 })

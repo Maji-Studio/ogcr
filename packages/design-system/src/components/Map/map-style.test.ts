@@ -111,6 +111,12 @@ describe('addPositron', () => {
     expect(addPositron(fake.map, positron)).toEqual(['background', 'water'])
     expect(fake.layers.filter((layer) => layer.id === 'water')).toHaveLength(1)
   })
+
+  it('returns no layers, without throwing, for a style MapLibre cannot take', () => {
+    const fake = fakeMap(buildMapStyle('satellite', BACKGROUND))
+    const malformed = { ...positron, sprite: 42 } as unknown as StyleSpecification
+    expect(addPositron(fake.map, malformed)).toEqual([])
+  })
 })
 
 describe('swapMinimalLayers', () => {
