@@ -2,6 +2,7 @@ import type {
   ErrorEvent as MapLibreErrorEvent,
   LayerSpecification,
   Map as MapLibreMap,
+  MapSourceDataEvent,
   StyleSpecification,
 } from 'maplibre-gl'
 import {
@@ -10,6 +11,7 @@ import {
   MINIMAL_FALLBACK_TILE_URL,
   MINIMAL_STYLE_TIMEOUT_MS,
   MINIMAL_STYLE_URL,
+  POSITRON_TILE_ERROR_LIMIT,
   SATELLITE_ATTRIBUTION,
   SATELLITE_MAX_ZOOM,
   SATELLITE_TILE_URL,
@@ -132,13 +134,65 @@ export function addPositron(map: MapLibreMap, positron: StyleSpecification): str
   return added
 }
 
+type SourceEvent = { sourceId?: string; tile?: unknown }
+
 /**
- * True when an "error" event means a Positron source as a whole failed (its TileJSON), not just
- * one tile, so Minimal should go back to the Esri raster.
+ * Decide when the Positron layers may take over Minimal, and when they must give it back:
+ * - `onReady` once every Positron source has its tile index (TileJSON). If that hasn't happened
+ *   within `MINIMAL_STYLE_TIMEOUT_MS`, or a source fails as a whole first, Minimal stays on Esri.
+ * - `onFail` after taking over, when a source fails as a whole, or when
+ *   `POSITRON_TILE_ERROR_LIMIT` tiles fail before any Positron tile has loaded. Single failing
+ *   tiles after that are ignored.
+ * Returns a cleanup that removes the listeners.
  */
-export function isSourceFailure(event: MapLibreErrorEvent, sourceIds: string[]): boolean {
-  const { sourceId, tile } = event as MapLibreErrorEvent & { sourceId?: string; tile?: unknown }
-  return sourceId !== undefined && sourceIds.includes(sourceId) && !tile
+export function watchPositron(
+  map: MapLibreMap,
+  sourceIds: string[],
+  { onReady, onFail }: { onReady: () => void; onFail: () => void },
+): () => void {
+  let state: 'waiting' | 'live' | 'done' = 'waiting'
+  let tileLoaded = false
+  let tileErrors = 0
+  const pending = new Set(sourceIds.filter((id) => !map.getSource(id)?.loaded()))
+
+  const stop = () => {
+    state = 'done'
+    clearTimeout(timer)
+    map.off('sourcedata', handleData)
+    map.off('error', handleError)
+  }
+  const goLive = () => {
+    state = 'live'
+    clearTimeout(timer)
+    onReady()
+  }
+  const fail = () => {
+    const wasLive = state === 'live'
+    stop()
+    if (wasLive) onFail()
+  }
+  const handleData = (event: MapSourceDataEvent) => {
+    if (!sourceIds.includes(event.sourceId)) return
+    if (event.tile) tileLoaded = true
+    if (state === 'waiting' && event.sourceDataType === 'metadata') {
+      pending.delete(event.sourceId)
+      if (pending.size === 0) goLive()
+    }
+  }
+  const handleError = (event: MapLibreErrorEvent) => {
+    const { sourceId, tile } = event as MapLibreErrorEvent & SourceEvent
+    if (sourceId === undefined || !sourceIds.includes(sourceId)) return
+    if (!tile) fail()
+    else if (state === 'live' && !tileLoaded && ++tileErrors >= POSITRON_TILE_ERROR_LIMIT) fail()
+  }
+
+  const timer = setTimeout(() => {
+    if (state === 'waiting') stop()
+  }, MINIMAL_STYLE_TIMEOUT_MS)
+  map.on('sourcedata', handleData)
+  map.on('error', handleError)
+  if (pending.size === 0) goLive()
+  return stop
 }
 
 /** Show one basemap and hide the other. Skips layers the style does not have. */

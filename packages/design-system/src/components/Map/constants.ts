@@ -29,8 +29,13 @@ export const SATELLITE_MAX_ZOOM = 19
  * design prototype uses (CARTO's own Positron now needs a key).
  */
 export const MINIMAL_STYLE_URL = 'https://tiles.openfreemap.org/styles/positron'
-/** How long to wait for that style before keeping Minimal on the fallback below (ms). */
+/**
+ * How long to wait for that style, and then again for its sources' tile index, before keeping
+ * Minimal on the fallback below for good (ms).
+ */
 export const MINIMAL_STYLE_TIMEOUT_MS = 10_000
+/** Positron tiles that may fail, before any has loaded, until Minimal goes back to the fallback. */
+export const POSITRON_TILE_ERROR_LIMIT = 4
 
 /**
  * Esri Light Gray Canvas: the Minimal fallback when OpenFreeMap is unreachable. Key-free raster;

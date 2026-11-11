@@ -27,11 +27,11 @@ import {
   addPositron,
   buildMapStyle,
   FALLBACK_MINIMAL_LAYERS,
-  isSourceFailure,
   loadMinimalStyle,
   resolveToken,
   showBasemap,
   swapMinimalLayers,
+  watchPositron,
 } from './map-style'
 
 export { DEFAULT_BASEMAP, MAP_DEFAULT_CENTER, MAP_DEFAULT_ZOOM, type BasemapId } from './constants'
@@ -197,28 +197,24 @@ export function MapView({
     return () => controller.abort()
   }, [])
 
-  // Upgrade Minimal from the Esri raster to Positron once both the map and the style are there. If
-  // a Positron source then fails as a whole (its TileJSON), Minimal goes back to the Esri raster.
+  // Upgrade Minimal from the Esri raster to Positron once the map, the style and its tile index
+  // are all there; hand it back to Esri if Positron then fails (see watchPositron).
   useEffect(() => {
     const map = mapRef.current
     if (!map || !ready || !positron) return
 
     const positronLayers = addPositron(map, positron)
     if (positronLayers.length === 0) return
-    swapMinimalLayers(map, basemapRef.current, FALLBACK_MINIMAL_LAYERS, positronLayers)
-    minimalLayersRef.current = positronLayers
-
-    const sourceIds = Object.keys(positron.sources)
-    const handleError = (event: maplibregl.ErrorEvent) => {
-      if (!isSourceFailure(event, sourceIds)) return
-      map.off('error', handleError)
-      swapMinimalLayers(map, basemapRef.current, positronLayers, FALLBACK_MINIMAL_LAYERS)
-      minimalLayersRef.current = FALLBACK_MINIMAL_LAYERS
-    }
-    map.on('error', handleError)
-    return () => {
-      map.off('error', handleError)
-    }
+    return watchPositron(map, Object.keys(positron.sources), {
+      onReady: () => {
+        swapMinimalLayers(map, basemapRef.current, FALLBACK_MINIMAL_LAYERS, positronLayers)
+        minimalLayersRef.current = positronLayers
+      },
+      onFail: () => {
+        swapMinimalLayers(map, basemapRef.current, positronLayers, FALLBACK_MINIMAL_LAYERS)
+        minimalLayersRef.current = FALLBACK_MINIMAL_LAYERS
+      },
+    })
   }, [positron, ready])
 
   // Basemap switch: a cheap layer-visibility swap, plus outline ink that contrasts with it.

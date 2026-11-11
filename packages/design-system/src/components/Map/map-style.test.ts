@@ -1,6 +1,5 @@
-import { describe, it, expect } from 'vitest'
+import { afterEach, beforeEach, describe, it, expect, vi } from 'vitest'
 import type {
-  ErrorEvent as MapLibreErrorEvent,
   LayerSpecification,
   Map as MapLibreMap,
   StyleSpecification,
@@ -10,11 +9,12 @@ import {
   BACKGROUND_LAYER,
   buildMapStyle,
   FALLBACK_MINIMAL_LAYERS,
-  isSourceFailure,
   MINIMAL_LAYER,
   SATELLITE_LAYER,
   swapMinimalLayers,
+  watchPositron,
 } from './map-style'
+import { MINIMAL_STYLE_TIMEOUT_MS, POSITRON_TILE_ERROR_LIMIT } from './constants'
 
 /** Any colour string; the value only travels into the background paint. */
 const BACKGROUND = 'transparent'
@@ -129,18 +129,89 @@ describe('swapMinimalLayers', () => {
   })
 })
 
-describe('isSourceFailure', () => {
-  const event = (fields: object) => fields as unknown as MapLibreErrorEvent
+/** A map that only handles events, for watchPositron. `loaded` lists sources whose index is in. */
+function eventedMap(loaded: string[] = []) {
+  const handlers: Record<string, Set<(event: object) => void>> = {}
+  const map = {
+    getSource: (id: string) => ({ loaded: () => loaded.includes(id) }),
+    on: (type: string, handler: (event: object) => void) => {
+      ;(handlers[type] ??= new Set()).add(handler)
+    },
+    off: (type: string, handler: (event: object) => void) => handlers[type]?.delete(handler),
+  }
+  const fire = (type: string, event: object) => handlers[type]?.forEach((h) => h(event))
+  return { map: map as unknown as MapLibreMap, fire, handlers }
+}
 
-  it('is true when a Positron source fails as a whole', () => {
-    expect(isSourceFailure(event({ sourceId: 'openmaptiles' }), ['openmaptiles'])).toBe(true)
+describe('watchPositron', () => {
+  const metadata = { sourceId: 'openmaptiles', sourceDataType: 'metadata' }
+  let onReady = vi.fn<() => void>()
+  let onFail = vi.fn<() => void>()
+  beforeEach(() => {
+    vi.useFakeTimers()
+    onReady = vi.fn<() => void>()
+    onFail = vi.fn<() => void>()
+  })
+  afterEach(() => {
+    vi.useRealTimers()
   })
 
-  it('ignores single-tile errors and other sources', () => {
-    expect(isSourceFailure(event({ sourceId: 'openmaptiles', tile: {} }), ['openmaptiles'])).toBe(
-      false,
-    )
-    expect(isSourceFailure(event({ sourceId: 'ogcr-satellite' }), ['openmaptiles'])).toBe(false)
-    expect(isSourceFailure(event({}), ['openmaptiles'])).toBe(false)
+  it('takes over Minimal only once the tile index is in', () => {
+    const { map, fire } = eventedMap()
+    watchPositron(map, ['openmaptiles'], { onReady, onFail })
+    expect(onReady).not.toHaveBeenCalled()
+    fire('sourcedata', metadata)
+    expect(onReady).toHaveBeenCalledOnce()
+  })
+
+  it('takes over at once when the tile index is already in', () => {
+    watchPositron(eventedMap(['openmaptiles']).map, ['openmaptiles'], { onReady, onFail })
+    expect(onReady).toHaveBeenCalledOnce()
+  })
+
+  it('leaves Minimal on Esri when the tile index hangs or fails', () => {
+    const hanging = eventedMap()
+    watchPositron(hanging.map, ['openmaptiles'], { onReady, onFail })
+    vi.advanceTimersByTime(MINIMAL_STYLE_TIMEOUT_MS)
+    hanging.fire('sourcedata', metadata)
+
+    const failing = eventedMap()
+    watchPositron(failing.map, ['openmaptiles'], { onReady, onFail })
+    failing.fire('error', { sourceId: 'openmaptiles' })
+    failing.fire('sourcedata', metadata)
+
+    expect(onReady).not.toHaveBeenCalled()
+    expect(onFail).not.toHaveBeenCalled()
+  })
+
+  it('gives Minimal back when a source fails after taking over', () => {
+    const { map, fire } = eventedMap(['openmaptiles'])
+    watchPositron(map, ['openmaptiles'], { onReady, onFail })
+    fire('error', { sourceId: 'ogcr-satellite' })
+    expect(onFail).not.toHaveBeenCalled()
+    fire('error', { sourceId: 'openmaptiles' })
+    expect(onFail).toHaveBeenCalledOnce()
+  })
+
+  it('gives Minimal back when tiles keep failing before any has loaded', () => {
+    const { map, fire, handlers } = eventedMap(['openmaptiles'])
+    watchPositron(map, ['openmaptiles'], { onReady, onFail })
+    for (let i = 1; i < POSITRON_TILE_ERROR_LIMIT; i++) {
+      fire('error', { sourceId: 'openmaptiles', tile: {} })
+    }
+    expect(onFail).not.toHaveBeenCalled()
+    fire('error', { sourceId: 'openmaptiles', tile: {} })
+    expect(onFail).toHaveBeenCalledOnce()
+    expect(handlers.error.size).toBe(0)
+  })
+
+  it('ignores failing tiles once a Positron tile has loaded', () => {
+    const { map, fire } = eventedMap(['openmaptiles'])
+    watchPositron(map, ['openmaptiles'], { onReady, onFail })
+    fire('sourcedata', { sourceId: 'openmaptiles', tile: {} })
+    for (let i = 0; i < POSITRON_TILE_ERROR_LIMIT * 2; i++) {
+      fire('error', { sourceId: 'openmaptiles', tile: {} })
+    }
+    expect(onFail).not.toHaveBeenCalled()
   })
 })

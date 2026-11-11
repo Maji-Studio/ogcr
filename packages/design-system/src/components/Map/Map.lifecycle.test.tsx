@@ -37,8 +37,9 @@ class FakeMap {
   }
   getLayer = (id: string) => this.layers.find((layer) => layer.id === id)
   getSource = (id: string) => this.sources[id]
-  addSource = (id: string, source: unknown) => {
-    this.sources[id] = source
+  addSource = (id: string, source: object) => {
+    // A real source fetches its tile index later; the test announces it with "sourcedata".
+    this.sources[id] = { ...source, loaded: () => false }
   }
   addLayer = (layer: LayerSpecification, beforeId?: string) => {
     const index = beforeId ? this.layers.findIndex((l) => l.id === beforeId) : this.layers.length
@@ -103,13 +104,18 @@ describe('MapView basemaps', () => {
     expect(map.visibility(SATELLITE_LAYER)).toBe('none')
 
     await act(async () => resolveFetch(positron))
+    // Positron's layers are in, but Minimal waits for its tile index before switching.
+    expect(map.visibility('water')).toBe('none')
+    expect(map.visibility(MINIMAL_LAYER)).toBe('visible')
+    act(() => map.fire('sourcedata', { sourceId: 'openmaptiles', sourceDataType: 'metadata' }))
     expect(map.layers.map((layer) => layer.id).indexOf('water')).toBeLessThan(
       map.layers.map((layer) => layer.id).indexOf(SATELLITE_LAYER),
     )
     expect(map.visibility('water')).toBe('visible')
     expect(map.visibility(MINIMAL_LAYER)).toBe('none')
 
-    // A failing tile changes nothing; the TileJSON failing as a whole brings Esri back.
+    // A failing tile once Positron is drawing changes nothing; the source failing brings Esri back.
+    act(() => map.fire('sourcedata', { sourceId: 'openmaptiles', tile: {} }))
     act(() => map.fire('error', { sourceId: 'openmaptiles', tile: {} }))
     expect(map.visibility('water')).toBe('visible')
     act(() => map.fire('error', { sourceId: 'openmaptiles' }))
