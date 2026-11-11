@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { afterEach, beforeEach, describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 
 // jsdom has no WebGL, so a real MapLibre map cannot start. Stand in a constructor that throws the
@@ -13,6 +13,14 @@ vi.mock('maplibre-gl', () => {
 })
 
 import { MapView } from '.'
+
+// Keep the suite offline: the Minimal style request fails, so the map takes the raster fallback.
+beforeEach(() => {
+  vi.stubGlobal('fetch', vi.fn(() => Promise.reject(new TypeError('offline'))))
+})
+afterEach(() => {
+  vi.unstubAllGlobals()
+})
 
 describe('MapView', () => {
   it('shows a message instead of crashing when WebGL is unavailable', async () => {

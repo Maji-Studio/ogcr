@@ -144,7 +144,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'The OGCR map: two key-free basemaps (Satellite by default, Minimal), parcels coloured by status from design-system tokens, name cards at close zoom, and DS controls. Deep import `@majistudio/ogcr-design-system/Map`; needs the `maplibre-gl` peer and its stylesheet, then `@majistudio/ogcr-design-system/map.css`. See **Styling reference** for every parcel state.',
+          'The OGCR map: two key-free basemaps (Esri Satellite by default, OpenFreeMap Positron as Minimal), parcels coloured by status from design-system tokens, name cards at close zoom, and DS controls. Deep import `@majistudio/ogcr-design-system/Map`; needs the `maplibre-gl` peer and its stylesheet, then `@majistudio/ogcr-design-system/map.css`. See **Styling reference** for every parcel state.',
       },
     },
   },

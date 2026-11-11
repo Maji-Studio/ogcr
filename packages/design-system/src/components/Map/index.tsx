@@ -23,7 +23,7 @@ import {
   PARCEL_SOURCE,
   setParcelInk,
 } from './map-parcels'
-import { buildMapStyle, resolveToken, showBasemap } from './map-style'
+import { buildMapStyle, loadMinimalStyle, resolveToken, showBasemap } from './map-style'
 
 export { DEFAULT_BASEMAP, MAP_DEFAULT_CENTER, MAP_DEFAULT_ZOOM, type BasemapId } from './constants'
 export {
@@ -80,7 +80,8 @@ export interface MapViewProps extends Omit<ComponentProps<'div'>, 'children'> {
 }
 
 /**
- * The OGCR map: a MapLibre canvas on two key-free raster basemaps (Satellite, Minimal), with
+ * The OGCR map: a MapLibre canvas on two key-free basemaps (Esri satellite imagery, OpenFreeMap
+ * Positron as Minimal, with an Esri raster fallback when OpenFreeMap is unreachable), with
  * parcels painted from design-system tokens and DS controls in place of MapLibre's.
  *
  * Needs the `maplibre-gl` peer and two stylesheets, MapLibre's first:
@@ -121,50 +122,68 @@ export function MapView({
   // The basemap showing right now, so the parcel layers pick up the right outline ink without the
   // parcel effect re-running on every basemap switch.
   const basemapRef = useRef<BasemapId>(initialBasemap)
+  // Layer ids of the Minimal basemap in the current style, which depend on whether Positron loaded.
+  const minimalLayersRef = useRef<string[]>([])
   const [failed, setFailed] = useState(false)
-  // True from the map's first "load". Layer and source calls are safe from then on, even while
-  // tiles stream in; isStyleLoaded() is not a usable gate because it stays false during tile loads
-  // and "load" fires only once, so a deferred update could be dropped.
+  // True from the map's "style.load": the style is parsed, so layer and source calls are safe from
+  // then on. Not "load", which also waits for every source's TileJSON and the sprite, hidden
+  // Minimal layers included, so a hanging OpenFreeMap request would freeze parcels on Satellite.
+  // Not isStyleLoaded() either: it stays false while tiles stream in, so a deferred update could
+  // be dropped.
   const [ready, setReady] = useState(false)
 
-  // Create the map once. Imperative DOM/WebGL init is a sanctioned effect; camera and basemap
-  // props are read here as initial values only.
+  // Create the map once, after the Minimal style has loaded (or failed, or timed out). Imperative
+  // DOM/WebGL init is a sanctioned effect; camera and basemap props are read as initial values only.
   useEffect(() => {
     const container = containerRef.current
     if (!container) return
 
-    let map: maplibregl.Map
-    try {
-      map = new maplibregl.Map({
-        container,
-        style: buildMapStyle(initialBasemap, resolveToken('--ds-surface-neutral')),
-        center,
-        zoom,
-        minZoom: MAP_MIN_ZOOM,
-        maxZoom: MAP_MAX_ZOOM,
-        attributionControl: { compact: false },
-        // A flat farm map: no rotation or pitch from any input, so label collisions only change on zoom.
-        dragRotate: false,
-        pitchWithRotate: false,
-        touchPitch: false,
-      })
-      map.touchZoomRotate.disableRotation()
-      map.keyboard.disableRotation()
-    } catch {
-      // No WebGL: degrade to a message instead of crashing the page.
-      queueMicrotask(() => setFailed(true))
-      return
-    }
-    mapRef.current = map
-    map.once('load', () => setReady(true))
+    const controller = new AbortController()
+    let map: maplibregl.Map | null = null
+    let resizeObserver: ResizeObserver | null = null
 
-    // Keep the canvas sized to its (flex / resizable) container.
-    const resizeObserver = new ResizeObserver(() => map.resize())
-    resizeObserver.observe(container)
+    void loadMinimalStyle(controller.signal).then((minimal) => {
+      if (controller.signal.aborted) return
+      const { style, minimalLayers } = buildMapStyle(
+        initialBasemap,
+        resolveToken('--ds-surface-neutral'),
+        minimal,
+      )
+      minimalLayersRef.current = minimalLayers
+      try {
+        map = new maplibregl.Map({
+          container,
+          style,
+          center,
+          zoom,
+          minZoom: MAP_MIN_ZOOM,
+          maxZoom: MAP_MAX_ZOOM,
+          attributionControl: { compact: false },
+          // A flat farm map: no rotation or pitch from any input, so label collisions only change on zoom.
+          dragRotate: false,
+          pitchWithRotate: false,
+          touchPitch: false,
+        })
+        map.touchZoomRotate.disableRotation()
+        map.keyboard.disableRotation()
+      } catch {
+        // No WebGL: degrade to a message instead of crashing the page.
+        setFailed(true)
+        return
+      }
+      const created = map
+      mapRef.current = created
+      created.once('style.load', () => setReady(true))
+
+      // Keep the canvas sized to its (flex / resizable) container.
+      resizeObserver = new ResizeObserver(() => created.resize())
+      resizeObserver.observe(container)
+    })
 
     return () => {
-      resizeObserver.disconnect()
-      map.remove()
+      controller.abort()
+      resizeObserver?.disconnect()
+      map?.remove()
       mapRef.current = null
       setReady(false)
     }
@@ -176,7 +195,7 @@ export function MapView({
     basemapRef.current = basemap
     const map = mapRef.current
     if (!map || !ready) return
-    showBasemap(map, basemap)
+    showBasemap(map, basemap, minimalLayersRef.current)
     setParcelInk(map, basemap)
   }, [basemap, ready])
 
@@ -202,15 +221,15 @@ export function MapView({
   // Parcel name cards, rebuilt whenever the features change.
   useEffect(() => {
     const map = mapRef.current
-    if (!map || !features || !showLabels) return
+    if (!map || !ready || !features || !showLabels) return
     return addParcelLabels(map, features)
-  }, [features, showLabels])
+  }, [features, showLabels, ready])
 
   // Click-to-select, registered apart from the layer setup so the handler can change without
   // tearing the source down. Guarded on getLayer() because the style may still be loading.
   useEffect(() => {
     const map = mapRef.current
-    if (!map || !onSelectFeature) return
+    if (!map || !ready || !onSelectFeature) return
     const canvas = map.getCanvas()
 
     const hitTest = (point: maplibregl.Point) =>
@@ -232,7 +251,7 @@ export function MapView({
       map.off('mousemove', handleMove)
       canvas.style.cursor = ''
     }
-  }, [onSelectFeature])
+  }, [onSelectFeature, ready])
 
   if (failed) {
     return (

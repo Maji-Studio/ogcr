@@ -1,5 +1,5 @@
-// Map configuration. Both basemaps are key-free raster tile services, so the map needs no API keys
-// or environment variables. Satellite is the default basemap; Minimal is the toggle alternative.
+// Map configuration. Both basemaps are key-free tile services, so the map needs no API keys or
+// environment variables. Satellite is the default basemap; Minimal is the toggle alternative.
 
 /** The two basemaps the on-map switch offers. */
 export type BasemapId = 'satellite' | 'minimal'
@@ -24,16 +24,24 @@ export const SATELLITE_ATTRIBUTION =
 export const SATELLITE_MAX_ZOOM = 19
 
 /**
- * Esri Light Gray Canvas: the Minimal basemap, key-free. The design prototype used CARTO Positron,
- * but CARTO serves a watermark tile without an API key. Real tiles stop at z16 (z17+ is a "not yet
- * available" placeholder), so the source caps there and MapLibre overzooms the flat canvas.
+ * OpenFreeMap Positron: the Minimal basemap. Vector tiles, so it stays sharp at every zoom; free,
+ * no API key, no usage limits. Its attribution comes with the style. This is the Positron look the
+ * design prototype uses (CARTO's own Positron now needs a key).
  */
-export const MINIMAL_TILE_URLS = [
-  'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
-]
-export const MINIMAL_ATTRIBUTION =
+export const MINIMAL_STYLE_URL = 'https://tiles.openfreemap.org/styles/positron'
+/** How long the map waits for that style before starting with the fallback below (ms). */
+export const MINIMAL_STYLE_TIMEOUT_MS = 5_000
+
+/**
+ * Esri Light Gray Canvas: the Minimal fallback when OpenFreeMap is unreachable. Key-free raster;
+ * real tiles stop at z16 (z17+ is a "not yet available" placeholder), so the source caps there and
+ * MapLibre overzooms the flat canvas.
+ */
+export const MINIMAL_FALLBACK_TILE_URL =
+  'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}'
+export const MINIMAL_FALLBACK_ATTRIBUTION =
   'Esri, HERE, Garmin, © OpenStreetMap contributors, and the GIS User Community'
-export const MINIMAL_MAX_ZOOM = 16
+export const MINIMAL_FALLBACK_MAX_ZOOM = 16
 
 /** Zoom ceiling when fitting to features. A single farm needs to come much closer than a shed. */
 export const FIT_MAX_ZOOM = 15
