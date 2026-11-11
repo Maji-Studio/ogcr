@@ -1,7 +1,7 @@
 import type {
+  ErrorEvent as MapLibreErrorEvent,
   LayerSpecification,
   Map as MapLibreMap,
-  SourceSpecification,
   StyleSpecification,
 } from 'maplibre-gl'
 import {
@@ -24,6 +24,9 @@ export const MINIMAL_SOURCE = 'ogcr-minimal'
 export const SATELLITE_LAYER = 'ogcr-satellite-layer'
 export const MINIMAL_LAYER = 'ogcr-minimal-layer'
 
+/** The Minimal basemap's layers in the initial style: the Esri raster fallback. */
+export const FALLBACK_MINIMAL_LAYERS = [MINIMAL_LAYER]
+
 /** Read a design-system custom property at runtime. MapLibre paint cannot read CSS variables. */
 export function resolveToken(name: string): string {
   if (typeof window === 'undefined') return 'transparent'
@@ -31,9 +34,61 @@ export function resolveToken(name: string): string {
   return value || 'transparent'
 }
 
+const visibility = (shown: boolean) => (shown ? 'visible' : 'none') as 'visible' | 'none'
+
+/**
+ * The style the map starts on: background, the Esri raster as Minimal, and satellite on top. It
+ * needs nothing from OpenFreeMap, so the map never waits on it; `addPositron` upgrades Minimal
+ * once the Positron style arrives. Switching basemap is a layer-visibility toggle, and hidden
+ * layers fetch no tiles.
+ *
+ * @param active          the basemap visible on first paint
+ * @param backgroundColor a resolved brand colour, shown in tile gaps and at the poles
+ */
+export function buildMapStyle(active: BasemapId, backgroundColor: string): StyleSpecification {
+  return {
+    version: 8,
+    sources: {
+      [MINIMAL_SOURCE]: {
+        type: 'raster',
+        tiles: [MINIMAL_FALLBACK_TILE_URL],
+        tileSize: TILE_SIZE,
+        maxzoom: MINIMAL_FALLBACK_MAX_ZOOM,
+        attribution: MINIMAL_FALLBACK_ATTRIBUTION,
+      },
+      [SATELLITE_SOURCE]: {
+        type: 'raster',
+        tiles: [SATELLITE_TILE_URL],
+        tileSize: TILE_SIZE,
+        maxzoom: SATELLITE_MAX_ZOOM,
+        attribution: SATELLITE_ATTRIBUTION,
+      },
+    },
+    layers: [
+      {
+        id: BACKGROUND_LAYER,
+        type: 'background',
+        paint: { 'background-color': backgroundColor },
+      },
+      {
+        id: MINIMAL_LAYER,
+        type: 'raster',
+        source: MINIMAL_SOURCE,
+        layout: { visibility: visibility(active === 'minimal') },
+      },
+      {
+        id: SATELLITE_LAYER,
+        type: 'raster',
+        source: SATELLITE_SOURCE,
+        layout: { visibility: visibility(active === 'satellite') },
+      },
+    ],
+  }
+}
+
 /**
  * Fetch the OpenFreeMap Positron style for the Minimal basemap. Resolves to null when it fails,
- * times out or is malformed, so the map can start on the raster fallback instead of waiting.
+ * times out or is malformed; Minimal then stays on the Esri raster.
  */
 export async function loadMinimalStyle(signal: AbortSignal): Promise<StyleSpecification | null> {
   try {
@@ -49,99 +104,44 @@ export async function loadMinimalStyle(signal: AbortSignal): Promise<StyleSpecif
   }
 }
 
-/** A MapLibre style plus the layers that make up the Minimal basemap, for `showBasemap`. */
-export interface BasemapStyle {
-  style: StyleSpecification
-  minimalLayers: string[]
+/**
+ * Add the Positron style to a loaded map, hidden, under the satellite layer (and so under every
+ * parcel layer). Layers the style itself hides are skipped; layers already on the map are kept, so
+ * a second call is harmless. Returns the ids of the Positron layers to toggle as Minimal. MapLibre
+ * reports an invalid layer or source through its "error" event and skips it, so a bad style can
+ * cost Minimal some layers but never stops the map.
+ */
+export function addPositron(map: MapLibreMap, positron: StyleSpecification): string[] {
+  if (positron.glyphs) map.setGlyphs(positron.glyphs)
+  if (typeof positron.sprite === 'string') map.setSprite(positron.sprite)
+  else positron.sprite?.forEach(({ id, url }) => map.addSprite(id, url))
+  for (const [id, source] of Object.entries(positron.sources)) {
+    if (!map.getSource(id)) map.addSource(id, source)
+  }
+  const added: string[] = []
+  for (const layer of positron.layers) {
+    if (layer.layout?.visibility === 'none') continue
+    if (!map.getLayer(layer.id)) {
+      map.addLayer(
+        { ...layer, layout: { ...layer.layout, visibility: 'none' } } as LayerSpecification,
+        SATELLITE_LAYER,
+      )
+    }
+    if (map.getLayer(layer.id)) added.push(layer.id)
+  }
+  return added
 }
-
-const visibility = (shown: boolean) => (shown ? 'visible' : 'none') as 'visible' | 'none'
 
 /**
- * One MapLibre style holding BOTH basemaps: the Minimal layers first, the satellite raster over
- * them. Switching basemap is then a cheap layer-visibility toggle with no style reload, and hidden
- * layers fetch no tiles.
- *
- * @param active          the basemap visible on first paint
- * @param backgroundColor a resolved brand colour, shown in tile gaps and at the poles
- * @param minimal         the Positron style from `loadMinimalStyle`, or null for the raster fallback
+ * True when an "error" event means a Positron source as a whole failed (its TileJSON), not just
+ * one tile, so Minimal should go back to the Esri raster.
  */
-export function buildMapStyle(
-  active: BasemapId,
-  backgroundColor: string,
-  minimal: StyleSpecification | null,
-): BasemapStyle {
-  const showMinimal = active === 'minimal'
-  let minimalSources: Record<string, SourceSpecification>
-  let minimalLayers: LayerSpecification[]
-
-  if (minimal) {
-    minimalSources = minimal.sources
-    // Layers the style itself hides stay hidden; only the visible ones join the toggle.
-    minimalLayers = minimal.layers
-      .filter((layer) => layer.layout?.visibility !== 'none')
-      .map(
-        (layer) =>
-          ({
-            ...layer,
-            layout: { ...layer.layout, visibility: visibility(showMinimal) },
-          }) as LayerSpecification,
-      )
-  } else {
-    minimalSources = {
-      [MINIMAL_SOURCE]: {
-        type: 'raster',
-        tiles: [MINIMAL_FALLBACK_TILE_URL],
-        tileSize: TILE_SIZE,
-        maxzoom: MINIMAL_FALLBACK_MAX_ZOOM,
-        attribution: MINIMAL_FALLBACK_ATTRIBUTION,
-      },
-    }
-    minimalLayers = [
-      {
-        id: MINIMAL_LAYER,
-        type: 'raster',
-        source: MINIMAL_SOURCE,
-        layout: { visibility: visibility(showMinimal) },
-      },
-    ]
-  }
-
-  return {
-    minimalLayers: minimalLayers.map((layer) => layer.id),
-    style: {
-      version: 8,
-      ...(minimal?.glyphs && { glyphs: minimal.glyphs }),
-      ...(minimal?.sprite && { sprite: minimal.sprite }),
-      sources: {
-        ...minimalSources,
-        [SATELLITE_SOURCE]: {
-          type: 'raster',
-          tiles: [SATELLITE_TILE_URL],
-          tileSize: TILE_SIZE,
-          maxzoom: SATELLITE_MAX_ZOOM,
-          attribution: SATELLITE_ATTRIBUTION,
-        },
-      },
-      layers: [
-        {
-          id: BACKGROUND_LAYER,
-          type: 'background',
-          paint: { 'background-color': backgroundColor },
-        },
-        ...minimalLayers,
-        {
-          id: SATELLITE_LAYER,
-          type: 'raster',
-          source: SATELLITE_SOURCE,
-          layout: { visibility: visibility(!showMinimal) },
-        },
-      ],
-    },
-  }
+export function isSourceFailure(event: MapLibreErrorEvent, sourceIds: string[]): boolean {
+  const { sourceId, tile } = event as MapLibreErrorEvent & { sourceId?: string; tile?: unknown }
+  return sourceId !== undefined && sourceIds.includes(sourceId) && !tile
 }
 
-/** Show one basemap and hide the other. Skips layers the style does not have (yet). */
+/** Show one basemap and hide the other. Skips layers the style does not have. */
 export function showBasemap(map: MapLibreMap, basemap: BasemapId, minimalLayers: string[]) {
   const showMinimal = basemap === 'minimal'
   for (const id of minimalLayers) {
@@ -150,4 +150,17 @@ export function showBasemap(map: MapLibreMap, basemap: BasemapId, minimalLayers:
   if (map.getLayer(SATELLITE_LAYER)) {
     map.setLayoutProperty(SATELLITE_LAYER, 'visibility', visibility(!showMinimal))
   }
+}
+
+/** Hide one set of Minimal layers and make another the Minimal basemap. */
+export function swapMinimalLayers(
+  map: MapLibreMap,
+  basemap: BasemapId,
+  from: string[],
+  to: string[],
+) {
+  for (const id of from) {
+    if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', 'none')
+  }
+  showBasemap(map, basemap, to)
 }

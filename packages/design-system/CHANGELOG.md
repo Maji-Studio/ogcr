@@ -4,7 +4,7 @@
 
 ### Minor Changes
 
-- `Map`: the Minimal basemap is now OpenFreeMap Positron (vector tiles, sharp at every zoom, no key or usage limits) instead of Esri Light Gray Canvas, which stopped at z16. The map waits up to 5s for the Positron style; if it can't load, Minimal falls back to Esri Light Gray Canvas and Satellite is unaffected. The map now also fetches `tiles.openfreemap.org`, so a strict Content-Security-Policy must allow it.
+- `Map`: the Minimal basemap is now OpenFreeMap Positron (vector tiles, sharp at every zoom, no key or usage limits) instead of Esri Light Gray Canvas, which stopped at z16. The map starts at once on Esri tiles and swaps Minimal to Positron when its style arrives; if OpenFreeMap fails, Minimal stays on or returns to Esri Light Gray Canvas. Satellite never waits on OpenFreeMap. The map now also fetches `tiles.openfreemap.org`, so a strict Content-Security-Policy must allow it.
 
 ## 1.3.0
 

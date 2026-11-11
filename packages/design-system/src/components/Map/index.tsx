@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ComponentProps } from 'react'
-import maplibregl from 'maplibre-gl'
+import maplibregl, { type StyleSpecification } from 'maplibre-gl'
 import type { FeatureCollection, GeoJsonProperties } from 'geojson'
 import { cn } from '../../lib/cn'
 import { dsStrings } from '../../lib/strings'
@@ -23,7 +23,16 @@ import {
   PARCEL_SOURCE,
   setParcelInk,
 } from './map-parcels'
-import { buildMapStyle, loadMinimalStyle, resolveToken, showBasemap } from './map-style'
+import {
+  addPositron,
+  buildMapStyle,
+  FALLBACK_MINIMAL_LAYERS,
+  isSourceFailure,
+  loadMinimalStyle,
+  resolveToken,
+  showBasemap,
+  swapMinimalLayers,
+} from './map-style'
 
 export { DEFAULT_BASEMAP, MAP_DEFAULT_CENTER, MAP_DEFAULT_ZOOM, type BasemapId } from './constants'
 export {
@@ -81,7 +90,7 @@ export interface MapViewProps extends Omit<ComponentProps<'div'>, 'children'> {
 
 /**
  * The OGCR map: a MapLibre canvas on two key-free basemaps (Esri satellite imagery, OpenFreeMap
- * Positron as Minimal, with an Esri raster fallback when OpenFreeMap is unreachable), with
+ * Positron as Minimal), with
  * parcels painted from design-system tokens and DS controls in place of MapLibre's.
  *
  * Needs the `maplibre-gl` peer and two stylesheets, MapLibre's first:
@@ -122,73 +131,95 @@ export function MapView({
   // The basemap showing right now, so the parcel layers pick up the right outline ink without the
   // parcel effect re-running on every basemap switch.
   const basemapRef = useRef<BasemapId>(initialBasemap)
-  // Layer ids of the Minimal basemap in the current style, which depend on whether Positron loaded.
-  const minimalLayersRef = useRef<string[]>([])
+  // Layer ids that make up the Minimal basemap right now: the Esri raster until Positron is added.
+  const minimalLayersRef = useRef<string[]>(FALLBACK_MINIMAL_LAYERS)
+  // The OpenFreeMap Positron style, once fetched. Null while loading, and for good if it fails.
+  const [positron, setPositron] = useState<StyleSpecification | null>(null)
   const [failed, setFailed] = useState(false)
   // True from the map's "style.load": the style is parsed, so layer and source calls are safe from
-  // then on. Not "load", which also waits for every source's TileJSON and the sprite, hidden
-  // Minimal layers included, so a hanging OpenFreeMap request would freeze parcels on Satellite.
-  // Not isStyleLoaded() either: it stays false while tiles stream in, so a deferred update could
-  // be dropped.
+  // then on. Not "load", which also waits for the first visible tiles, so one stalled tile would hold
+  // back parcels, selection and the Positron upgrade. Not isStyleLoaded() either: it stays false
+  // while tiles stream in, so a deferred update could be dropped.
   const [ready, setReady] = useState(false)
 
-  // Create the map once, after the Minimal style has loaded (or failed, or timed out). Imperative
-  // DOM/WebGL init is a sanctioned effect; camera and basemap props are read as initial values only.
+  // Create the map once. Imperative DOM/WebGL init is a sanctioned effect; camera and basemap
+  // props are read here as initial values only. The map starts at once on Esri tiles; OpenFreeMap
+  // only ever upgrades Minimal, so Satellite never waits on it.
   useEffect(() => {
     const container = containerRef.current
     if (!container) return
 
-    const controller = new AbortController()
-    let map: maplibregl.Map | null = null
-    let resizeObserver: ResizeObserver | null = null
+    let map: maplibregl.Map
+    try {
+      map = new maplibregl.Map({
+        container,
+        style: buildMapStyle(initialBasemap, resolveToken('--ds-surface-neutral')),
+        center,
+        zoom,
+        minZoom: MAP_MIN_ZOOM,
+        maxZoom: MAP_MAX_ZOOM,
+        attributionControl: { compact: false },
+        // A flat farm map: no rotation or pitch from any input, so label collisions only change on zoom.
+        dragRotate: false,
+        pitchWithRotate: false,
+        touchPitch: false,
+      })
+      map.touchZoomRotate.disableRotation()
+      map.keyboard.disableRotation()
+    } catch {
+      // No WebGL: degrade to a message instead of crashing the page.
+      queueMicrotask(() => setFailed(true))
+      return
+    }
+    mapRef.current = map
+    minimalLayersRef.current = FALLBACK_MINIMAL_LAYERS
+    map.once('style.load', () => setReady(true))
 
-    void loadMinimalStyle(controller.signal).then((minimal) => {
-      if (controller.signal.aborted) return
-      const { style, minimalLayers } = buildMapStyle(
-        initialBasemap,
-        resolveToken('--ds-surface-neutral'),
-        minimal,
-      )
-      minimalLayersRef.current = minimalLayers
-      try {
-        map = new maplibregl.Map({
-          container,
-          style,
-          center,
-          zoom,
-          minZoom: MAP_MIN_ZOOM,
-          maxZoom: MAP_MAX_ZOOM,
-          attributionControl: { compact: false },
-          // A flat farm map: no rotation or pitch from any input, so label collisions only change on zoom.
-          dragRotate: false,
-          pitchWithRotate: false,
-          touchPitch: false,
-        })
-        map.touchZoomRotate.disableRotation()
-        map.keyboard.disableRotation()
-      } catch {
-        // No WebGL: degrade to a message instead of crashing the page.
-        setFailed(true)
-        return
-      }
-      const created = map
-      mapRef.current = created
-      created.once('style.load', () => setReady(true))
-
-      // Keep the canvas sized to its (flex / resizable) container.
-      resizeObserver = new ResizeObserver(() => created.resize())
-      resizeObserver.observe(container)
-    })
+    // Keep the canvas sized to its (flex / resizable) container.
+    const resizeObserver = new ResizeObserver(() => map.resize())
+    resizeObserver.observe(container)
 
     return () => {
-      controller.abort()
-      resizeObserver?.disconnect()
-      map?.remove()
+      resizeObserver.disconnect()
+      map.remove()
       mapRef.current = null
       setReady(false)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // Fetch the Positron style in parallel with map start-up.
+  useEffect(() => {
+    const controller = new AbortController()
+    void loadMinimalStyle(controller.signal).then((style) => {
+      if (!controller.signal.aborted && style) setPositron(style)
+    })
+    return () => controller.abort()
+  }, [])
+
+  // Upgrade Minimal from the Esri raster to Positron once both the map and the style are there. If
+  // a Positron source then fails as a whole (its TileJSON), Minimal goes back to the Esri raster.
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map || !ready || !positron) return
+
+    const positronLayers = addPositron(map, positron)
+    if (positronLayers.length === 0) return
+    swapMinimalLayers(map, basemapRef.current, FALLBACK_MINIMAL_LAYERS, positronLayers)
+    minimalLayersRef.current = positronLayers
+
+    const sourceIds = Object.keys(positron.sources)
+    const handleError = (event: maplibregl.ErrorEvent) => {
+      if (!isSourceFailure(event, sourceIds)) return
+      map.off('error', handleError)
+      swapMinimalLayers(map, basemapRef.current, positronLayers, FALLBACK_MINIMAL_LAYERS)
+      minimalLayersRef.current = FALLBACK_MINIMAL_LAYERS
+    }
+    map.on('error', handleError)
+    return () => {
+      map.off('error', handleError)
+    }
+  }, [positron, ready])
 
   // Basemap switch: a cheap layer-visibility swap, plus outline ink that contrasts with it.
   useEffect(() => {
