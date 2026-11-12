@@ -4,7 +4,6 @@
 
 import { ToastProvider } from './components/Toast'
 import { Logo } from './components/Logo'
-import { SECTIONS } from './demo/section-meta'
 import {
   TokensSpecimen,
   KpiSpecimen,
@@ -55,6 +54,8 @@ import {
   ToastSpecimen,
   TooltipSpecimen,
 } from './demo/feedback'
+import { MapSpecimen } from './demo/map'
+import { Toc } from './demo/toc'
 import './App.css'
 
 function App() {
@@ -181,6 +182,8 @@ function App() {
 
           <DatePickerSpecimen />
 
+          <MapSpecimen />
+
           <footer className="colophon">
             <span>© OGCR · Operator platform</span>
             <span>Set in Inter</span>
@@ -188,19 +191,7 @@ function App() {
           </footer>
         </div>
 
-        <nav className="toc" aria-label="Sections">
-          <p className="toc__heading">Sections</p>
-          <ul className="toc__list">
-            {SECTIONS.map((s) => (
-              <li key={s.id}>
-                <a className="toc__link" href={`#${s.id}`}>
-                  <span className="toc__num">§{s.num}</span>
-                  <span>{s.title}</span>
-                </a>
-              </li>
-            ))}
-          </ul>
-        </nav>
+        <Toc />
       </div>
     </main>
     </ToastProvider>

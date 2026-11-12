@@ -184,10 +184,17 @@ body {
 
 @media (min-width: 1024px) {
   .toc {
+    --toc-inset: 48px;
     display: block;
     position: sticky;
-    top: 48px;
+    top: var(--toc-inset);
     align-self: start;
+    /* 40+ sections outgrow the viewport: cap the list and let it scroll on its own. */
+    max-height: calc(100dvh - 2 * var(--toc-inset));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: var(--rule) transparent;
     border-left: 1px solid var(--rule);
     padding-left: var(--spacing-24);
   }
@@ -198,7 +205,7 @@ body {
     letter-spacing: 0.2em;
     text-transform: uppercase;
     color: var(--ink-soft);
-    margin: 0 0 var(--spacing-16);
+    margin: 0 0 var(--spacing-12);
   }
 
   .toc__list {
@@ -207,10 +214,10 @@ body {
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 2px;
   }
 
   .toc__link {
+    position: relative;
     display: grid;
     grid-template-columns: 32px 1fr;
     gap: var(--spacing-8);
@@ -223,8 +230,20 @@ body {
     transition: color var(--motion-fast);
   }
 
-  .toc__link:hover {
+  .toc__link:hover,
+  .toc__link[aria-current='location'] {
     color: var(--ink);
+  }
+
+  /* The section being read: a rail on the list's own rule, like the side navigation's. */
+  .toc__link[aria-current='location']::before {
+    content: '';
+    position: absolute;
+    top: var(--spacing-4);
+    bottom: var(--spacing-4);
+    left: calc(-1 * var(--spacing-24));
+    width: 2px;
+    background: var(--accent);
   }
 
   .toc__num {
@@ -640,6 +659,57 @@ body {
   }
   .section__body {
     padding-left: 0;
+  }
+}
+
+/* ---- Map specimen --------------------------------------------- */
+
+.specimen-maps {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--spacing-24);
+}
+
+@media (min-width: 1024px) {
+  .specimen-maps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.specimen-map {
+  margin: 0;
+  min-width: 0;
+}
+
+.specimen-map__frame {
+  position: relative;
+}
+
+.specimen-map__view {
+  height: 420px;
+  width: 100%;
+}
+
+.specimen-map__caption,
+.specimen-map__more {
+  margin: var(--spacing-12) 0 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+}
+
+.specimen-map__more {
+  margin-top: var(--spacing-24);
+}
+
+.specimen-map__more a {
+  color: var(--accent);
+}
+
+@media (max-width: 720px) {
+  .specimen-map__view {
+    height: 360px;
   }
 }
 
